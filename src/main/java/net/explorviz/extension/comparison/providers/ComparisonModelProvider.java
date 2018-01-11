@@ -1,4 +1,4 @@
-package net.explorviz.extension.dummy.providers;
+package net.explorviz.extension.comparison.providers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,16 +20,16 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 
-import net.explorviz.extension.dummy.model.DummyModel;
+import net.explorviz.extension.comparison.model.ComparisonModel;
 
-public class DummyModelProvider implements MessageBodyReader<DummyModel>, MessageBodyWriter<DummyModel> {
+public class ComparisonModelProvider implements MessageBodyReader<ComparisonModel>, MessageBodyWriter<ComparisonModel> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DummyModelProvider.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ComparisonModelProvider.class);
 
 	private final ResourceConverter converter;
 
 	@Inject
-	public DummyModelProvider(final ResourceConverter converter) {
+	public ComparisonModelProvider(final ResourceConverter converter) {
 		this.converter = converter;
 	}
 
@@ -41,11 +41,11 @@ public class DummyModelProvider implements MessageBodyReader<DummyModel>, Messag
 	}
 
 	@Override
-	public void writeTo(final DummyModel model, final Class<?> type, final Type genericType,
+	public void writeTo(final ComparisonModel model, final Class<?> type, final Type genericType,
 			final Annotation[] annotations, final MediaType mediaType, final MultivaluedMap<String, Object> httpHeaders,
 			final OutputStream entityStream) throws IOException, WebApplicationException {
 
-		final JSONAPIDocument<DummyModel> document = new JSONAPIDocument<DummyModel>(model);
+		final JSONAPIDocument<ComparisonModel> document = new JSONAPIDocument<ComparisonModel>(model);
 
 		try {
 			entityStream.write(this.converter.writeDocument(document));
@@ -66,7 +66,7 @@ public class DummyModelProvider implements MessageBodyReader<DummyModel>, Messag
 	}
 
 	@Override
-	public DummyModel readFrom(final Class<DummyModel> type, final Type genericType, final Annotation[] annotations,
+	public ComparisonModel readFrom(final Class<ComparisonModel> type, final Type genericType, final Annotation[] annotations,
 			final MediaType mediaType, final MultivaluedMap<String, String> httpHeaders, final InputStream entityStream)
 			throws IOException, WebApplicationException {
 		return this.converter.readDocument(entityStream, type).get();

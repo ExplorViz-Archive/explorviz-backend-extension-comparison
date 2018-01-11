@@ -1,21 +1,21 @@
-package net.explorviz.extension.dummy.model;
+package net.explorviz.extension.comparison.model;
 
 import com.github.jasminb.jsonapi.annotations.Relationship;
 import com.github.jasminb.jsonapi.annotations.Type;
 
 @Type("dummy")
-public class DummyModel extends BaseModel {
+public class ComparisonModel extends BaseModel {
 
 	private String dummyName;
 
 	@Relationship("sub-dummy")
-	private SubDummyModel subDummy;
+	private SubComparisonModel subDummy;
 
-	public DummyModel() {
+	public ComparisonModel() {
 		// default constructor for JSON API parsing
 	}
 
-	public DummyModel(final String dummyName, final SubDummyModel subDummy) {
+	public ComparisonModel(final String dummyName, final SubComparisonModel subDummy) {
 		this.dummyName = dummyName;
 		this.subDummy = subDummy;
 	}
@@ -28,11 +28,11 @@ public class DummyModel extends BaseModel {
 		this.dummyName = dummyName;
 	}
 
-	public SubDummyModel getSubDummy() {
+	public SubComparisonModel getSubDummy() {
 		return subDummy;
 	}
 
-	public void setSubDummy(final SubDummyModel subDummy) {
+	public void setSubDummy(final SubComparisonModel subDummy) {
 		this.subDummy = subDummy;
 	}
 

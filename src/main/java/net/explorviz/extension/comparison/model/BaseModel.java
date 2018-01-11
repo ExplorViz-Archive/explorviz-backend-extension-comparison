@@ -1,4 +1,4 @@
-package net.explorviz.extension.dummy.model;
+package net.explorviz.extension.comparison.model;
 
 import java.util.concurrent.atomic.AtomicLong;
 

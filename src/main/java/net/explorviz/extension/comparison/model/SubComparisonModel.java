@@ -1,17 +1,17 @@
-package net.explorviz.extension.dummy.model;
+package net.explorviz.extension.comparison.model;
 
 import com.github.jasminb.jsonapi.annotations.Type;
 
 @Type("sub-dummy")
-public class SubDummyModel extends BaseModel {
+public class SubComparisonModel extends BaseModel {
 
 	private long value;
 
-	public SubDummyModel() {
+	public SubComparisonModel() {
 		// default constructor for JSON API parsing
 	}
 
-	public SubDummyModel(final long value) {
+	public SubComparisonModel(final long value) {
 		this.value = value;
 	}
 
