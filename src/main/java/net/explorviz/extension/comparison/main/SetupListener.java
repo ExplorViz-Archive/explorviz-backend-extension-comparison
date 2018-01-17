@@ -7,8 +7,6 @@ import javax.servlet.annotation.WebListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.explorviz.server.main.Configuration;
-
 @WebListener
 public class SetupListener implements ServletContextListener {
 
@@ -18,11 +16,11 @@ public class SetupListener implements ServletContextListener {
 	public void contextInitialized(final ServletContextEvent servletContextEvent) {
 
 		LOGGER.info("* * * * * * * * * * * * * * * * * * *\n");
-		LOGGER.info("Dummy Extension Servlet initialized.\n");
+		LOGGER.info("Comparison Extension Servlet initialized.\n");
 		LOGGER.info("* * * * * * * * * * * * * * * * * * *");
 
 		// Comment out or remove line to use live monitoring data
-		Configuration.dummyMode = true;
+		// Configuration.dummyMode = true;
 
 	}
 

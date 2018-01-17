@@ -121,7 +121,7 @@ task renameProject(type: Copy) {
 
 // Embedded Webserver
 gretty {
-  httpPort = 8081
+  httpPort = 8083
   servletContainer = 'jetty9'
   contextPath = '/'
   recompileOnSourceChange = false
