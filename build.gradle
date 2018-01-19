@@ -39,8 +39,11 @@ configurations {
 
 dependencies {
   	// Core logic
-  	compile 'com.github.ExplorViz:explorviz-backend:master-SNAPSHOT'
-  
+  	//compile 'com.github.ExplorViz:explorviz-backend:master-SNAPSHOT'
+  	//local core for developing reasons
+  	compile project(':explorviz-backend')
+  	compile project(':explorviz-backend-kiekeradapter')
+
  	// Dependency for this subproject. Add your dependencies in the same way.
   	provided group: 'de.sven-jacobs', name: 'loremipsum', version: '1.0'
 
