@@ -1,57 +1,74 @@
 package net.explorviz.extension.comparison.resources;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import net.exlorviz.extension.comparison.repository.LandscapeExampleCreator;
 import net.exlorviz.extension.comparison.repository.LandscapeFetchService;
 import net.explorviz.model.Landscape;
-import net.explorviz.model.Timestamp;
 
 // @Secured
 // Add the "Secured" annotation to enable authentication
 
-@Path("/timestampComparing")
-public class TimestampResourceComparing {
+@Path("/landscape")
+public class LandscapeResourceComparing {
 
 	private final LandscapeFetchService service;
 
 	@Inject
-	public TimestampResourceComparing(final LandscapeFetchService service) {
+	public LandscapeResourceComparing(final LandscapeFetchService service) {
 		this.service = service;
 	}
 
 	@Produces("application/vnd.api+json")
 	@GET
-	@Path("/landscape/firstCompare")
+	@Path("/firstCompare")
 	public Landscape getBeforeLandscape() {
-		final List<Timestamp> filteredTimestamps = service.filterTwoTimestampsForComparison();
-		final Landscape firstLandscapeForComparison = service.fetchLandscapeForComparison(filteredTimestamps.get(0));
-		return firstLandscapeForComparison;
+		// final List<Timestamp> filteredTimestamps =
+		// service.filterTwoTimestampsForComparison();
+		// final Landscape firstLandscape =
+		// service.fetchLandscapeForComparison(filteredTimestamps.get(0));
+		final Landscape firstLandscape = LandscapeExampleCreator.createSimpleExampleVersion1();
+		return firstLandscape;
 
 	}
 
 	@Produces("application/vnd.api+json")
 	@GET
-	@Path("/landscape/secondCompare")
+	@Path("/secondCompare")
 	public Landscape getAfterLandscape() {
-		final List<Timestamp> filteredTimestamps = service.filterTwoTimestampsForComparison();
-		final Landscape secondLandscapeForComparison = service.fetchLandscapeForComparison(filteredTimestamps.get(1));
-		return secondLandscapeForComparison;
+		// final List<Timestamp> filteredTimestamps =
+		// service.filterTwoTimestampsForComparison();
+		// final Landscape secondLandscape =
+		// service.fetchLandscapeForComparison(filteredTimestamps.get(1));
+		final Landscape secondLandscape = LandscapeExampleCreator.createSimpleExampleVersion2();
+		return secondLandscape;
 
 	}
 
 	@Produces("application/vnd.api+json")
 	@GET
-	@Path("/landscape/merged")
+	@Path("/merged")
 	public Landscape getMergedLandscape() {
-		final List<Timestamp> filteredTimestamps = service.filterTwoTimestampsForComparison();
-		final Landscape firstLandscape = service.fetchLandscapeForComparison(filteredTimestamps.get(0));
-		final Landscape secondLandscape = service.fetchLandscapeForComparison(filteredTimestamps.get(1));
+		// final List<Timestamp> filteredTimestamps =
+		// service.filterTwoTimestampsForComparison();
+		// final Landscape firstLandscape =
+		// service.fetchLandscapeForComparison(filteredTimestamps.get(0));
+		// final Landscape secondLandscape =
+		// service.fetchLandscapeForComparison(filteredTimestamps.get(1));
+		final Landscape firstLandscape = LandscapeExampleCreator.createSimpleExampleVersion1();
+		final Landscape secondLandscape = LandscapeExampleCreator.createSimpleExampleVersion2();
 		return service.fetchMergedLandscape(firstLandscape, secondLandscape);
+
+	}
+
+	@Produces("application/vnd.api+json")
+	@GET
+	@Path("/test")
+	public String getTestAfterLandscape() {
+		return "test";
 
 	}
 }
