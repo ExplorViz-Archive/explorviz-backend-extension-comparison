@@ -10,10 +10,25 @@ import net.explorviz.model.Node;
 import net.explorviz.model.NodeGroup;
 import net.explorviz.model.Timestamp;
 
+/**
+ *
+ * @author josw
+ *
+ */
 public class LandscapeFetchService {
+
+	private static LandscapeFetchService instance;
 
 	private final ExtensionAPIImpl extensionApi = ExtensionAPIImpl.getInstance();
 	private List<Timestamp> allTimestamps;
+	private final Merger appMerger = new Merger();
+
+	public static synchronized LandscapeFetchService getInstance() {
+		if (LandscapeFetchService.instance == null) {
+			LandscapeFetchService.instance = new LandscapeFetchService();
+		}
+		return LandscapeFetchService.instance;
+	}
 
 	// Right now this works for two landscapes, this can be extended to more than
 	// two landscapes in the future
@@ -38,16 +53,22 @@ public class LandscapeFetchService {
 		for (final net.explorviz.model.System sys : secondLandscape.getSystems()) {
 			for (final NodeGroup nodegroup : sys.getNodeGroups()) {
 				for (final Node node : nodegroup.getNodes()) {
-					for (final Application app : node.getApplications()) {
+					for (final Application app2 : node.getApplications()) {
 						// TODO does firstLandscape contains app? If so, merge these two apps with
 						// appMerge()
-						final String app2Name = app.getName();
+						// final String app2Name = app2.getName();
+
+						// test with just one app in the first landscape:
+						final Application app1 = firstLandscape.getSystems().get(0).getNodeGroups().get(0).getNodes()
+								.get(0).getApplications().get(0);
+
+						appMerger.appMerge(app1, app2);
 					}
 				}
 
 			}
 		}
-		// TODO
+		// TODO mergedLandscape
 		return firstLandscape;
 	}
 

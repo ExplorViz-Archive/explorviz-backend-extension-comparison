@@ -4,33 +4,60 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.extension.comparison.util.EntityComparison;
 import net.explorviz.model.Application;
 import net.explorviz.model.Component;
+import net.explorviz.model.helper.BaseEntity;
 
 /**
- * Takes two applications and merges them into one new application. Further it
- * adds flags to show whether a component between the two applications was
- * added, edited or deleted. The timestamp attribute of the component
- * (BaseEntity) shows to which of the landscapes/applications the components
- * belong to.
+ * Provides methods to merge two {@link Application}s.
  *
  * @author josw
  *
  */
 
-public class AppMerger {
+public class Merger {
 
 	private final EntityComparison entityComparison = new EntityComparison();
+	private final PrepareForMerger preparing = new PrepareForMerger();
 
+	/**
+	 * * Takes two {@link Application}s and merges them into a new
+	 * {@link Application}. Further it adds a {@link Status} flag to show whether an
+	 * element between the two {@link Application}s was added, edited or deleted.
+	 * The {@link BaseEntity#timestamp} attribute of the element shows to which of
+	 * the applications the elements belong to.
+	 *
+	 * @param appVersion1
+	 * @param appVersion2
+	 * @return
+	 */
 	public Application appMerge(final Application appVersion1, final Application appVersion2) {
+
 		Application mergedApp = new Application();
+
+		// prepares each version for merging
+		preparing.addStatusToApp(appVersion1);
+		preparing.addStatusToApp(appVersion2);
+
 		mergedApp = appVersion1;
+
 		// Merges elements from appVersion2 into appVersion1
 		// merge packages
 		final List<Component> componentsVersion1 = appVersion1.getComponents();
 		final List<Component> componentsVersion2 = appVersion2.getComponents();
-		componentMerge(componentsVersion1, componentsVersion2);
+		final List<Component> componentsMergedVersion = componentMerge(componentsVersion1, componentsVersion2);
+
+		// final Component newComponent = new Component();
+		// newComponent.setName("withStatus");
+		// newComponent.setFullQualifiedName("withStatus");
+		// newComponent.setParentComponent(null);
+		// newComponent.setBelongingApplication(mergedApp);
+		//
+		// componentsMergedVersion.add(newComponent);
+
+		mergedApp.setComponents(componentsMergedVersion);
 
 		// merge classes (instances of classes)
 
@@ -70,11 +97,7 @@ public class AppMerger {
 				// TODO What does "edited" mean for component:
 				// name, fullQualifiedName changed; what about children and clazzes?
 				// take component of version2 and mark as EDITED
-				System.out.printf("componentsMergedVersion before replacement: %s\n",
-						componentsMergedVersion.toString());
 				Collections.replaceAll(componentsMergedVersion, componentFrom1, component2);
-				System.out.printf("componentsMergedVersion after replacement: %s\n",
-						componentsMergedVersion.toString());
 
 			} else if (!componentContained) {
 				// case: the component does not exist in version 1, but exists in version 2
