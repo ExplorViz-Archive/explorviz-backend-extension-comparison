@@ -1,8 +1,6 @@
 package net.exlorviz.extension.comparison.repository;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.extension.comparison.util.EntityComparison;
@@ -47,6 +45,7 @@ public class Merger {
 		// merge packages
 		final List<Component> componentsVersion1 = appVersion1.getComponents();
 		final List<Component> componentsVersion2 = appVersion2.getComponents();
+
 		final List<Component> componentsMergedVersion = componentMerge(componentsVersion1, componentsVersion2);
 
 		// final Component newComponent = new Component();
@@ -67,7 +66,7 @@ public class Merger {
 	}
 
 	/**
-	 * Takes two list of components and returns one merged list of components. Two
+	 * Takes two lists of components and returns one merged list of components. Two
 	 * components are equal, if they have the same fullQualifiedName.
 	 *
 	 * @param components1
@@ -75,34 +74,52 @@ public class Merger {
 	 * @return
 	 */
 	private List<Component> componentMerge(final List<Component> components1, final List<Component> components2) {
-		final List<Component> componentsMergedVersion = components1;
+		final List<Component> componentsMergedVersion = components2;
 
 		for (final Component component2 : components2) {
+
 			final String fullName2 = component2.getFullQualifiedName();
-			final boolean componentContained = entityComparison.containsFullQualifiedName(components1, fullName2);
+			// Is component2 contained in components1 ?
+			final boolean componentContained = components1.stream()
+					.filter(e -> e.getFullQualifiedName().equals(fullName2)).findFirst().isPresent();
+
+			System.out.printf("full2Name: %s\n and componentContained: %s\n", fullName2, componentContained);
 
 			if (componentContained) {
+
+				System.out.println("componentContained yes\n");
+
+				// get the component in components1 with the same fullQualifiedName as
+				// component2
 				final Component componentFrom1 = components1.stream()
-						.filter(c1 -> c1.getFullQualifiedName().equals(fullName2)).collect(Collectors.toList()).get(0);
-				if (entityComparison.componentsEqual(componentFrom1, component2)) {
+						.filter(c1 -> c1.getFullQualifiedName().equals(fullName2)).findFirst().get();
+
+				final boolean componentsIdentical = entityComparison.componentsIdentical(componentFrom1, component2);
+
+				System.out.println("componentsEqual: " + componentsIdentical);
+
+				if (componentsIdentical) {
 					// case: the same component exists in version 1 and version 2
 					// do not change the status ORIGINAL of the component, but merge subcomponents
-					// and classes,
-					// if they exist
+					// and classes,if they exist
 					if (componentFrom1.getChildren().size() > 0 && component2.getChildren().size() > 0) {
 						componentMerge(componentFrom1.getChildren(), component2.getChildren());
 					}
-				}
-				// case: the component exists in both versions, but was edited in version 2
-				// TODO What does "edited" mean for component:
-				// name, fullQualifiedName changed; what about children and clazzes?
-				// take component of version2 and mark as EDITED
-				Collections.replaceAll(componentsMergedVersion, componentFrom1, component2);
+				} else {
+					// case: the component exists in both versions, but was edited in version 2
+					// TODO What does "edited" mean for component:
+					// name, fullQualifiedName the same; children and clazzes changed?
+					// take component of version2 and mark as EDITED
+					// Collections.replaceAll(componentsMergedVersion, componentFrom1,component2);
 
+				}
 			} else if (!componentContained) {
+
+				System.out.println("componentContained no\n");
 				// case: the component does not exist in version 1, but exists in version 2
 				// take component of version2 and mark as ADDED, mark all subcomponents and
 				// classes as ADDED too
+				component2.getExtensionAttributes().put("status", Status.ADDED);
 				componentsMergedVersion.add(component2);
 			}
 		}
