@@ -30,6 +30,7 @@ public class LandscapeResourceComparing {
 		// service.filterTwoTimestampsForComparison();
 		// final Landscape firstLandscape =
 		// service.fetchLandscapeForComparison(filteredTimestamps.get(0));
+		// TODO this is just the example landscape used for developing
 		final Landscape firstLandscape = LandscapeExampleCreator.createSimpleExampleVersion1();
 		return firstLandscape;
 
@@ -43,6 +44,7 @@ public class LandscapeResourceComparing {
 		// service.filterTwoTimestampsForComparison();
 		// final Landscape secondLandscape =
 		// service.fetchLandscapeForComparison(filteredTimestamps.get(1));
+		// TODO this is just the example landscape used for developing
 		final Landscape secondLandscape = LandscapeExampleCreator.createSimpleExampleVersion2();
 		return secondLandscape;
 
@@ -58,17 +60,11 @@ public class LandscapeResourceComparing {
 		// service.fetchLandscapeForComparison(filteredTimestamps.get(0));
 		// final Landscape secondLandscape =
 		// service.fetchLandscapeForComparison(filteredTimestamps.get(1));
+		// TODO this is just the example landscape used for developing
 		final Landscape firstLandscape = LandscapeExampleCreator.createSimpleExampleVersion1();
 		final Landscape secondLandscape = LandscapeExampleCreator.createSimpleExampleVersion2();
 		return service.fetchMergedLandscape(firstLandscape, secondLandscape);
 
 	}
 
-	@Produces("application/vnd.api+json")
-	@GET
-	@Path("/test")
-	public String getTestAfterLandscape() {
-		return "test";
-
-	}
 }
