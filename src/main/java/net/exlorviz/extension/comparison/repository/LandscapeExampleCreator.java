@@ -29,11 +29,6 @@ public class LandscapeExampleCreator {
 	 */
 	public static Landscape createSimpleExampleVersion1() {
 
-		if (dummyLandscape != null) {
-			dummyLandscape.setActivities(new Random().nextInt(300000));
-			return dummyLandscape;
-		}
-
 		applicationId = 0;
 
 		final Landscape landscape = new Landscape();
@@ -87,12 +82,11 @@ public class LandscapeExampleCreator {
 
 		ocnEditorApp.getComponents().add(org);
 
-		final Landscape preparedLandscape = LandscapePreparer.prepareLandscape(landscape);
+		final Landscape preparedLandscapeV1 = LandscapePreparer.prepareLandscape(landscape);
 
 		counter = 1;
 
-		dummyLandscape = preparedLandscape;
-		return dummyLandscape;
+		return preparedLandscapeV1;
 	}
 
 	public static Landscape createSimpleExampleVersion2() {
