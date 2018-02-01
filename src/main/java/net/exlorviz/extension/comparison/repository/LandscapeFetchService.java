@@ -20,7 +20,6 @@ public class LandscapeFetchService {
 	private static LandscapeFetchService instance;
 
 	private final ExtensionAPIImpl extensionApi = ExtensionAPIImpl.getInstance();
-	private List<Timestamp> allTimestamps;
 	private final Merger appMerger = new Merger();
 
 	public static synchronized LandscapeFetchService getInstance() {
@@ -49,27 +48,51 @@ public class LandscapeFetchService {
 	}
 
 	public Landscape fetchMergedLandscape(final Landscape firstLandscape, final Landscape secondLandscape) {
+		final Landscape mergedLandscape = secondLandscape;
+
 		// TODO if you have found the same application in both versions than do appMerge
-		for (final net.explorviz.model.System sys : secondLandscape.getSystems()) {
+		for (final net.explorviz.model.System sys : mergedLandscape.getSystems()) {
 			for (final NodeGroup nodegroup : sys.getNodeGroups()) {
 				for (final Node node : nodegroup.getNodes()) {
 					for (final Application app2 : node.getApplications()) {
-						// TODO does firstLandscape contains app? If so, merge these two apps with
-						// appMerge()
-						// final String app2Name = app2.getName();
+						final String app2Name = app2.getName();
 
-						// test with just one app in the first landscape:
-						final Application app1 = firstLandscape.getSystems().get(0).getNodeGroups().get(0).getNodes()
-								.get(0).getApplications().get(0);
-
-						appMerger.appMerge(app1, app2);
+						final Application app1 = appContained(firstLandscape, app2Name);
+						if (app1 == null) {
+							System.out.printf(
+									"You can not compare two complete different applications. The application %s is not contained in the other landscape.\n",
+									app2Name);
+						} else {
+							appMerger.appMerge(app1, app2);
+						}
 					}
 				}
 
 			}
 		}
 		// TODO mergedLandscape
-		return firstLandscape;
+		return mergedLandscape;
+	}
+
+	private Application appContained(final Landscape landscape, final String appName) {
+		Application app = new Application();
+
+		for (final net.explorviz.model.System sys : landscape.getSystems()) {
+			for (final NodeGroup nodegroup : sys.getNodeGroups()) {
+				for (final Node node : nodegroup.getNodes()) {
+					for (final Application checkApp : node.getApplications()) {
+						if (checkApp.getName().equals(appName)) {
+							app = checkApp;
+						} else {
+							app = null;
+						}
+					}
+				}
+
+			}
+		}
+
+		return app;
 	}
 
 }
