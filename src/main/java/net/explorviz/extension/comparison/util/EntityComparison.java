@@ -141,8 +141,4 @@ public class EntityComparison {
 		return elemsEqual;
 	}
 
-	public boolean containsFullQualifiedName(final List<? extends Draw3DNodeEntity> list, final String fullName) {
-		return list.stream().filter(e -> e.getFullQualifiedName().equals(fullName)).findFirst().isPresent();
-	}
-
 }

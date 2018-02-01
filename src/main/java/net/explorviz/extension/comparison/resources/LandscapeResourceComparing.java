@@ -31,7 +31,7 @@ public class LandscapeResourceComparing {
 		// final Landscape firstLandscape =
 		// service.fetchLandscapeForComparison(filteredTimestamps.get(0));
 		// TODO this is just the example landscape used for developing
-		final Landscape firstLandscape = LandscapeExampleCreator.createSimpleExampleVersion1();
+		final Landscape firstLandscape = LandscapeExampleCreator.createSimpleLandscapeVersion1();
 		return firstLandscape;
 
 	}
@@ -45,7 +45,7 @@ public class LandscapeResourceComparing {
 		// final Landscape secondLandscape =
 		// service.fetchLandscapeForComparison(filteredTimestamps.get(1));
 		// TODO this is just the example landscape used for developing
-		final Landscape secondLandscape = LandscapeExampleCreator.createSimpleExampleVersion2();
+		final Landscape secondLandscape = LandscapeExampleCreator.createSimpleLandscapeVersion2();
 		return secondLandscape;
 
 	}
@@ -61,8 +61,8 @@ public class LandscapeResourceComparing {
 		// final Landscape secondLandscape =
 		// service.fetchLandscapeForComparison(filteredTimestamps.get(1));
 		// TODO this is just the example landscape used for developing
-		final Landscape firstLandscape = LandscapeExampleCreator.createSimpleExampleVersion1();
-		final Landscape secondLandscape = LandscapeExampleCreator.createSimpleExampleVersion2();
+		final Landscape firstLandscape = LandscapeExampleCreator.createSimpleLandscapeVersion1();
+		final Landscape secondLandscape = LandscapeExampleCreator.createSimpleLandscapeVersion2();
 		return service.fetchMergedLandscape(firstLandscape, secondLandscape);
 
 	}

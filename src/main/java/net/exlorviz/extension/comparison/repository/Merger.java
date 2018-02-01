@@ -42,8 +42,7 @@ public class Merger {
 
 		mergedApp = appVersion1;
 
-		// Merges elements from appVersion2 into appVersion1
-		// merge packages
+		// merge packages and clazzes
 		final List<Component> componentsVersion1 = appVersion1.getComponents();
 		final List<Component> componentsVersion2 = appVersion2.getComponents();
 
@@ -51,7 +50,7 @@ public class Merger {
 
 		mergedApp.setComponents(componentsMergedVersion);
 
-		// merge communication
+		// TODO merge communication
 
 		return mergedApp;
 	}
@@ -74,7 +73,8 @@ public class Merger {
 		for (final Component component2 : componentsMergedVersion) {
 
 			final String fullName2 = component2.getFullQualifiedName();
-			final boolean componentContained = entityComparison.containsFullQualifiedName(components1, fullName2);
+			final boolean componentContained = components1.stream()
+					.filter(e -> e.getFullQualifiedName().equals(fullName2)).findFirst().isPresent();
 
 			if (componentContained) {
 				// get the component in components1 with the same fullQualifiedName as
@@ -122,7 +122,9 @@ public class Merger {
 		boolean clazzContained;
 
 		for (final Clazz clazz2 : clazzesMergedVersion) {
-			clazzContained = entityComparison.containsFullQualifiedName(clazzes1, clazz2.getFullQualifiedName());
+			clazzContained = clazzes1.stream()
+					.filter(e -> e.getFullQualifiedName().equals(clazz2.getFullQualifiedName())).findFirst()
+					.isPresent();
 			// case: the identical component exists in version 1 and version 2 -> do nothing
 			if (!clazzContained) {
 				// case: the clazz does not exist in version 1, but exists in version 2
