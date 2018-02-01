@@ -27,7 +27,7 @@ public class LandscapeExampleCreator {
 	 *
 	 * @return
 	 */
-	public static Landscape createSimpleExampleVersion1() {
+	public static Landscape createSimpleLandscapeVersion1() {
 
 		applicationId = 0;
 
@@ -41,17 +41,44 @@ public class LandscapeExampleCreator {
 
 		final NodeGroup ocnEditorNodeGroup = createNodeGroup("10.0.1.1", landscape, ocnEditor);
 		final Node ocnEditorNode = createNode("10.0.1.1", ocnEditorNodeGroup);
-		final Application ocnEditorApp = createApplication("AppVersion1", ocnEditorNode);
+		final Application ocnEditorApp = createSimpleApplicationVersion1(ocnEditorNode);
 
 		ocnEditorNodeGroup.getNodes().add(ocnEditorNode);
 		ocnEditor.getNodeGroups().add(ocnEditorNodeGroup);
+
+		final Landscape preparedLandscapeV1 = LandscapePreparer.prepareLandscape(landscape);
+
+		counter = 2;
+		return preparedLandscapeV1;
+
+	}
+
+	public static Landscape createSimpleLandscapeVersion2() {
+
+		applicationId = 1;
+
+		final Landscape landscapeV2 = LandscapeExampleCreator.createSimpleLandscapeVersion1();
+
+		final Application ocnEditorApp = createSimpleApplicationVersion2(
+				landscapeV2.getSystems().get(0).getNodeGroups().get(0).getNodes().get(0));
+
+		// component DELETED
+
+		final Landscape preparedLandscapeV2 = LandscapePreparer.prepareLandscape(landscapeV2);
+
+		counter = 2;
+		return preparedLandscapeV2;
+	}
+
+	public static Application createSimpleApplicationVersion1(final Node node) {
+		final Application simpleAppV1 = createApplication("AppVersion1", node);
 
 		final Component org = new Component();
 		org.getExtensionAttributes().put("status", Status.ORIGINAL);
 		org.setName("orgV1");
 		org.setFullQualifiedName("orgV1");
 		org.setParentComponent(null);
-		org.setBelongingApplication(ocnEditorApp);
+		org.setBelongingApplication(simpleAppV1);
 
 		final Clazz demoClass = new Clazz();
 		demoClass.getExtensionAttributes().put("status", Status.ORIGINAL);
@@ -67,7 +94,7 @@ public class LandscapeExampleCreator {
 		subOrg.setName("subOrgV1");
 		subOrg.setFullQualifiedName("orgV1.subOrgV1");
 		subOrg.setParentComponent(org);
-		subOrg.setBelongingApplication(ocnEditorApp);
+		subOrg.setBelongingApplication(simpleAppV1);
 
 		org.getChildren().add(subOrg);
 
@@ -80,23 +107,24 @@ public class LandscapeExampleCreator {
 
 		subOrg.getClazzes().add(subDemoClass);
 
-		ocnEditorApp.getComponents().add(org);
-
-		final Landscape preparedLandscapeV1 = LandscapePreparer.prepareLandscape(landscape);
+		simpleAppV1.getComponents().add(org);
 
 		counter = 1;
 
-		return preparedLandscapeV1;
+		return simpleAppV1;
 	}
 
-	public static Landscape createSimpleExampleVersion2() {
-
-		applicationId = 1;
-
-		final Landscape landscapeV2 = LandscapeExampleCreator.createSimpleExampleVersion1();
-
-		final Application ocnEditorApp = landscapeV2.getSystems().get(0).getNodeGroups().get(0).getNodes().get(0)
-				.getApplications().get(0);
+	/**
+	 * Extends the {@link Application} created in
+	 * {@link LandscapeExampleCreator#createSimpleApplicationVersion1(Node)}, such
+	 * that it can be used for testing
+	 * {@link Merger#appMerge(Application, Application)}.
+	 *
+	 * @param node
+	 * @return
+	 */
+	public static Application createSimpleApplicationVersion2(final Node node) {
+		final Application simpleAppV2 = node.getApplications().get(0);
 
 		// component ADDED
 		final Component net = new Component();
@@ -104,7 +132,7 @@ public class LandscapeExampleCreator {
 		net.setName("netV2");
 		net.setFullQualifiedName("netV2");
 		net.setParentComponent(null);
-		net.setBelongingApplication(ocnEditorApp);
+		net.setBelongingApplication(simpleAppV2);
 
 		// component EDITED
 		final Component subOrg2 = new Component();
@@ -123,7 +151,7 @@ public class LandscapeExampleCreator {
 		subOrg2.getClazzes().add(subDemoClassNet);
 		net.getChildren().add(subOrg2);
 
-		final Component subOrg = ocnEditorApp.getComponents().get(0).getChildren().get(0);
+		final Component subOrg = simpleAppV2.getComponents().get(0).getChildren().get(0);
 		final Clazz subDemoClass2 = new Clazz();
 		subDemoClass2.getExtensionAttributes().put("status", Status.ORIGINAL);
 		subDemoClass2.setName("subDemoV2");
@@ -133,15 +161,9 @@ public class LandscapeExampleCreator {
 
 		subOrg.getClazzes().add(subDemoClass2);
 
-		ocnEditorApp.getComponents().add(net);
-		// component DELETED
+		simpleAppV2.getComponents().add(net);
 
-		// component ORIGINAL
-		// component org stays the same
-		final Landscape preparedLandscapeV2 = LandscapePreparer.prepareLandscape(landscapeV2);
-
-		counter = 2;
-		return preparedLandscapeV2;
+		return simpleAppV2;
 	}
 
 	/**
