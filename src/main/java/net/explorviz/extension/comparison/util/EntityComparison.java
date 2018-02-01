@@ -141,10 +141,7 @@ public class EntityComparison {
 		return elemsEqual;
 	}
 
-	// help methods
-	// TODO parameter more general, problem with casting in Merger.java:
-	// List<Draw3DNodeEntity>
-	public boolean containsFullQualifiedName(final List<Component> list, final String fullName) {
+	public boolean containsFullQualifiedName(final List<? extends Draw3DNodeEntity> list, final String fullName) {
 		return list.stream().filter(e -> e.getFullQualifiedName().equals(fullName)).findFirst().isPresent();
 	}
 
