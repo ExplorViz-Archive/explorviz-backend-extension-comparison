@@ -73,10 +73,10 @@ public class LandscapeExampleCreator {
 
 		final Clazz subDemoClass = new Clazz();
 		subDemoClass.getExtensionAttributes().put("status", Status.ORIGINAL);
-		demoClass.setName("subDemoV1");
-		demoClass.setFullQualifiedName("orgV1.subOrgV1.subDemoV1");
-		demoClass.setInstanceCount(100);
-		demoClass.setParent(subOrg);
+		subDemoClass.setName("subDemoV1");
+		subDemoClass.setFullQualifiedName("orgV1.subOrgV1.subDemoV1");
+		subDemoClass.setInstanceCount(100);
+		subDemoClass.setParent(subOrg);
 
 		subOrg.getClazzes().add(subDemoClass);
 
@@ -106,14 +106,34 @@ public class LandscapeExampleCreator {
 		net.setParentComponent(null);
 		net.setBelongingApplication(ocnEditorApp);
 
-		ocnEditorApp.getComponents().add(net);
-
 		// component EDITED
-		final Component subOrg = ocnEditorApp.getComponents().get(0).getChildren().get(0);
-		subOrg.getExtensionAttributes().put("status", Status.ORIGINAL);
-		subOrg.setName("subOrgV1Renamed");
-		subOrg.setFullQualifiedName("orgV1.subOrgV1.subOrgV1Renamed");
+		final Component subOrg2 = new Component();
+		subOrg2.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subOrg2.setName("subOrg2");
+		subOrg2.setFullQualifiedName("netV2.subOrg2");
+		subOrg2.setParentComponent(net);
 
+		final Clazz subDemoClassNet = new Clazz();
+		subDemoClassNet.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subDemoClassNet.setName("subDemoNet");
+		subDemoClassNet.setFullQualifiedName("netV2.subOrg2.subDemoNet");
+		subDemoClassNet.setInstanceCount(24);
+		subDemoClassNet.setParent(subOrg2);
+
+		subOrg2.getClazzes().add(subDemoClassNet);
+		net.getChildren().add(subOrg2);
+
+		final Component subOrg = ocnEditorApp.getComponents().get(0).getChildren().get(0);
+		final Clazz subDemoClass2 = new Clazz();
+		subDemoClass2.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subDemoClass2.setName("subDemoV2");
+		subDemoClass2.setFullQualifiedName("orgV1.subOrgV1.subDemoV2");
+		subDemoClass2.setInstanceCount(100);
+		subDemoClass2.setParent(subOrg);
+
+		subOrg.getClazzes().add(subDemoClass2);
+
+		ocnEditorApp.getComponents().add(net);
 		// component DELETED
 
 		// component ORIGINAL
