@@ -7,6 +7,7 @@ import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.extension.comparison.util.EntityComparison;
 import net.explorviz.model.Application;
 import net.explorviz.model.Clazz;
+import net.explorviz.model.CommunicationClazz;
 import net.explorviz.model.Component;
 
 /**
@@ -50,16 +51,23 @@ public class Merger {
 
 		mergedApp.setComponents(componentsMergedVersion);
 
-		// TODO merge communication
+		// merge communication between clazzes
+		final List<CommunicationClazz> communications1 = appVersion1.getCommunications();
+		final List<CommunicationClazz> communications2 = appVersion2.getCommunications();
+
+		final List<CommunicationClazz> communicationsMergedVersion = communicationClazzMerge(communications1,
+				communications2);
+		mergedApp.setCommunications(communicationsMergedVersion);
 
 		return mergedApp;
 	}
 
 	/**
 	 * Takes two lists of {@link Component}s and returns one merged list of
-	 * {@link Component}s. Two {@link Component}s are identical, if they have the
-	 * same fullQualifiedName, the same {@link Clazz}es and the same
-	 * child{@link Component}s.
+	 * {@link Component}s. This method is used by
+	 * {@link Merger#appMerge(Application, Application)}. Two {@link Component}s are
+	 * identical, if they have the same fullQualifiedName, the same {@link Clazz}es
+	 * and the same child{@link Component}s.
 	 *
 	 * @param components1
 	 * @param components2
@@ -107,8 +115,9 @@ public class Merger {
 
 	/**
 	 * Takes two lists of {@link Clazz}es and returns one merged list of
-	 * {@link Clazz}es. Two {@link Clazz}es are identical, if they have the same
-	 * fullQualifiedName.
+	 * {@link Clazz}es. This method is used by
+	 * {@link Merger#componentMerge(List, List)}. Two {@link Clazz}es are identical,
+	 * if they have the same fullQualifiedName.
 	 *
 	 * @param clazzes1
 	 *            list of {@link Clazz}es
@@ -133,5 +142,45 @@ public class Merger {
 		}
 
 		return clazzesMergedVersion;
+	}
+
+	/**
+	 * Takes two lists of {@link CommunicationClazz}es and returns one merged list
+	 * of {@link CommunicationClazz}es. This method is used by
+	 * {@link Merger#appMerge(Application, Application)}. Two
+	 * {@link CommunicationClazz}es are identical, if they have the same source and
+	 * target {@link Application} and the same methodName.
+	 *
+	 * @param clazzes1
+	 *            list of {@link CommunicationClazz}es
+	 * @param clazzes2
+	 *            list of {@link CommunicationClazz}es
+	 * @return merged list of {@link CommunicationClazz}es
+	 */
+	private List<CommunicationClazz> communicationClazzMerge(final List<CommunicationClazz> communications1,
+			final List<CommunicationClazz> communications2) {
+		final List<CommunicationClazz> mergedCommunications = communications2;
+		CommunicationClazz containedCommunication;
+
+		for (final CommunicationClazz communication2 : mergedCommunications) {
+			// check whether communication2 is contained in communications1
+			containedCommunication = communications1.stream().filter(c1 -> c1.getSource().getFullQualifiedName()
+					.equals(communication2.getSource().getFullQualifiedName())
+					&& c1.getTarget().getFullQualifiedName().equals(communication2.getTarget().getFullQualifiedName()))
+					.findFirst().orElse(null);
+
+			if (containedCommunication == null) {
+				// case: communication with same source and target does not exist, the
+				// methodName is not important yet
+				communication2.getExtensionAttributes().put("status", Status.ADDED);
+			} else if (communication2.getMethodName().equals(containedCommunication.getMethodName())) {
+				// case: communication with same source and target exists, but the methodNames
+				// differ
+				communication2.getExtensionAttributes().put("status", Status.EDITED);
+
+			}
+		}
+
+		return mergedCommunications;
 	}
 }
