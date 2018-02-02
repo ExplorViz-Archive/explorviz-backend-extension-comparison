@@ -44,7 +44,7 @@ public class LandscapeFetchService {
 	}
 
 	public Landscape fetchLandscapeForComparison(final Timestamp timestamp) {
-		return extensionApi.getLandscape(timestamp.getId());
+		return extensionApi.getLandscape(timestamp.getTimestamp());
 	}
 
 	public Landscape fetchMergedLandscape(final Landscape firstLandscape, final Landscape secondLandscape) {
