@@ -1,13 +1,15 @@
 package net.explorviz.extension.comparison.resources;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import net.exlorviz.extension.comparison.repository.LandscapeExampleCreator;
 import net.exlorviz.extension.comparison.repository.LandscapeFetchService;
 import net.explorviz.model.Landscape;
+import net.explorviz.model.Timestamp;
 
 // @Secured
 //TODO Add the "Secured" annotation to enable authentication
@@ -26,12 +28,11 @@ public class LandscapeResourceComparing {
 	@GET
 	@Path("/firstCompare")
 	public Landscape getBeforeLandscape() {
-		// final List<Timestamp> filteredTimestamps =
-		// service.filterTwoTimestampsForComparison();
-		// final Landscape firstLandscape =
-		// service.fetchLandscapeForComparison(filteredTimestamps.get(0));
+		final List<Timestamp> filteredTimestamps = service.filterTwoTimestampsForComparison();
+		final Landscape firstLandscape = service.fetchLandscapeForComparison(filteredTimestamps.get(0));
 		// TODO this is just the example landscape used for developing
-		final Landscape firstLandscape = LandscapeExampleCreator.createSimpleLandscapeVersion1();
+		// final Landscape firstLandscape =
+		// LandscapeExampleCreator.createSimpleLandscapeVersion1();
 		return firstLandscape;
 
 	}
@@ -40,12 +41,11 @@ public class LandscapeResourceComparing {
 	@GET
 	@Path("/secondCompare")
 	public Landscape getAfterLandscape() {
-		// final List<Timestamp> filteredTimestamps =
-		// service.filterTwoTimestampsForComparison();
-		// final Landscape secondLandscape =
-		// service.fetchLandscapeForComparison(filteredTimestamps.get(1));
+		final List<Timestamp> filteredTimestamps = service.filterTwoTimestampsForComparison();
+		final Landscape secondLandscape = service.fetchLandscapeForComparison(filteredTimestamps.get(1));
 		// TODO this is just the example landscape used for developing
-		final Landscape secondLandscape = LandscapeExampleCreator.createSimpleLandscapeVersion2();
+		// final Landscape secondLandscape =
+		// LandscapeExampleCreator.createSimpleLandscapeVersion2();
 		return secondLandscape;
 
 	}
@@ -54,15 +54,14 @@ public class LandscapeResourceComparing {
 	@GET
 	@Path("/merged")
 	public Landscape getMergedLandscape() {
-		// final List<Timestamp> filteredTimestamps =
-		// service.filterTwoTimestampsForComparison();
-		// final Landscape firstLandscape =
-		// service.fetchLandscapeForComparison(filteredTimestamps.get(0));
-		// final Landscape secondLandscape =
-		// service.fetchLandscapeForComparison(filteredTimestamps.get(1));
+		final List<Timestamp> filteredTimestamps = service.filterTwoTimestampsForComparison();
+		final Landscape firstLandscape = service.fetchLandscapeForComparison(filteredTimestamps.get(0));
+		final Landscape secondLandscape = service.fetchLandscapeForComparison(filteredTimestamps.get(1));
 		// TODO this is just the example landscape used for developing
-		final Landscape firstLandscape = LandscapeExampleCreator.createSimpleLandscapeVersion1();
-		final Landscape secondLandscape = LandscapeExampleCreator.createSimpleLandscapeVersion2();
+		// final Landscape firstLandscape =
+		// LandscapeExampleCreator.createSimpleLandscapeVersion1();
+		// final Landscape secondLandscape =
+		// LandscapeExampleCreator.createSimpleLandscapeVersion2();
 		return service.fetchMergedLandscape(firstLandscape, secondLandscape);
 
 	}
