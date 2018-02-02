@@ -8,7 +8,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 import com.github.jasminb.jsonapi.ResourceConverter;
 
-import net.explorviz.injection.ResourceConverterFactory;
 import net.explorviz.model.Clazz;
 import net.explorviz.model.Communication;
 import net.explorviz.model.CommunicationClazz;
@@ -20,6 +19,7 @@ import net.explorviz.model.NodeGroup;
 import net.explorviz.model.Timestamp;
 import net.explorviz.model.helper.CommunicationAccumulator;
 import net.explorviz.model.helper.CommunicationTileAccumulator;
+import net.explorviz.server.injection.ResourceConverterFactory;
 import net.explorviz.server.providers.GenericTypeFinder;
 import net.explorviz.server.security.User;
 
