@@ -42,11 +42,11 @@ public class EntityComparison {
 
 		// TODO && (timestamp1 != timestamp2) not for testing, because timestamp=0, in
 		// example landscape
-		if ((fullName1.equals(fullName2))) {
+		if (fullName1.equals(fullName2)) {
 			// same name
-			if ((clazzes1.size() == 0) && (clazzes2.size() == 0)) {
+			if ((clazzes1.isEmpty()) && (clazzes2.isEmpty())) {
 
-				if ((children1.size() == 0) && (children2.size() == 0)) {
+				if ((children1.isEmpty()) && (children2.isEmpty())) {
 					// empty clazzes and empty children
 					componentsIdentical = true;
 				} else if ((children1.size() == children2.size())) {
@@ -56,11 +56,11 @@ public class EntityComparison {
 			} else if (clazzes1.size() == clazzes2.size()) {
 				// not empty clazzes
 				clazzesEqual = this.clazzesEqual(clazzes1, clazzes2);
-				if (clazzesEqual && (children1.size() > 0) && (children1.size() == children2.size())) {
+				if (clazzesEqual && (!children1.isEmpty()) && (children1.size() == children2.size())) {
 					// same clazzes and not empty children
 					componentsIdentical = childrenEqual(children1, children2);
 				}
-				if (clazzesEqual && children1.size() == 0 && children2.size() == 0) {
+				if (clazzesEqual && children1.isEmpty() && children2.isEmpty()) {
 					// same clazzes, but empty children
 					componentsIdentical = true;
 				}

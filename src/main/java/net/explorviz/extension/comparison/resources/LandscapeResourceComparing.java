@@ -10,7 +10,7 @@ import net.exlorviz.extension.comparison.repository.LandscapeFetchService;
 import net.explorviz.model.Landscape;
 
 // @Secured
-// Add the "Secured" annotation to enable authentication
+//TODO Add the "Secured" annotation to enable authentication
 
 @Path("/landscape")
 public class LandscapeResourceComparing {

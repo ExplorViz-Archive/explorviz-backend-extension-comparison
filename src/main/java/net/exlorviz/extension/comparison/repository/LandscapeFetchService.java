@@ -50,7 +50,6 @@ public class LandscapeFetchService {
 	public Landscape fetchMergedLandscape(final Landscape firstLandscape, final Landscape secondLandscape) {
 		final Landscape mergedLandscape = secondLandscape;
 
-		// TODO if you have found the same application in both versions than do appMerge
 		for (final net.explorviz.model.System sys : mergedLandscape.getSystems()) {
 			for (final NodeGroup nodegroup : sys.getNodeGroups()) {
 				for (final Node node : nodegroup.getNodes()) {
@@ -70,7 +69,6 @@ public class LandscapeFetchService {
 
 			}
 		}
-		// TODO mergedLandscape
 		return mergedLandscape;
 	}
 

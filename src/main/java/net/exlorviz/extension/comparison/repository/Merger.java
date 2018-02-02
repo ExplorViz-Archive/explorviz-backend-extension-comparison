@@ -40,7 +40,7 @@ public class Merger {
 		preparing.addStatusToApp(appVersion1);
 		preparing.addStatusToApp(appVersion2);
 
-		mergedApp = appVersion1;
+		mergedApp = appVersion2;
 
 		// merge packages and clazzes
 		final List<Component> componentsVersion1 = appVersion1.getComponents();
