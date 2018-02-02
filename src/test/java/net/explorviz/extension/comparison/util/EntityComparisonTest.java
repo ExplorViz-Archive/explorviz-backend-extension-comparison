@@ -1,6 +1,7 @@
 package net.explorviz.extension.comparison.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ public class EntityComparisonTest {
 
 	private final EntityComparison entityComparison = new EntityComparison();
 
+	// TODO mocken?
 	private final Clazz clazz1a = new Clazz();
 	private final Clazz clazz1b = new Clazz();
 	private final Clazz clazz2 = new Clazz();
@@ -93,38 +95,54 @@ public class EntityComparisonTest {
 	@Test
 	public void testComponentsEqual() {
 		final boolean simpleCompEqual = entityComparison.componentsIdentical(comp1a, comp1b);
-		final boolean simpleCompUnequal = entityComparison.componentsIdentical(comp1a, clazzComp2);
 		final boolean compWithClazzesEqual = entityComparison.componentsIdentical(comp2a, comp2b);
-		final boolean compWithClazzesUnequal = entityComparison.componentsIdentical(comp2a, comp2c);
 		final boolean compWithSubCompsEqual = entityComparison.componentsIdentical(comp3a, comp3b);
+
+		assertTrue(simpleCompEqual);
+		assertTrue(compWithClazzesEqual);
+		assertTrue(compWithSubCompsEqual);
+	}
+
+	@Test
+	public void testComponentsNotEqual() {
+		final boolean simpleCompUnequal = entityComparison.componentsIdentical(comp1a, clazzComp2);
+		final boolean compWithClazzesUnequal = entityComparison.componentsIdentical(comp2a, comp2c);
 		final boolean compWithSubCompsUnequal = entityComparison.componentsIdentical(comp3a, comp3c);
 
-		assertEquals(true, simpleCompEqual);
-		assertEquals(false, simpleCompUnequal);
-		assertEquals(true, compWithClazzesEqual);
-		assertEquals(false, compWithClazzesUnequal);
-		assertEquals(true, compWithSubCompsEqual);
-		assertEquals(false, compWithSubCompsUnequal);
+		assertFalse(simpleCompUnequal);
+		assertFalse(compWithClazzesUnequal);
+		assertFalse(compWithSubCompsUnequal);
 	}
 
 	@Test
 	public void testClazzesEqual() {
 		final boolean clazzesEqual = entityComparison.clazzesEqual(clazzes1a23, clazzes1b23);
+
+		assertTrue(clazzesEqual);
+
+	}
+
+	@Test
+	public void testClazzesNotEqual() {
 		final boolean clazzesUnequal = entityComparison.clazzesEqual(clazzes1a23, clazzes1a34);
 
-		assertEquals(true, clazzesEqual);
-		assertEquals(false, clazzesUnequal);
+		assertFalse(clazzesUnequal);
 	}
 
 	@Test
 	public void testElemEqual() {
 		final boolean clazzEqual = entityComparison.elemEqual(clazz1a, clazz1b);
+
+		assertTrue(clazzEqual);
+	}
+
+	@Test
+	public void testElemNotEqual() {
 		final boolean clazzUnequal = entityComparison.elemEqual(clazz2, clazz3);
 		final boolean clazzCompUnequal = entityComparison.elemEqual(clazz2, clazzComp2);
 
-		assertEquals(true, clazzEqual);
-		assertEquals(false, clazzUnequal);
-		assertEquals(false, clazzCompUnequal);
+		assertFalse(clazzUnequal);
+		assertFalse(clazzCompUnequal);
 	}
 
 }
