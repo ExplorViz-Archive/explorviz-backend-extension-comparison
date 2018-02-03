@@ -45,17 +45,16 @@ public class EntityComparison {
 		if (fullName1.equals(fullName2)) {
 			// same name
 			if ((clazzes1.isEmpty()) && (clazzes2.isEmpty())) {
-
 				if ((children1.isEmpty()) && (children2.isEmpty())) {
 					// empty clazzes and empty children
 					componentsIdentical = true;
 				} else if ((children1.size() == children2.size())) {
 					// empty clazzes, but children
-					componentsIdentical = this.childrenEqual(children1, children2);
+					componentsIdentical = childrenEqual(children1, children2);
 				}
 			} else if (clazzes1.size() == clazzes2.size()) {
 				// not empty clazzes
-				clazzesEqual = this.clazzesEqual(clazzes1, clazzes2);
+				clazzesEqual = clazzesEqual(clazzes1, clazzes2);
 				if (clazzesEqual && (!children1.isEmpty()) && (children1.size() == children2.size())) {
 					// same clazzes and not empty children
 					componentsIdentical = childrenEqual(children1, children2);

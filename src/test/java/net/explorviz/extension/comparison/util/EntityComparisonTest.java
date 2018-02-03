@@ -16,7 +16,6 @@ public class EntityComparisonTest {
 
 	private final EntityComparison entityComparison = new EntityComparison();
 
-	// TODO mocken?
 	private final Clazz clazz1a = new Clazz();
 	private final Clazz clazz1b = new Clazz();
 	private final Clazz clazz2 = new Clazz();

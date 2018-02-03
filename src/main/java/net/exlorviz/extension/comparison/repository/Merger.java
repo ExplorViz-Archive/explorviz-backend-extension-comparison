@@ -109,18 +109,7 @@ public class Merger {
 			} else if (!componentContained) {
 				// case: the component does not exist in version 1, but exists in version 2
 				component2.getExtensionAttributes().put("status", Status.ADDED);
-				if (!component2.getClazzes().isEmpty()) {
-					for (final Clazz clazz : component2.getClazzes()) {
-						clazz.getExtensionAttributes().put("status", Status.ADDED);
-					}
-				}
-				for (final Component child : component2.getChildren()) {
-					child.getExtensionAttributes().put("status", Status.ADDED);
-					for (final Clazz clazz : child.getClazzes()) {
-						clazz.getExtensionAttributes().put("status", Status.ADDED);
-					}
-				}
-
+				setStatusCLazzesAndChildren(component2, Status.ADDED);
 			}
 		}
 		return componentsMergedVersion;
@@ -176,7 +165,6 @@ public class Merger {
 		CommunicationClazz containedCommunication;
 
 		for (final CommunicationClazz communication2 : mergedCommunications) {
-			// check whether communication2 is contained in communications1
 			containedCommunication = communications1.stream().filter(c1 -> c1.getSource().getFullQualifiedName()
 					.equals(communication2.getSource().getFullQualifiedName())
 					&& c1.getTarget().getFullQualifiedName().equals(communication2.getTarget().getFullQualifiedName()))
@@ -196,5 +184,25 @@ public class Merger {
 		}
 
 		return mergedCommunications;
+	}
+
+	/**
+	 * Set the status of all {@link Clazz}es and child{@link Component}s.
+	 *
+	 * @param component
+	 * @param status
+	 */
+	private void setStatusCLazzesAndChildren(final Component component, final Status status) {
+		if (!component.getClazzes().isEmpty()) {
+			for (final Clazz clazz : component.getClazzes()) {
+				clazz.getExtensionAttributes().put("status", status);
+			}
+		}
+		for (final Component child : component.getChildren()) {
+			child.getExtensionAttributes().put("status", status);
+			for (final Clazz clazz : child.getClazzes()) {
+				clazz.getExtensionAttributes().put("status", status);
+			}
+		}
 	}
 }
