@@ -1,11 +1,14 @@
 package net.exlorviz.extension.comparison.repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.model.Application;
 import net.explorviz.model.Clazz;
 import net.explorviz.model.Communication;
+import net.explorviz.model.CommunicationClazz;
 import net.explorviz.model.Component;
 import net.explorviz.model.Landscape;
 import net.explorviz.model.Node;
@@ -66,6 +69,14 @@ public class LandscapeExampleCreator {
 		org.setParentComponent(null);
 		org.setBelongingApplication(simpleAppV1);
 
+		final Component org2 = new Component();
+		org2.initializeID();
+		org2.getExtensionAttributes().put("status", Status.ORIGINAL);
+		org2.setName("org2V1");
+		org2.setFullQualifiedName("org2V1");
+		org2.setParentComponent(null);
+		org2.setBelongingApplication(simpleAppV1);
+
 		final Clazz demoClass = new Clazz();
 		demoClass.initializeID();
 		demoClass.getExtensionAttributes().put("status", Status.ORIGINAL);
@@ -97,6 +108,36 @@ public class LandscapeExampleCreator {
 		subOrg.getClazzes().add(subDemoClass);
 
 		simpleAppV1.getComponents().add(org);
+		simpleAppV1.getComponents().add(org2);
+
+		// communication
+		final CommunicationClazz comm1 = new CommunicationClazz();
+		comm1.initializeID();
+		comm1.getExtensionAttributes().put("status", Status.ORIGINAL);
+		comm1.setSource(demoClass);
+		comm1.setTarget(subDemoClass);
+		comm1.setMethodName("FromDemoToSub()");
+
+		final CommunicationClazz comm1Return = new CommunicationClazz();
+		comm1Return.initializeID();
+		comm1Return.getExtensionAttributes().put("status", Status.ORIGINAL);
+		comm1Return.setSource(subDemoClass);
+		comm1Return.setTarget(demoClass);
+		comm1Return.setMethodName("FromSubToDemo()");
+
+		final CommunicationClazz comm2 = new CommunicationClazz();
+		comm2.initializeID();
+		comm2.getExtensionAttributes().put("status", Status.ORIGINAL);
+		comm2.setSource(demoClass);
+		comm2.setTarget(subDemoClass);
+		comm2.setMethodName("FromDemoToSub2()");
+
+		final List<CommunicationClazz> communications = new ArrayList<>();
+		communications.add(comm1);
+		communications.add(comm1Return);
+		communications.add(comm2);
+
+		simpleAppV1.setCommunications(communications);
 
 		counter = 1;
 
@@ -157,6 +198,21 @@ public class LandscapeExampleCreator {
 		subOrg.getClazzes().add(subDemoClass2);
 
 		simpleAppV2.getComponents().add(net);
+
+		// communicationClazz ADDED
+		final CommunicationClazz commAdded = new CommunicationClazz();
+		commAdded.initializeID();
+		commAdded.getExtensionAttributes().put("status", Status.ORIGINAL);
+		commAdded.setSource(subDemoClass2);
+		// orgV1.demoV1
+		commAdded.setTarget(simpleAppV2.getComponents().get(0).getClazzes().get(0));
+		commAdded.setMethodName("FromSub2ToDemo()");
+
+		// communicationClazz EDITED
+		final CommunicationClazz commEdited = simpleAppV2.getCommunications().get(0);
+		commEdited.setMethodName("FromDemoToSubEdited()");
+
+		simpleAppV2.getCommunications().add(commAdded);
 
 		return simpleAppV2;
 	}

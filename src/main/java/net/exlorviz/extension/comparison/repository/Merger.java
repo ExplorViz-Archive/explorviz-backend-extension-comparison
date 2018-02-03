@@ -98,17 +98,30 @@ public class Merger {
 					// not identical
 					component2.getExtensionAttributes().put("status", Status.EDITED);
 				}
+				// check the childcomponents of ORIGINAL and EDITED components
+				if ((componentFrom1.getChildren().size() > 0) && (component2.getChildren().size() > 0)) {
+					componentMerge(componentFrom1.getChildren(), component2.getChildren());
+				}
+				// check clazzes
+				mergedClazzes = clazzMerge(componentFrom1.getClazzes(), component2.getClazzes());
+				component2.setClazzes(mergedClazzes);
+
 			} else if (!componentContained) {
 				// case: the component does not exist in version 1, but exists in version 2
 				component2.getExtensionAttributes().put("status", Status.ADDED);
+				if (!component2.getClazzes().isEmpty()) {
+					for (final Clazz clazz : component2.getClazzes()) {
+						clazz.getExtensionAttributes().put("status", Status.ADDED);
+					}
+				}
+				for (final Component child : component2.getChildren()) {
+					child.getExtensionAttributes().put("status", Status.ADDED);
+					for (final Clazz clazz : child.getClazzes()) {
+						clazz.getExtensionAttributes().put("status", Status.ADDED);
+					}
+				}
+
 			}
-			// check the childcomponents of ORIGINAL and EDITED components
-			if ((componentFrom1.getChildren().size() > 0) && (component2.getChildren().size() > 0)) {
-				componentMerge(componentFrom1.getChildren(), component2.getChildren());
-			}
-			// check clazzes
-			mergedClazzes = this.clazzMerge(componentFrom1.getClazzes(), component2.getClazzes());
-			component2.setClazzes(mergedClazzes);
 		}
 		return componentsMergedVersion;
 	}
@@ -173,10 +186,11 @@ public class Merger {
 				// case: communication with same source and target does not exist, the
 				// methodName is not important yet
 				communication2.getExtensionAttributes().put("status", Status.ADDED);
-			} else if (communication2.getMethodName().equals(containedCommunication.getMethodName())) {
+			} else if (!(communication2.getMethodName().equals(containedCommunication.getMethodName()))) {
 				// case: communication with same source and target exists, but the methodNames
 				// differ
 				communication2.getExtensionAttributes().put("status", Status.EDITED);
+				communications1.remove(containedCommunication);
 
 			}
 		}
