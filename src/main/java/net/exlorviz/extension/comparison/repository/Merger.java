@@ -127,7 +127,6 @@ public class Merger {
 	 *            list of {@link Clazz}es
 	 * @return merged list of {@link Clazz}es
 	 */
-	// TODO define class EDITED
 	private List<Clazz> clazzMerge(final List<Clazz> clazzes1, final List<Clazz> clazzes2) {
 		final List<Clazz> clazzesMergedVersion = clazzes2;
 		boolean clazzContained;
@@ -200,6 +199,7 @@ public class Merger {
 		}
 		for (final Component child : component.getChildren()) {
 			child.getExtensionAttributes().put("status", status);
+			setStatusCLazzesAndChildren(child, status);
 			for (final Clazz clazz : child.getClazzes()) {
 				clazz.getExtensionAttributes().put("status", status);
 			}

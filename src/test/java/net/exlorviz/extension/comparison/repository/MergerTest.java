@@ -1,7 +1,6 @@
 package net.exlorviz.extension.comparison.repository;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,15 +46,11 @@ public class MergerTest {
 
 	@Test
 	public void testAppMergeAddedClazz() {
-		// clazz: netV2.subOrg2.subDemoNet
-		final Clazz addedClazz = mergedApplication.getComponents().get(2).getChildren().get(0).getClazzes().get(0);
+		// clazz: netV2.subOrg2.subsubOrg2.subDemoNet
+		final Clazz addedClazz = mergedApplication.getComponents().get(2).getChildren().get(0).getChildren().get(0)
+				.getClazzes().get(0);
 		assertEquals(Status.ADDED, addedClazz.getExtensionAttributes().get("status"));
 
-	}
-
-	@Test
-	public void testAppMergeEditedClazz() {
-		fail("not implemented yet");
 	}
 
 	@Test
@@ -70,6 +65,14 @@ public class MergerTest {
 		// component: netV2
 		final Component addedComponent = mergedApplication.getComponents().get(2);
 		assertEquals(Status.ADDED, addedComponent.getExtensionAttributes().get("status"));
+	}
+
+	@Test
+	public void testAppMergeAddedSubSubComponent() {
+		// component: netV2.subOrg2.subsubOrg2
+		final Component addedSubComponent = mergedApplication.getComponents().get(2).getChildren().get(0).getChildren()
+				.get(0);
+		assertEquals(Status.ADDED, addedSubComponent.getExtensionAttributes().get("status"));
 	}
 
 	@Test

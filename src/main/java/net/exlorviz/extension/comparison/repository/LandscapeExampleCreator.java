@@ -31,6 +31,7 @@ public class LandscapeExampleCreator {
 
 		final Landscape landscape = new Landscape();
 		landscape.setActivities(new Random().nextInt(300000));
+		landscape.initializeID();
 
 		final System ocnEditor = new System();
 		ocnEditor.initializeID();
@@ -165,13 +166,21 @@ public class LandscapeExampleCreator {
 		net.setParentComponent(null);
 		net.setBelongingApplication(simpleAppV2);
 
-		// component EDITED
 		final Component subOrg2 = new Component();
 		subOrg2.initializeID();
 		subOrg2.getExtensionAttributes().put("status", Status.ORIGINAL);
 		subOrg2.setName("subOrg2");
 		subOrg2.setFullQualifiedName("netV2.subOrg2");
 		subOrg2.setParentComponent(net);
+
+		final Component subsubOrg2 = new Component();
+		subsubOrg2.initializeID();
+		subsubOrg2.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subsubOrg2.setName("subsubOrg2");
+		subsubOrg2.setFullQualifiedName("netV2.subOrg2.subsubOrg2");
+		subsubOrg2.setParentComponent(subOrg2);
+
+		// component EDITED
 
 		// clazz ADDED
 		final Clazz subDemoClassNet = new Clazz();
@@ -182,8 +191,9 @@ public class LandscapeExampleCreator {
 		subDemoClassNet.setInstanceCount(24);
 		subDemoClassNet.setParent(subOrg2);
 
-		subOrg2.getClazzes().add(subDemoClassNet);
+		subsubOrg2.getClazzes().add(subDemoClassNet);
 		net.getChildren().add(subOrg2);
+		subOrg2.getChildren().add(subsubOrg2);
 
 		// clazz ADDED
 		final Component subOrg = simpleAppV2.getComponents().get(0).getChildren().get(0);
