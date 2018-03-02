@@ -39,7 +39,8 @@ public class MergerTest {
 	@Test
 	public void testAppMergeOriginalClazz() {
 		// clazz: orgV1.demoV1
-		final Clazz originalClazz = mergedApplication.getComponents().get(0).getClazzes().get(0);
+		final Clazz originalClazz = mergedApplication.getComponents().get(0).getClazzes().stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("orgV1.demoV1")).findFirst().get();
 		assertEquals(Status.ORIGINAL, originalClazz.getExtensionAttributes().get("status"));
 
 	}
@@ -48,22 +49,34 @@ public class MergerTest {
 	public void testAppMergeAddedClazz() {
 		// clazz: netV2.subOrg2.subsubOrg2.subDemoNet
 		final Clazz addedClazz = mergedApplication.getComponents().get(2).getChildren().get(0).getChildren().get(0)
-				.getClazzes().get(0);
+				.getClazzes().stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("netV2.subOrg2.subsubOrg2.subDemoNet")).findFirst()
+				.get();
 		assertEquals(Status.ADDED, addedClazz.getExtensionAttributes().get("status"));
 
 	}
 
 	@Test
+	public void testAppMergeDeletedClazz() {
+		// clazz orgV1.subOrgV1.subDemo3V1
+		final Clazz deletedClazz = mergedApplication.getComponents().get(0).getChildren().get(0).getClazzes().stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("orgV1.subOrgV1.subDemo3V1")).findFirst().get();
+		assertEquals(Status.DELETED, deletedClazz.getExtensionAttributes().get("status"));
+	}
+
+	@Test
 	public void testAppMergeOriginalComponent() {
-		// component: org2
-		final Component originalComponent = mergedApplication.getComponents().get(1);
+		// component: org2V1
+		final Component originalComponent = mergedApplication.getComponents().stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("org2V1")).findFirst().get();
 		assertEquals(Status.ORIGINAL, originalComponent.getExtensionAttributes().get("status"));
 	}
 
 	@Test
 	public void testAppMergeAddedComponent() {
 		// component: netV2
-		final Component addedComponent = mergedApplication.getComponents().get(2);
+		final Component addedComponent = mergedApplication.getComponents().stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("netV2")).findFirst().get();
 		assertEquals(Status.ADDED, addedComponent.getExtensionAttributes().get("status"));
 	}
 
@@ -71,22 +84,33 @@ public class MergerTest {
 	public void testAppMergeAddedSubSubComponent() {
 		// component: netV2.subOrg2.subsubOrg2
 		final Component addedSubComponent = mergedApplication.getComponents().get(2).getChildren().get(0).getChildren()
-				.get(0);
+				.stream().filter(c1 -> c1.getFullQualifiedName().equals("netV2.subOrg2.subsubOrg2")).findFirst().get();
 		assertEquals(Status.ADDED, addedSubComponent.getExtensionAttributes().get("status"));
 	}
 
 	@Test
 	public void testAppMergeEditedComponent() {
 		// component: orgV1
-		final Component editedComponent = mergedApplication.getComponents().get(0);
+		final Component editedComponent = mergedApplication.getComponents().stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("orgV1")).findFirst().get();
 		assertEquals(Status.EDITED, editedComponent.getExtensionAttributes().get("status"));
+	}
+
+	@Test
+	public void testAppMergeDeletedComponent() {
+		// org3V1
+		final Component deletedComponent = mergedApplication.getComponents().stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("org3V1")).findFirst().get();
+		assertEquals(Status.DELETED, deletedComponent.getExtensionAttributes().get("status"));
+
 	}
 
 	@Test
 	public void testAppMergeOriginalCommunication() {
 		// communications2: FromDemoToSubEdited(), FromSubToDemo(), FromDemoToSub2(),
 		// FromSub2ToDemo()
-		final CommunicationClazz originalCommunication = mergedApplication.getCommunications().get(2);
+		final CommunicationClazz originalCommunication = mergedApplication.getCommunications().stream()
+				.filter(c1 -> c1.getMethodName().equals("FromDemoToSub2()")).findFirst().get();
 		assertEquals(Status.ORIGINAL, originalCommunication.getExtensionAttributes().get("status"));
 	}
 
@@ -94,7 +118,8 @@ public class MergerTest {
 	public void testAppMergeAddedCommunication() {
 		// communications2: FromDemoToSubEdited(), FromSubToDemo(), FromDemoToSub2(),
 		// FromSub2ToDemo()
-		final CommunicationClazz addedCommunication = mergedApplication.getCommunications().get(3);
+		final CommunicationClazz addedCommunication = mergedApplication.getCommunications().stream()
+				.filter(c1 -> c1.getMethodName().equals("FromSub2ToDemo()")).findFirst().get();
 		assertEquals(Status.ADDED, addedCommunication.getExtensionAttributes().get("status"));
 	}
 
@@ -102,9 +127,17 @@ public class MergerTest {
 	public void testAppMergeEditedCommunication() {
 		// communications2: FromDemoToSubEdited(), FromSubToDemo(), FromDemoToSub2(),
 		// FromSub2ToDemo()
-		final CommunicationClazz editedCommunication = mergedApplication.getCommunications().get(0);
+		final CommunicationClazz editedCommunication = mergedApplication.getCommunications().stream()
+				.filter(c1 -> c1.getMethodName().equals("FromDemoToSubEdited()")).findFirst().get();
 		assertEquals(Status.EDITED, editedCommunication.getExtensionAttributes().get("status"));
 
+	}
+
+	@Test
+	public void testAppMergeDeletedCommunication() {
+		final CommunicationClazz deletedCommunication = mergedApplication.getCommunications().stream()
+				.filter(c1 -> c1.getMethodName().equals("FromSub1ToSub3()")).findFirst().get();
+		assertEquals(Status.DELETED, deletedCommunication.getExtensionAttributes().get("status"));
 	}
 
 }

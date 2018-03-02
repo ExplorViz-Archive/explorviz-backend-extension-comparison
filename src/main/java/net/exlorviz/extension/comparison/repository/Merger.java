@@ -81,10 +81,10 @@ public class Merger {
 		for (final Component component2 : componentsMergedVersion) {
 
 			final String fullName2 = component2.getFullQualifiedName();
-			final boolean componentContained = components1.stream()
+			final boolean component2Containedin1 = components1.stream()
 					.filter(e -> e.getFullQualifiedName().equals(fullName2)).findFirst().isPresent();
 
-			if (componentContained) {
+			if (component2Containedin1) {
 				// get the component in components1 with the same fullQualifiedName as
 				// component2
 				componentFrom1 = components1.stream().filter(c1 -> c1.getFullQualifiedName().equals(fullName2))
@@ -106,10 +106,22 @@ public class Merger {
 				mergedClazzes = clazzMerge(componentFrom1.getClazzes(), component2.getClazzes());
 				component2.setClazzes(mergedClazzes);
 
-			} else if (!componentContained) {
+			} else if (!component2Containedin1) {
 				// case: the component does not exist in version 1, but exists in version 2
 				component2.getExtensionAttributes().put("status", Status.ADDED);
 				setStatusCLazzesAndChildren(component2, Status.ADDED);
+			}
+		}
+
+		for (final Component component1 : components1) {
+			final String fullName1 = component1.getFullQualifiedName();
+			final boolean component1Containedin2 = componentsMergedVersion.stream()
+					.filter(e -> e.getFullQualifiedName().equals(fullName1)).findFirst().isPresent();
+
+			if (!component1Containedin2) {
+				component1.getExtensionAttributes().put("status", Status.DELETED);
+				componentsMergedVersion.add(component1);
+				setStatusCLazzesAndChildren(component1, Status.DELETED);
 			}
 		}
 		return componentsMergedVersion;
@@ -129,16 +141,28 @@ public class Merger {
 	 */
 	private List<Clazz> clazzMerge(final List<Clazz> clazzes1, final List<Clazz> clazzes2) {
 		final List<Clazz> clazzesMergedVersion = clazzes2;
-		boolean clazzContained;
+		boolean clazz2Containedin1;
+		boolean clazz1Containedin2;
 
 		for (final Clazz clazz2 : clazzesMergedVersion) {
-			clazzContained = clazzes1.stream()
+			clazz2Containedin1 = clazzes1.stream()
 					.filter(e -> e.getFullQualifiedName().equals(clazz2.getFullQualifiedName())).findFirst()
 					.isPresent();
 			// case: the identical component exists in version 1 and version 2 -> do nothing
-			if (!clazzContained) {
+			if (!clazz2Containedin1) {
 				// case: the clazz does not exist in version 1, but exists in version 2
 				clazz2.getExtensionAttributes().put("status", Status.ADDED);
+			}
+		}
+
+		for (final Clazz clazz1 : clazzes1) {
+			clazz1Containedin2 = clazzesMergedVersion.stream()
+					.filter(e -> e.getFullQualifiedName().equals(clazz1.getFullQualifiedName())).findFirst()
+					.isPresent();
+
+			if (!clazz1Containedin2) {
+				clazz1.getExtensionAttributes().put("status", Status.DELETED);
+				clazzesMergedVersion.add(clazz1);
 			}
 		}
 
@@ -161,25 +185,39 @@ public class Merger {
 	private List<CommunicationClazz> communicationClazzMerge(final List<CommunicationClazz> communications1,
 			final List<CommunicationClazz> communications2) {
 		final List<CommunicationClazz> mergedCommunications = communications2;
-		CommunicationClazz containedCommunication;
+		CommunicationClazz communication2ContainedIn1;
+		CommunicationClazz communication1ContainedIn2;
 
 		for (final CommunicationClazz communication2 : mergedCommunications) {
-			containedCommunication = communications1.stream().filter(c1 -> c1.getSource().getFullQualifiedName()
+			communication2ContainedIn1 = communications1.stream().filter(c1 -> c1.getSource().getFullQualifiedName()
 					.equals(communication2.getSource().getFullQualifiedName())
 					&& c1.getTarget().getFullQualifiedName().equals(communication2.getTarget().getFullQualifiedName()))
 					.findFirst().orElse(null);
 
-			if (containedCommunication == null) {
+			if (communication2ContainedIn1 == null) {
 				// case: communication with same source and target does not exist, the
 				// methodName is not important yet
 				communication2.getExtensionAttributes().put("status", Status.ADDED);
-			} else if (!(communication2.getMethodName().equals(containedCommunication.getMethodName()))) {
+			} else if (!(communication2.getMethodName().equals(communication2ContainedIn1.getMethodName()))) {
 				// case: communication with same source and target exists, but the methodNames
 				// differ
 				communication2.getExtensionAttributes().put("status", Status.EDITED);
-				communications1.remove(containedCommunication);
+				communications1.remove(communication2ContainedIn1);
 
 			}
+		}
+
+		for (final CommunicationClazz communication1 : communications1) {
+			communication1ContainedIn2 = mergedCommunications.stream().filter(c2 -> c2.getSource()
+					.getFullQualifiedName().equals(communication1.getSource().getFullQualifiedName())
+					&& c2.getTarget().getFullQualifiedName().equals(communication1.getTarget().getFullQualifiedName()))
+					.findFirst().orElse(null);
+
+			if (communication1ContainedIn2 == null) {
+				communication1.getExtensionAttributes().put("status", Status.DELETED);
+				mergedCommunications.add(communication1);
+			}
+
 		}
 
 		return mergedCommunications;

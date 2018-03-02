@@ -78,6 +78,14 @@ public class LandscapeExampleCreator {
 		org2.setParentComponent(null);
 		org2.setBelongingApplication(simpleAppV1);
 
+		final Component org3 = new Component();
+		org3.initializeID();
+		org3.getExtensionAttributes().put("status", Status.ORIGINAL);
+		org3.setName("org3V1");
+		org3.setFullQualifiedName("org3V1");
+		org3.setParentComponent(null);
+		org3.setBelongingApplication(simpleAppV1);
+
 		final Clazz demoClass = new Clazz();
 		demoClass.initializeID();
 		demoClass.getExtensionAttributes().put("status", Status.ORIGINAL);
@@ -87,6 +95,14 @@ public class LandscapeExampleCreator {
 		demoClass.setParent(org);
 
 		org.getClazzes().add(demoClass);
+
+		final Clazz demoClass3 = new Clazz();
+		demoClass3.initializeID();
+		demoClass3.getExtensionAttributes().put("status", Status.ORIGINAL);
+		demoClass3.setName("demo3V1");
+		demoClass3.setFullQualifiedName("org3V1.demo3V1");
+		demoClass3.setInstanceCount(100);
+		demoClass3.setParent(org3);
 
 		final Component subOrg = new Component();
 		subOrg.initializeID();
@@ -108,8 +124,19 @@ public class LandscapeExampleCreator {
 
 		subOrg.getClazzes().add(subDemoClass);
 
+		final Clazz subDemo3Class = new Clazz();
+		subDemo3Class.initializeID();
+		subDemo3Class.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subDemo3Class.setName("subDemo3V1");
+		subDemo3Class.setFullQualifiedName("orgV1.subOrgV1.subDemo3V1");
+		subDemo3Class.setInstanceCount(100);
+		subDemo3Class.setParent(subOrg);
+
+		subOrg.getClazzes().add(subDemo3Class);
+
 		simpleAppV1.getComponents().add(org);
 		simpleAppV1.getComponents().add(org2);
+		simpleAppV1.getComponents().add(org3);
 
 		// communication
 		final CommunicationClazz comm1 = new CommunicationClazz();
@@ -133,10 +160,18 @@ public class LandscapeExampleCreator {
 		comm2.setTarget(subDemoClass);
 		comm2.setMethodName("FromDemoToSub2()");
 
+		final CommunicationClazz comm3 = new CommunicationClazz();
+		comm3.initializeID();
+		comm3.getExtensionAttributes().put("status", Status.ORIGINAL);
+		comm3.setSource(subDemoClass);
+		comm3.setTarget(subDemo3Class);
+		comm3.setMethodName("FromSub1ToSub3()");
+
 		final List<CommunicationClazz> communications = new ArrayList<>();
 		communications.add(comm1);
 		communications.add(comm1Return);
 		communications.add(comm2);
+		communications.add(comm3);
 
 		simpleAppV1.setCommunications(communications);
 
@@ -182,12 +217,17 @@ public class LandscapeExampleCreator {
 
 		// component EDITED
 
+		// component DELETED
+		final Component toBeDeletedComponent = simpleAppV2.getComponents().stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("org3V1")).findFirst().get();
+		simpleAppV2.getComponents().remove(toBeDeletedComponent);
+
 		// clazz ADDED
 		final Clazz subDemoClassNet = new Clazz();
 		subDemoClassNet.initializeID();
 		subDemoClassNet.getExtensionAttributes().put("status", Status.ORIGINAL);
 		subDemoClassNet.setName("subDemoNet");
-		subDemoClassNet.setFullQualifiedName("netV2.subOrg2.subDemoNet");
+		subDemoClassNet.setFullQualifiedName("netV2.subOrg2.subsubOrg2.subDemoNet");
 		subDemoClassNet.setInstanceCount(24);
 		subDemoClassNet.setParent(subOrg2);
 
@@ -209,6 +249,11 @@ public class LandscapeExampleCreator {
 
 		simpleAppV2.getComponents().add(net);
 
+		// clazz DELETED
+		final Clazz toBeDeletedClazz = simpleAppV2.getComponents().get(0).getChildren().get(0).getClazzes().stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("orgV1.subOrgV1.subDemo3V1")).findFirst().get();
+		simpleAppV2.getComponents().get(0).getChildren().get(0).getClazzes().remove(toBeDeletedClazz);
+
 		// communicationClazz ADDED
 		final CommunicationClazz commAdded = new CommunicationClazz();
 		commAdded.initializeID();
@@ -223,6 +268,11 @@ public class LandscapeExampleCreator {
 		commEdited.setMethodName("FromDemoToSubEdited()");
 
 		simpleAppV2.getCommunications().add(commAdded);
+
+		// communicationClazz DELETED
+		final CommunicationClazz toBeDeletedCommunication = simpleAppV2.getCommunications().stream()
+				.filter(c1 -> c1.getMethodName().equals("FromSub1ToSub3()")).findFirst().get();
+		simpleAppV2.getCommunications().remove(toBeDeletedCommunication);
 
 		return simpleAppV2;
 	}
