@@ -10,10 +10,9 @@ import javax.ws.rs.Produces;
 import net.exlorviz.extension.comparison.repository.LandscapeFetchService;
 import net.explorviz.model.Landscape;
 import net.explorviz.model.Timestamp;
+import net.explorviz.server.security.Secured;
 
-// @Secured
-//TODO Add the "Secured" annotation to enable authentication
-
+@Secured
 @Path("/landscape")
 public class LandscapeResourceComparing {
 
