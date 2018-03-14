@@ -21,11 +21,11 @@ public class LandscapeExampleCreator {
 	public static int counter = 1;
 
 	/**
-	 * system: systemVersion1 nodegroup node application: AppVersion1 components:
-	 * orgVersion1, subOrgVersion1 classes: demoVersion1, subDemoVersion1
-	 * communication:
+	 * Creates an example landscape for testing
+	 * explorviz-backend-extension-comparison. For an overview refer to the graphic
+	 * in the Wiki of this extension.
 	 *
-	 * @return
+	 * @return example landscape
 	 */
 	public static Landscape createSimpleLandscapeVersion1() {
 
