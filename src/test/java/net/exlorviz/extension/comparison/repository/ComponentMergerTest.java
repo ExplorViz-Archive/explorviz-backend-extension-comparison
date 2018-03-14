@@ -7,6 +7,15 @@ import org.junit.Test;
 import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.model.Component;
 
+/**
+ * This class holds tests for all states a {@link Component} can adopt, refer
+ * {@link Status.ORIGINAL}, {@link Status.ADDED}, {@link Status.EDITED} and
+ * {@link Status.DELETED}. The merged application is taken from
+ * {@link MergerTest}.
+ *
+ * @author josw
+ *
+ */
 public class ComponentMergerTest extends MergerTest {
 
 	@Test
@@ -14,7 +23,8 @@ public class ComponentMergerTest extends MergerTest {
 		// component: org2V1
 		final Component originalComponent = mergedApplication.getComponents().stream()
 				.filter(c1 -> c1.getFullQualifiedName().equals("org2V1")).findFirst().get();
-		assertEquals(Status.ORIGINAL, originalComponent.getExtensionAttributes().get("status"));
+		assertEquals(originalComponent.getFullQualifiedName() + "is not ORIGINAL.", Status.ORIGINAL,
+				originalComponent.getExtensionAttributes().get("status"));
 	}
 
 	@Test
@@ -22,7 +32,8 @@ public class ComponentMergerTest extends MergerTest {
 		// component: netV2
 		final Component addedComponent = mergedApplication.getComponents().stream()
 				.filter(c1 -> c1.getFullQualifiedName().equals("netV2")).findFirst().get();
-		assertEquals(Status.ADDED, addedComponent.getExtensionAttributes().get("status"));
+		assertEquals(addedComponent.getFullQualifiedName() + "is not ADDED.", Status.ADDED,
+				addedComponent.getExtensionAttributes().get("status"));
 	}
 
 	@Test
@@ -30,7 +41,8 @@ public class ComponentMergerTest extends MergerTest {
 		// component: netV2.subOrg2.subsubOrg2
 		final Component addedSubComponent = mergedApplication.getComponents().get(2).getChildren().get(0).getChildren()
 				.stream().filter(c1 -> c1.getFullQualifiedName().equals("netV2.subOrg2.subsubOrg2")).findFirst().get();
-		assertEquals(Status.ADDED, addedSubComponent.getExtensionAttributes().get("status"));
+		assertEquals(addedSubComponent.getFullQualifiedName() + "is not ADDED.", Status.ADDED,
+				addedSubComponent.getExtensionAttributes().get("status"));
 	}
 
 	@Test
@@ -38,7 +50,8 @@ public class ComponentMergerTest extends MergerTest {
 		// component: orgV1
 		final Component editedComponent = mergedApplication.getComponents().stream()
 				.filter(c1 -> c1.getFullQualifiedName().equals("orgV1")).findFirst().get();
-		assertEquals(Status.EDITED, editedComponent.getExtensionAttributes().get("status"));
+		assertEquals(editedComponent.getFullQualifiedName() + "is not EDITED.", Status.EDITED,
+				editedComponent.getExtensionAttributes().get("status"));
 	}
 
 	@Test
@@ -46,7 +59,8 @@ public class ComponentMergerTest extends MergerTest {
 		// org3V1
 		final Component deletedComponent = mergedApplication.getComponents().stream()
 				.filter(c1 -> c1.getFullQualifiedName().equals("org3V1")).findFirst().get();
-		assertEquals(Status.DELETED, deletedComponent.getExtensionAttributes().get("status"));
+		assertEquals(deletedComponent.getFullQualifiedName() + "is not DELETED.", Status.DELETED,
+				deletedComponent.getExtensionAttributes().get("status"));
 
 	}
 
