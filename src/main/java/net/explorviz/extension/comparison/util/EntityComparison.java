@@ -2,10 +2,8 @@ package net.explorviz.extension.comparison.util;
 
 import java.util.List;
 
-import net.explorviz.model.Clazz;
-import net.explorviz.model.Communication;
-import net.explorviz.model.Component;
-import net.explorviz.model.helper.Draw3DNodeEntity;
+import net.explorviz.model.application.Clazz;
+import net.explorviz.model.application.Component;
 
 /**
  * Class for methods that compare elements from the meta-model, e.g.
@@ -109,7 +107,7 @@ public class EntityComparison {
 		boolean clazzEqual = true;
 
 		for (int i = 0; clazzes1.size() > i; i++) {
-			clazzEqual = elemEqual(clazzes1.get(i), clazzes2.get(i));
+			clazzEqual = clazzEqual(clazzes1.get(i), clazzes2.get(i));
 			if (!clazzEqual) {
 				clazzesEqual = false;
 				break;
@@ -123,17 +121,17 @@ public class EntityComparison {
 	 * Two {@link Draw3DNodeEntity} are equal, if they have the same type and the
 	 * same fullQualifiedName.
 	 *
-	 * @param elem1
-	 * @param elem2
+	 * @param clazz1
+	 * @param clazz2
 	 * @return true: if elem1 and elem2 are equal, false:else
 	 */
-	public boolean elemEqual(final Draw3DNodeEntity elem1, final Draw3DNodeEntity elem2) {
+	public boolean clazzEqual(final Clazz clazz1, final Clazz clazz2) {
 		boolean elemsEqual = false;
 
-		final String fullName1 = elem1.getFullQualifiedName();
-		final String fullname2 = elem2.getFullQualifiedName();
+		final String fullName1 = clazz1.getFullQualifiedName();
+		final String fullname2 = clazz2.getFullQualifiedName();
 
-		if (elem1.getClass().equals(elem2.getClass()) && fullName1.equals(fullname2)) {
+		if (clazz1.getClass().equals(clazz2.getClass()) && fullName1.equals(fullname2)) {
 			elemsEqual = true;
 		}
 

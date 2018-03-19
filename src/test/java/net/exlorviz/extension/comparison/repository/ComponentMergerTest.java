@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import net.explorviz.extension.comparison.model.Status;
-import net.explorviz.model.Component;
+import net.explorviz.model.application.Component;
 
 /**
  * This class holds tests for all states a {@link Component} can adopt, refer

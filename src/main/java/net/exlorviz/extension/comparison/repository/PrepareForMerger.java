@@ -3,11 +3,12 @@ package net.exlorviz.extension.comparison.repository;
 import java.util.List;
 
 import net.explorviz.extension.comparison.model.Status;
-import net.explorviz.model.Application;
-import net.explorviz.model.Clazz;
-import net.explorviz.model.CommunicationClazz;
-import net.explorviz.model.Component;
-import net.explorviz.model.Landscape;
+import net.explorviz.model.application.AggregatedClazzCommunication;
+import net.explorviz.model.application.Application;
+import net.explorviz.model.application.Clazz;
+import net.explorviz.model.application.ClazzCommunication;
+import net.explorviz.model.application.Component;
+import net.explorviz.model.landscape.Landscape;
 
 /**
  * Currently extends an {@link Application} by a {@link Status}. The
@@ -29,8 +30,11 @@ public class PrepareForMerger {
 	 */
 	public Application addStatusToApp(final Application mergingApp) {
 
-		for (final CommunicationClazz communication : mergingApp.getCommunications()) {
-			communication.getExtensionAttributes().put("status", Status.ORIGINAL);
+		for (final AggregatedClazzCommunication aggregatedCommunication : mergingApp
+				.getAggregatedOutgoingClazzCommunications()) {
+			for (final ClazzCommunication communication : aggregatedCommunication.getOutgoingClazzCommunications()) {
+				communication.getExtensionAttributes().put("status", Status.ORIGINAL);
+			}
 		}
 
 		for (final Component component : mergingApp.getComponents()) {

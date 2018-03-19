@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import net.explorviz.extension.comparison.model.Status;
-import net.explorviz.model.Clazz;
+import net.explorviz.model.application.Clazz;
 
 /**
  * This class holds tests for all states a {@link Clazz} can adopt, refer

@@ -8,8 +8,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 import net.exlorviz.extension.comparison.repository.LandscapeFetchService;
-import net.explorviz.model.Landscape;
-import net.explorviz.model.Timestamp;
+import net.explorviz.model.landscape.Landscape;
+import net.explorviz.model.store.Timestamp;
 import net.explorviz.server.security.Secured;
 
 @Secured

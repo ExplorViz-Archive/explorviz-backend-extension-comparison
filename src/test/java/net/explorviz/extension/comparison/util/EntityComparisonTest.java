@@ -9,8 +9,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.explorviz.model.Clazz;
-import net.explorviz.model.Component;
+import net.explorviz.model.application.Clazz;
+import net.explorviz.model.application.Component;
 
 public class EntityComparisonTest {
 
@@ -129,19 +129,17 @@ public class EntityComparisonTest {
 	}
 
 	@Test
-	public void testElemEqual() {
-		final boolean clazzEqual = entityComparison.elemEqual(clazz1a, clazz1b);
+	public void testClazzEqual() {
+		final boolean clazzEqual = entityComparison.clazzEqual(clazz1a, clazz1b);
 
 		assertTrue(clazzEqual);
 	}
 
 	@Test
-	public void testElemNotEqual() {
-		final boolean clazzUnequal = entityComparison.elemEqual(clazz2, clazz3);
-		final boolean clazzCompUnequal = entityComparison.elemEqual(clazz2, clazzComp2);
+	public void testClazzNotEqual() {
+		final boolean clazzUnequal = entityComparison.clazzEqual(clazz2, clazz3);
 
 		assertFalse(clazzUnequal);
-		assertFalse(clazzCompUnequal);
 	}
 
 }

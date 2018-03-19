@@ -1,20 +1,19 @@
 package net.exlorviz.extension.comparison.repository;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import net.explorviz.extension.comparison.model.Status;
-import net.explorviz.model.Application;
-import net.explorviz.model.Clazz;
-import net.explorviz.model.Communication;
-import net.explorviz.model.CommunicationClazz;
-import net.explorviz.model.Component;
-import net.explorviz.model.Landscape;
-import net.explorviz.model.Node;
-import net.explorviz.model.NodeGroup;
-import net.explorviz.model.System;
-import net.explorviz.model.helper.ELanguage;
+import net.explorviz.model.application.Application;
+import net.explorviz.model.application.ApplicationCommunication;
+import net.explorviz.model.application.Clazz;
+import net.explorviz.model.application.ClazzCommunication;
+import net.explorviz.model.application.Component;
+import net.explorviz.model.helper.EProgrammingLanguage;
+import net.explorviz.model.helper.ModelHelper;
+import net.explorviz.model.landscape.Landscape;
+import net.explorviz.model.landscape.Node;
+import net.explorviz.model.landscape.NodeGroup;
+import net.explorviz.model.landscape.System;
 import net.explorviz.repository.LandscapePreparer;
 
 public class LandscapeExampleCreator {
@@ -30,10 +29,10 @@ public class LandscapeExampleCreator {
 	public static Landscape createSimpleLandscapeVersion1() {
 
 		final Landscape landscape = new Landscape();
-		landscape.setActivities(new Random().nextInt(300000));
+		landscape.setOverallCalls(new Random().nextInt(300000));
 		landscape.initializeID();
 
-		final System ocnEditor = new System();
+		final net.explorviz.model.landscape.System ocnEditor = new System();
 		ocnEditor.initializeID();
 		ocnEditor.setName("systemVersion1");
 		ocnEditor.setParent(landscape);
@@ -139,41 +138,45 @@ public class LandscapeExampleCreator {
 		simpleAppV1.getComponents().add(org3);
 
 		// communication
-		final CommunicationClazz comm1 = new CommunicationClazz();
+		final ClazzCommunication comm1 = new ClazzCommunication();
 		comm1.initializeID();
 		comm1.getExtensionAttributes().put("status", Status.ORIGINAL);
-		comm1.setSource(demoClass);
-		comm1.setTarget(subDemoClass);
-		comm1.setMethodName("FromDemoToSub()");
+		comm1.setSourceClazz(demoClass);
+		comm1.setTargetClazz(subDemoClass);
+		comm1.setOperationName("FromDemoToSub()");
+		ModelHelper.addClazzCommunication(demoClass, subDemoClass, simpleAppV1, 6, 3, 65, 2, 4, "FromDemoToSub()");
 
-		final CommunicationClazz comm1Return = new CommunicationClazz();
+		final ClazzCommunication comm1Return = new ClazzCommunication();
 		comm1Return.initializeID();
 		comm1Return.getExtensionAttributes().put("status", Status.ORIGINAL);
-		comm1Return.setSource(subDemoClass);
-		comm1Return.setTarget(demoClass);
-		comm1Return.setMethodName("FromSubToDemo()");
+		comm1Return.setSourceClazz(subDemoClass);
+		comm1Return.setTargetClazz(demoClass);
+		comm1Return.setOperationName("FromSubToDemo()");
+		ModelHelper.addClazzCommunication(subDemoClass, demoClass, simpleAppV1, 6, 3, 65, 2, 4, "FromSubToDemo()");
 
-		final CommunicationClazz comm2 = new CommunicationClazz();
+		final ClazzCommunication comm2 = new ClazzCommunication();
 		comm2.initializeID();
 		comm2.getExtensionAttributes().put("status", Status.ORIGINAL);
-		comm2.setSource(demoClass);
-		comm2.setTarget(subDemoClass);
-		comm2.setMethodName("FromDemoToSub2()");
+		comm2.setSourceClazz(demoClass);
+		comm2.setTargetClazz(subDemoClass);
+		comm2.setOperationName("FromDemoToSub2()");
+		ModelHelper.addClazzCommunication(demoClass, subDemoClass, simpleAppV1, 6, 3, 65, 2, 4, "FromDemoToSub2()");
 
-		final CommunicationClazz comm3 = new CommunicationClazz();
+		final ClazzCommunication comm3 = new ClazzCommunication();
 		comm3.initializeID();
 		comm3.getExtensionAttributes().put("status", Status.ORIGINAL);
-		comm3.setSource(subDemoClass);
-		comm3.setTarget(subDemo3Class);
-		comm3.setMethodName("FromSub1ToSub3()");
+		comm3.setSourceClazz(subDemoClass);
+		comm3.setTargetClazz(subDemo3Class);
+		comm3.setOperationName("FromSub1ToSub3()");
+		ModelHelper.addClazzCommunication(subDemoClass, subDemo3Class, simpleAppV1, 6, 3, 65, 2, 4, "FromSub1ToSub3()");
 
-		final List<CommunicationClazz> communications = new ArrayList<>();
-		communications.add(comm1);
-		communications.add(comm1Return);
-		communications.add(comm2);
-		communications.add(comm3);
-
-		simpleAppV1.setCommunications(communications);
+		// final List<ClazzCommunication> communications = new ArrayList<>();
+		// communications.add(comm1);
+		// communications.add(comm1Return);
+		// communications.add(comm2);
+		// communications.add(comm3);
+		//
+		// simpleAppV1.setCommunications(communications);
 
 		counter = 1;
 
@@ -255,22 +258,22 @@ public class LandscapeExampleCreator {
 		simpleAppV2.getComponents().get(0).getChildren().get(0).getClazzes().remove(toBeDeletedClazz);
 
 		// communicationClazz ADDED
-		final CommunicationClazz commAdded = new CommunicationClazz();
+		final ClazzCommunication commAdded = new ClazzCommunication();
 		commAdded.initializeID();
 		commAdded.getExtensionAttributes().put("status", Status.ORIGINAL);
-		commAdded.setSource(subDemoClass2);
+		commAdded.setSourceClazz(subDemoClass2);
 		// orgV1.demoV1
-		commAdded.setTarget(simpleAppV2.getComponents().get(0).getClazzes().get(0));
-		commAdded.setMethodName("FromSub2ToDemo()");
+		commAdded.setTargetClazz(simpleAppV2.getComponents().get(0).getClazzes().get(0));
+		commAdded.setOperationName("FromSub2ToDemo()");
 
 		// communicationClazz EDITED
-		final CommunicationClazz commEdited = simpleAppV2.getCommunications().get(0);
-		commEdited.setMethodName("FromDemoToSubEdited()");
+		final ClazzCommunication commEdited = simpleAppV2.getCommunications().get(0);
+		commEdited.setOperationName("FromDemoToSubEdited()");
 
-		simpleAppV2.getCommunications().add(commAdded);
+		simpleAppV2.getAggregatedOutgoingClazzCommunications().add(commAdded);
 
 		// communicationClazz DELETED
-		final CommunicationClazz toBeDeletedCommunication = simpleAppV2.getCommunications().stream()
+		final ClazzCommunication toBeDeletedCommunication = simpleAppV2.getCommunications().stream()
 				.filter(c1 -> c1.getMethodName().equals("FromSub1ToSub3()")).findFirst().get();
 		simpleAppV2.getCommunications().remove(toBeDeletedCommunication);
 
@@ -286,7 +289,8 @@ public class LandscapeExampleCreator {
 	 * @return
 	 */
 
-	private static NodeGroup createNodeGroup(final String name, final Landscape parent, final System system) {
+	private static NodeGroup createNodeGroup(final String name, final Landscape parent,
+			final net.explorviz.model.landscape.System system) {
 		final NodeGroup nodeGroup = new NodeGroup();
 		nodeGroup.initializeID();
 		nodeGroup.setName(name);
@@ -308,10 +312,10 @@ public class LandscapeExampleCreator {
 		application.setParent(parent);
 
 		application.setLastUsage(java.lang.System.currentTimeMillis());
-		application.setProgrammingLanguage(ELanguage.JAVA);
+		application.setProgrammingLanguage(EProgrammingLanguage.JAVA);
 
 		if (name == "Eprints") {
-			application.setProgrammingLanguage(ELanguage.PERL);
+			application.setProgrammingLanguage(EProgrammingLanguage.PERL);
 		}
 
 		application.setName(name);
@@ -321,11 +325,11 @@ public class LandscapeExampleCreator {
 
 	private static void createCommunication(final Application source, final Application target,
 			final Landscape landscape, final int requests) {
-		final Communication communication = new Communication();
+		final ApplicationCommunication communication = new ApplicationCommunication();
 		communication.initializeID();
-		communication.setSource(source);
-		communication.setTarget(target);
+		communication.setSourceApplication(source);
+		communication.setTargetApplication(target);
 		communication.setRequests(requests);
-		landscape.getApplicationCommunication().add(communication);
+		landscape.getOutgoingApplicationCommunications().add(communication);
 	}
 }

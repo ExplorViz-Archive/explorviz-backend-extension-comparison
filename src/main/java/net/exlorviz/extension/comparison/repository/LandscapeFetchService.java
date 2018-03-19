@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.explorviz.api.ExtensionAPIImpl;
-import net.explorviz.model.Application;
-import net.explorviz.model.Landscape;
-import net.explorviz.model.Node;
-import net.explorviz.model.NodeGroup;
-import net.explorviz.model.Timestamp;
+import net.explorviz.model.application.Application;
+import net.explorviz.model.landscape.Landscape;
+import net.explorviz.model.landscape.Node;
+import net.explorviz.model.landscape.NodeGroup;
+import net.explorviz.model.store.Timestamp;
 
 /**
  *
@@ -50,7 +50,7 @@ public class LandscapeFetchService {
 	public Landscape fetchMergedLandscape(final Landscape firstLandscape, final Landscape secondLandscape) {
 		final Landscape mergedLandscape = secondLandscape;
 
-		for (final net.explorviz.model.System sys : mergedLandscape.getSystems()) {
+		for (final net.explorviz.model.landscape.System sys : mergedLandscape.getSystems()) {
 			for (final NodeGroup nodegroup : sys.getNodeGroups()) {
 				for (final Node node : nodegroup.getNodes()) {
 					for (final Application app2 : node.getApplications()) {
@@ -75,7 +75,7 @@ public class LandscapeFetchService {
 	private Application appContained(final Landscape landscape, final String appName) {
 		Application app = new Application();
 
-		for (final net.explorviz.model.System sys : landscape.getSystems()) {
+		for (final net.explorviz.model.landscape.System sys : landscape.getSystems()) {
 			for (final NodeGroup nodegroup : sys.getNodeGroups()) {
 				for (final Node node : nodegroup.getNodes()) {
 					for (final Application checkApp : node.getApplications()) {
