@@ -9,6 +9,7 @@ import net.explorviz.model.landscape.Landscape;
 import net.explorviz.model.landscape.Node;
 import net.explorviz.model.landscape.NodeGroup;
 import net.explorviz.model.store.Timestamp;
+import net.explorviz.server.main.Configuration;
 
 /**
  *
@@ -43,8 +44,8 @@ public class LandscapeFetchService {
 		return filteredTimestamps;
 	}
 
-	public Landscape fetchLandscapeForComparison(final Timestamp timestamp) {
-		return extensionApi.getLandscape(timestamp.getTimestamp());
+	public Landscape fetchLandscapeForComparison(final long timestamp) {
+		return extensionApi.getLandscape(timestamp, Configuration.REPLAY_REPOSITORY);
 	}
 
 	public Landscape fetchMergedLandscape(final Landscape firstLandscape, final Landscape secondLandscape) {

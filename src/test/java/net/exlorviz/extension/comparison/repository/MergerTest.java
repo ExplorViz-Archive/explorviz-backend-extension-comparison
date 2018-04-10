@@ -1,13 +1,8 @@
 package net.exlorviz.extension.comparison.repository;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Before;
 
-import net.explorviz.model.application.AggregatedClazzCommunication;
 import net.explorviz.model.application.Application;
-import net.explorviz.model.application.ClazzCommunication;
 import net.explorviz.model.landscape.Node;
 
 /**
@@ -25,8 +20,9 @@ public class MergerTest {
 	private Application application1 = new Application();
 	private Application application2 = new Application();
 	protected Application mergedApplication = new Application();
-	private List<AggregatedClazzCommunication> mergedAggregatedCommunication = new ArrayList<>();
-	protected List<ClazzCommunication> mergedCommunication = new ArrayList<>();
+	// private final List<AggregatedClazzCommunication>
+	// mergedAggregatedCommunication = new ArrayList<>();
+	// protected List<ClazzCommunication> mergedCommunication = new ArrayList<>();
 	private final Node dummyNode = new Node();
 
 	@Before
@@ -36,8 +32,10 @@ public class MergerTest {
 		application2 = LandscapeExampleCreator.createSimpleApplicationVersion2(dummyNode);
 		mergedApplication = application2;
 		mergedApplication = merger.appMerge(application1, application2);
-		mergedAggregatedCommunication = mergedApplication.getAggregatedOutgoingClazzCommunications();
-		mergedCommunication = merger.collectAllClazzCommunications(mergedAggregatedCommunication);
+		// mergedAggregatedCommunication =
+		// mergedApplication.getAggregatedOutgoingClazzCommunications();
+		// mergedCommunication =
+		// merger.collectAllClazzCommunications(mergedAggregatedCommunication);
 
 	}
 }

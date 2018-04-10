@@ -10,8 +10,6 @@ import net.explorviz.model.application.Application;
 import net.explorviz.model.application.Clazz;
 import net.explorviz.model.application.ClazzCommunication;
 import net.explorviz.model.application.Component;
-import net.explorviz.model.application.RuntimeInformation;
-import net.explorviz.model.helper.ModelHelper;
 
 /**
  * Provides methods to merge two {@link Application}s.
@@ -28,9 +26,8 @@ public class Merger {
 	/**
 	 * * Takes two {@link Application}s and merges them into a new
 	 * {@link Application}. Further it adds a {@link Status} flag to show whether an
-	 * element between the two {@link Application}s was added, edited or original.
-	 * The timestamp attribute of the element shows to which of the applications the
-	 * elements belong to.
+	 * element between the two {@link Application}s was added, edited, original or
+	 * deleted.
 	 *
 	 * @param appVersion1
 	 * @param appVersion2
@@ -44,6 +41,7 @@ public class Merger {
 		preparing.addStatusToApp(appVersion1);
 		preparing.addStatusToApp(appVersion2);
 
+		// we work on the second version of the application
 		mergedApp = appVersion2;
 
 		// merge packages and clazzes
@@ -54,25 +52,18 @@ public class Merger {
 
 		mergedApp.setComponents(componentsMergedVersion);
 
-		// merge communication between clazzes
-		final List<AggregatedClazzCommunication> aggregatedCommunications1 = appVersion1
-				.getAggregatedOutgoingClazzCommunications();
-		final List<AggregatedClazzCommunication> aggregatedCommunications2 = appVersion2
-				.getAggregatedOutgoingClazzCommunications();
-
-		final List<ClazzCommunication> clazzCommunications1 = collectAllClazzCommunications(aggregatedCommunications1);
-		final List<ClazzCommunication> clazzCommunications2 = collectAllClazzCommunications(aggregatedCommunications2);
-
-		final List<ClazzCommunication> communicationsMergedVersion = communicationClazzMerge(clazzCommunications1,
-				clazzCommunications2);
-		mergedApp.setCommunications(communicationsMergedVersion);
-
-		for (final ClazzCommunication mergedCommunication : communicationsMergedVersion) {
-			final List<RuntimeInformation> commuRuntimeInfo = mergedCommunication.getRuntimeInformations();
-			ModelHelper.addClazzCommunication(mergedCommunication.getSourceClazz(),
-					mergedCommunication.getTargetClazz(), mergedApp, mergedCommunication.getRequests(),average, overallTraceDuration, traceId,
-					mergedCommunication., mergedCommunication.getOperationName());
-		}
+		// // merge communication between clazzes
+		// final List<AggregatedClazzCommunication> aggregatedCommunications1 =
+		// appVersion1
+		// .getAggregatedOutgoingClazzCommunications();
+		// final List<AggregatedClazzCommunication> aggregatedCommunications2 =
+		// appVersion2
+		// .getAggregatedOutgoingClazzCommunications();
+		//
+		// final List<AggregatedClazzCommunication>
+		// aggregatedCommunicationsMergedVersion = clazzCommunicationMerge(
+		// aggregatedCommunications1, aggregatedCommunications2);
+		// mergedApp.setAggregatedOutgoingClazzCommunications(aggregatedCommunicationsMergedVersion);
 
 		return mergedApp;
 	}
@@ -185,8 +176,8 @@ public class Merger {
 	}
 
 	/**
-	 * Takes two lists of {@link ClazzCommunication}s and returns one merged list of
-	 * {@link ClazzCommunication}s. This method is used by
+	 * TODO Takes two lists of {@link ClazzCommunication}s and returns one merged
+	 * list of {@link ClazzCommunication}s. This method is used by
 	 * {@link Merger#appMerge(Application, Application)}. Two
 	 * {@link ClazzCommunication}s are identical, if they have the same source and
 	 * target {@link Application} and the same methodName.
@@ -197,46 +188,53 @@ public class Merger {
 	 *            list of {@link ClazzCommunication}s
 	 * @return merged list of {@link ClazzCommunication}s
 	 */
-	private List<ClazzCommunication> communicationClazzMerge(final List<ClazzCommunication> communications1,
-			final List<ClazzCommunication> communications2) {
-		final List<ClazzCommunication> mergedCommunications = communications2;
+	private List<AggregatedClazzCommunication> clazzCommunicationMerge(
+			final List<AggregatedClazzCommunication> communications1,
+			final List<AggregatedClazzCommunication> communications2) {
+		final List<AggregatedClazzCommunication> mergedCommunications = communications2;
 		ClazzCommunication communication2ContainedIn1;
 		ClazzCommunication communication1ContainedIn2;
+		final List<ClazzCommunication> clazzCommunications1 = collectAllClazzCommunications(communications1);
+		final List<ClazzCommunication> mergedClazzCommunications = collectAllClazzCommunications(mergedCommunications);
 
-		for (final ClazzCommunication communication2 : mergedCommunications) {
-			communication2ContainedIn1 = communications1.stream()
-					.filter(c1 -> c1.getSourceClazz().getFullQualifiedName()
-							.equals(communication2.getSourceClazz().getFullQualifiedName())
-							&& c1.getTargetClazz().getFullQualifiedName()
-									.equals(communication2.getTargetClazz().getFullQualifiedName()))
-					.findFirst().orElse(null);
+		for (final AggregatedClazzCommunication aggregatedCommu2 : mergedCommunications) {
+			for (final ClazzCommunication communication2 : aggregatedCommu2.getOutgoingClazzCommunications()) {
+				communication2ContainedIn1 = clazzCommunications1.stream()
+						.filter(c1 -> c1.getSourceClazz().getFullQualifiedName()
+								.equals(communication2.getSourceClazz().getFullQualifiedName())
+								&& c1.getTargetClazz().getFullQualifiedName()
+										.equals(communication2.getTargetClazz().getFullQualifiedName()))
+						.findFirst().orElse(null);
 
-			if (communication2ContainedIn1 == null) {
-				// case: communication with same source and target does not exist, the
-				// methodName is not important yet
-				communication2.getExtensionAttributes().put("status", Status.ADDED);
-			} else if (!(communication2.getOperationName().equals(communication2ContainedIn1.getOperationName()))) {
-				// case: communication with same source and target exists, but the methodNames
-				// differ
-				communication2.getExtensionAttributes().put("status", Status.EDITED);
-				communications1.remove(communication2ContainedIn1);
+				if (communication2ContainedIn1 == null) {
+					// case: communication with same source and target does not exist, the
+					// methodName is not important yet
+					communication2.getExtensionAttributes().put("status", Status.ADDED);
+				} else if (!(communication2.getOperationName().equals(communication2ContainedIn1.getOperationName()))) {
+					// case: communication with same source and target exists, but the methodNames
+					// differ
+					communication2.getExtensionAttributes().put("status", Status.EDITED);
+					communications1.remove(communication2ContainedIn1);
 
+				}
 			}
 		}
 
-		for (final ClazzCommunication communication1 : communications1) {
-			communication1ContainedIn2 = mergedCommunications.stream()
-					.filter(c2 -> c2.getSourceClazz().getFullQualifiedName()
-							.equals(communication1.getSourceClazz().getFullQualifiedName())
-							&& c2.getTargetClazz().getFullQualifiedName()
-									.equals(communication1.getTargetClazz().getFullQualifiedName()))
-					.findFirst().orElse(null);
+		for (final AggregatedClazzCommunication aggregatedCommunication1 : communications1) {
+			for (final ClazzCommunication communication1 : aggregatedCommunication1.getOutgoingClazzCommunications()) {
+				communication1ContainedIn2 = mergedClazzCommunications.stream()
+						.filter(c2 -> c2.getSourceClazz().getFullQualifiedName()
+								.equals(communication1.getSourceClazz().getFullQualifiedName())
+								&& c2.getTargetClazz().getFullQualifiedName()
+										.equals(communication1.getTargetClazz().getFullQualifiedName()))
+						.findFirst().orElse(null);
 
-			if (communication1ContainedIn2 == null) {
-				communication1.getExtensionAttributes().put("status", Status.DELETED);
-				mergedCommunications.add(communication1);
+				if (communication1ContainedIn2 == null) {
+					communication1.getExtensionAttributes().put("status", Status.DELETED);
+					aggregatedCommunication1.addClazzCommunication(communication1);
+				}
+
 			}
-
 		}
 
 		return mergedCommunications;
