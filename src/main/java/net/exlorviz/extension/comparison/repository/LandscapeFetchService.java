@@ -1,14 +1,10 @@
 package net.exlorviz.extension.comparison.repository;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.explorviz.api.ExtensionAPIImpl;
 import net.explorviz.model.application.Application;
 import net.explorviz.model.landscape.Landscape;
 import net.explorviz.model.landscape.Node;
 import net.explorviz.model.landscape.NodeGroup;
-import net.explorviz.model.store.Timestamp;
 import net.explorviz.server.main.Configuration;
 
 /**
@@ -30,24 +26,12 @@ public class LandscapeFetchService {
 		return LandscapeFetchService.instance;
 	}
 
-	// Right now this works for two landscapes, this can be extended to more than
-	// two landscapes in the future
-
-	public List<Timestamp> filterTwoTimestampsForComparison() {
-		// Get all timestamps in the repository, because parameter is 0.
-		final List<Timestamp> allTimestamps = extensionApi.getNewestTimestamps(0);
-		final List<Timestamp> filteredTimestamps = new ArrayList<Timestamp>();
-
-		filteredTimestamps.add(allTimestamps.get(0));
-		filteredTimestamps.add(allTimestamps.get(1));
-
-		return filteredTimestamps;
-	}
-
 	public Landscape fetchLandscapeForComparison(final long timestamp) {
 		return extensionApi.getLandscape(timestamp, Configuration.REPLAY_REPOSITORY);
 	}
 
+	// Right now this works for two landscapes, this can be extended to more than
+	// two landscapes in the future
 	public Landscape fetchMergedLandscape(final Landscape firstLandscape, final Landscape secondLandscape) {
 		final Landscape mergedLandscape = secondLandscape;
 
