@@ -52,18 +52,15 @@ public class Merger {
 
 		mergedApp.setComponents(componentsMergedVersion);
 
-		// // merge communication between clazzes
-		// final List<AggregatedClazzCommunication> aggregatedCommunications1 =
-		// appVersion1
-		// .getAggregatedOutgoingClazzCommunications();
-		// final List<AggregatedClazzCommunication> aggregatedCommunications2 =
-		// appVersion2
-		// .getAggregatedOutgoingClazzCommunications();
-		//
-		// final List<AggregatedClazzCommunication>
-		// aggregatedCommunicationsMergedVersion = clazzCommunicationMerge(
-		// aggregatedCommunications1, aggregatedCommunications2);
-		// mergedApp.setAggregatedOutgoingClazzCommunications(aggregatedCommunicationsMergedVersion);
+		// merge communication between clazzes
+		final List<AggregatedClazzCommunication> aggregatedCommunications1 = appVersion1
+				.getAggregatedOutgoingClazzCommunications();
+		final List<AggregatedClazzCommunication> aggregatedCommunications2 = appVersion2
+				.getAggregatedOutgoingClazzCommunications();
+
+		final List<AggregatedClazzCommunication> aggregatedCommunicationsMergedVersion = clazzCommunicationMerge(
+				aggregatedCommunications1, aggregatedCommunications2);
+		mergedApp.setAggregatedOutgoingClazzCommunications(aggregatedCommunicationsMergedVersion);
 
 		return mergedApp;
 	}
@@ -193,7 +190,7 @@ public class Merger {
 			final List<AggregatedClazzCommunication> communications2) {
 		final List<AggregatedClazzCommunication> mergedCommunications = communications2;
 		ClazzCommunication communication2ContainedIn1;
-		ClazzCommunication communication1ContainedIn2;
+		final ClazzCommunication communication1ContainedIn2;
 		final List<ClazzCommunication> clazzCommunications1 = collectAllClazzCommunications(communications1);
 		final List<ClazzCommunication> mergedClazzCommunications = collectAllClazzCommunications(mergedCommunications);
 
@@ -220,22 +217,24 @@ public class Merger {
 			}
 		}
 
-		for (final AggregatedClazzCommunication aggregatedCommunication1 : communications1) {
-			for (final ClazzCommunication communication1 : aggregatedCommunication1.getOutgoingClazzCommunications()) {
-				communication1ContainedIn2 = mergedClazzCommunications.stream()
-						.filter(c2 -> c2.getSourceClazz().getFullQualifiedName()
-								.equals(communication1.getSourceClazz().getFullQualifiedName())
-								&& c2.getTargetClazz().getFullQualifiedName()
-										.equals(communication1.getTargetClazz().getFullQualifiedName()))
-						.findFirst().orElse(null);
-
-				if (communication1ContainedIn2 == null) {
-					communication1.getExtensionAttributes().put("status", Status.DELETED);
-					aggregatedCommunication1.addClazzCommunication(communication1);
-				}
-
-			}
-		}
+		// for (final AggregatedClazzCommunication aggregatedCommunication1 :
+		// communications1) {
+		// for (final ClazzCommunication communication1 :
+		// aggregatedCommunication1.getOutgoingClazzCommunications()) {
+		// communication1ContainedIn2 = mergedClazzCommunications.stream()
+		// .filter(c2 -> c2.getSourceClazz().getFullQualifiedName()
+		// .equals(communication1.getSourceClazz().getFullQualifiedName())
+		// && c2.getTargetClazz().getFullQualifiedName()
+		// .equals(communication1.getTargetClazz().getFullQualifiedName()))
+		// .findFirst().orElse(null);
+		//
+		// if (communication1ContainedIn2 == null) {
+		// communication1.getExtensionAttributes().put("status", Status.DELETED);
+		// aggregatedCommunication1.addClazzCommunication(communication1);
+		// }
+		//
+		// }
+		// }
 
 		return mergedCommunications;
 	}
