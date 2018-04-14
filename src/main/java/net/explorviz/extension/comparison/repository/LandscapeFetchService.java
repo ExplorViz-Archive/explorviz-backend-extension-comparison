@@ -1,5 +1,8 @@
 package net.explorviz.extension.comparison.repository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.explorviz.api.ExtensionAPIImpl;
 import net.explorviz.model.application.Application;
 import net.explorviz.model.landscape.Landscape;
@@ -14,6 +17,7 @@ import net.explorviz.server.main.Configuration;
  */
 public class LandscapeFetchService {
 
+	static final Logger logger = LoggerFactory.getLogger(LandscapeFetchService.class.getName());
 	private static LandscapeFetchService instance;
 
 	private final ExtensionAPIImpl extensionApi = ExtensionAPIImpl.getInstance();
@@ -43,8 +47,8 @@ public class LandscapeFetchService {
 
 						final Application app1 = appContained(firstLandscape, app2Name);
 						if (app1 == null) {
-							System.out.printf(
-									"You can not compare two complete different applications. The application %s is not contained in the other landscape.\n",
+							logger.error(
+									"You can not compare two complete different applications. The application {} is not contained in the other landscape.",
 									app2Name);
 						} else {
 							appMerger.appMerge(app1, app2);

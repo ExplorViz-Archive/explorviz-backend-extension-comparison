@@ -83,7 +83,6 @@ public class EntityComparison {
 			childrenEqual = this.componentsIdentical(children1.get(i), children2.get(i));
 
 			if (!childrenEqual) {
-				childrenEqual = false;
 				break;
 			}
 		}
@@ -104,12 +103,10 @@ public class EntityComparison {
 	 */
 	public boolean clazzesEqual(final List<Clazz> clazzes1, final List<Clazz> clazzes2) {
 		boolean clazzesEqual = true;
-		boolean clazzEqual = true;
 
 		for (int i = 0; clazzes1.size() > i; i++) {
-			clazzEqual = clazzEqual(clazzes1.get(i), clazzes2.get(i));
-			if (!clazzEqual) {
-				clazzesEqual = false;
+			clazzesEqual = clazzEqual(clazzes1.get(i), clazzes2.get(i));
+			if (!clazzesEqual) {
 				break;
 			}
 		}
@@ -118,24 +115,16 @@ public class EntityComparison {
 	}
 
 	/**
-	 * Two {@link Draw3DNodeEntity} are equal, if they have the same type and the
-	 * same fullQualifiedName.
+	 * Two {@link Clazz} are equal, if they have the same type and the same
+	 * fullQualifiedName.
 	 *
 	 * @param clazz1
 	 * @param clazz2
 	 * @return true: if elem1 and elem2 are equal, false:else
 	 */
 	public boolean clazzEqual(final Clazz clazz1, final Clazz clazz2) {
-		boolean elemsEqual = false;
 
-		final String fullName1 = clazz1.getFullQualifiedName();
-		final String fullname2 = clazz2.getFullQualifiedName();
-
-		if (clazz1.getClass().equals(clazz2.getClass()) && fullName1.equals(fullname2)) {
-			elemsEqual = true;
-		}
-
-		return elemsEqual;
+		return clazz1.getFullQualifiedName().equals(clazz2.getFullQualifiedName());
 	}
 
 }

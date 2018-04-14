@@ -7,8 +7,8 @@ import net.explorviz.extension.comparison.repository.Merger;
 /**
  * This flag is attached to each entity of the meta-model. It shows whether an
  * entity is modified. This information is needed for building the
- * comparing-application object {@link Merger}.(static view) Plus it holds
- * the difference of class instances and communication requests between the two
+ * comparing-application object {@link Merger}.(static view) Plus it holds the
+ * difference of class instances and communication requests between the two
  * models.(dynamic view)
  *
  * @author josw
@@ -16,7 +16,4 @@ import net.explorviz.extension.comparison.repository.Merger;
  */
 public enum Status implements Serializable {
 	ORIGINAL, ADDED, EDITED, DELETED;
-
-	private Status status;
-
 }
