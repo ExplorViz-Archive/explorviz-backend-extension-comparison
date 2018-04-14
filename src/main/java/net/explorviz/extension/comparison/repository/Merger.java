@@ -15,6 +15,7 @@ import net.explorviz.model.application.Application;
 import net.explorviz.model.application.Clazz;
 import net.explorviz.model.application.ClazzCommunication;
 import net.explorviz.model.application.Component;
+import net.explorviz.model.application.CumulatedClazzCommunication;
 
 /**
  * Provides methods to merge two {@link Application}s.
@@ -218,44 +219,145 @@ public class Merger {
 	 *            list of {@link ClazzCommunication}s
 	 * @return merged list of {@link ClazzCommunication}s
 	 */
-	private List<AggregatedClazzCommunication> clazzCommunicationMerge(
-			final List<AggregatedClazzCommunication> communications1,
-			final List<AggregatedClazzCommunication> communications2) {
+	private List<CumulatedClazzCommunication> cumulatedClazzCommunicationMerge(
+			final List<AggregatedClazzCommunication> aggregatedCommunications1,
+			final List<CumulatedClazzCommunication> cumulatedCommunications2) {
 
-		final List<AggregatedClazzCommunication> mergedCommunications = communications2;
+		final List<CumulatedClazzCommunication> mergedCumulatedCommunications = cumulatedCommunications2;
+		final List<ClazzCommunication> clazzCommunications1 = collectAllClazzCommunications(aggregatedCommunications1);
+
 		ClazzCommunication communication2ContainedIn1;
-		final List<ClazzCommunication> clazzCommunications1 = collectAllClazzCommunications(communications1);
+		for (final CumulatedClazzCommunication cumulatedCommunication2 : mergedCumulatedCommunications) {
+			for (final AggregatedClazzCommunication aggregatedCommunication2 : cumulatedCommunication2
+					.getAggregatedClazzCommunications()) {
+				for (final ClazzCommunication clazzCommunication2 : aggregatedCommunication2
+						.getOutgoingClazzCommunications()) {
 
-		// final List<ClazzCommunication> mergedClazzCommunications =
-		// collectAllClazzCommunications(mergedCommunications);
+					communication2ContainedIn1 = clazzCommunications1.stream()
+							.filter(c1 -> c1.getSourceClazz().getFullQualifiedName()
+									.equals(clazzCommunication2.getSourceClazz().getFullQualifiedName())
+									&& c1.getTargetClazz().getFullQualifiedName()
+											.equals(clazzCommunication2.getTargetClazz().getFullQualifiedName())
+									&& c1.getOperationName().equals(clazzCommunication2.getOperationName()))
+							.findFirst().orElse(null);
 
-		for (final AggregatedClazzCommunication aggregatedCommu2 : communications2) {
-			for (final ClazzCommunication communication2 : aggregatedCommu2.getOutgoingClazzCommunications()) {
-				communication2ContainedIn1 = clazzCommunications1.stream()
+					if (communication2ContainedIn1 != null) {
+						// communication is contained in version 1 and in version 2, thus the
+						// default status is not changed
+						// marked that communication exists in both versions, used for detection of
+						// deleted communication
+						communication2ContainedIn1.getExtensionAttributes().put("exists", true);
+
+					} else {
+						clazzCommunication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
+					}
+
+				}
+				// prüfe, ob es in clazzCommunications1 Einträge gibt, mit: 1.sourceClazz/target
+				// == aggregatedCommunication2.sourceClazz/target && ohne "exists" -> deleted
+				final List<ClazzCommunication> deletedCommunications = clazzCommunications1.stream()
 						.filter(c1 -> c1.getSourceClazz().getFullQualifiedName()
-								.equals(communication2.getSourceClazz().getFullQualifiedName())
-								&& c1.getTargetClazz().getFullQualifiedName()
-										.equals(communication2.getTargetClazz().getFullQualifiedName()))
-						.findFirst().orElse(null);
+								.equals(aggregatedCommunication2.getSourceClazz().getFullQualifiedName()))
+						.filter(c1 -> c1.getTargetClazz().getFullQualifiedName()
+								.equals(aggregatedCommunication2.getTargetClazz().getFullQualifiedName()))
+						.filter(c1 -> !c1.getExtensionAttributes().containsKey("exists")).collect(Collectors.toList());
+				for (final ClazzCommunication deletedCommunication : deletedCommunications) {
+					deletedCommunication.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
+				}
+				aggregatedCommunication2.getOutgoingClazzCommunications().addAll(deletedCommunications);
+				// check and set status of aggregated communications
 
-				if (communication2ContainedIn1 == null) {
-					// case: communication with same source and target does not exist, the
-					// methodName is not important yet
-					communication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
-				} else if (!(communication2.getOperationName().equals(communication2ContainedIn1.getOperationName()))) {
-					// case: communication with same source and target exists, but the methodNames
-					// differ
-					communication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.EDITED);
-					// communications1.remove(communication2ContainedIn1);
+				final boolean addedExist = aggregatedCommunication2.getOutgoingClazzCommunications().stream()
+						.filter(c -> c.getExtensionAttributes().get(PrepareForMerger.STATUS).equals(Status.ADDED))
+						.findAny().isPresent();
 
+				final boolean deletedExist = aggregatedCommunication2.getOutgoingClazzCommunications().stream()
+						.filter(c -> c.getExtensionAttributes().get(PrepareForMerger.STATUS).equals(Status.DELETED))
+						.findAny().isPresent();
+
+				// set status of aggregated communications
+				if (addedExist) {
+					if (deletedExist) {
+						// EDITED: addedExist=true, deletedExist=true
+						aggregatedCommunication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.EDITED);
+					} else {
+						// ADDED: addedExist=true, deletedExist=false
+						aggregatedCommunication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
+					}
+				} else {
+					if (deletedExist) {
+						// DELETED: addedExist=false, deletedExist=true
+						aggregatedCommunication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
+					}
+				}
+			}
+			// check and set status of cumulated communications
+
+			final boolean addedExist = cumulatedCommunication2.getAggregatedClazzCommunications().stream()
+					.filter(c -> c.getExtensionAttributes().get(PrepareForMerger.STATUS).equals(Status.ADDED)).findAny()
+					.isPresent();
+
+			final boolean deletedExist = cumulatedCommunication2.getAggregatedClazzCommunications().stream()
+					.filter(c -> c.getExtensionAttributes().get(PrepareForMerger.STATUS).equals(Status.DELETED))
+					.findAny().isPresent();
+
+			// set status of cumulated communications
+			if (addedExist) {
+				if (deletedExist) {
+					// EDITED: addedExist=true, deletedExist=true
+					cumulatedCommunication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.EDITED);
+				} else {
+					// ADDED: addedExist=true, deletedExist=false
+					cumulatedCommunication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
+				}
+			} else {
+				if (deletedExist) {
+					// DELETED: addedExist=false, deletedExist=true
+					cumulatedCommunication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
 				}
 			}
 		}
 
-		// final List<AggregatedClazzCommunication> mergedCommunicationsIncludedDelete =
-		// includeDeletedIntoMerged(
-		// communications1, communications2, mergedCommunications);
-		// return mergedCommunicationsIncludedDelete;
+		return mergedCumulatedCommunications;
+	}
+
+	private List<ClazzCommunication> clazzCommunicationMerge(final List<ClazzCommunication> communications1,
+			final List<ClazzCommunication> communications2) {
+
+		final List<ClazzCommunication> mergedCommunications = communications2;
+		boolean communication2ContainedIn1;
+		for (final ClazzCommunication mergedCommunication : mergedCommunications) {
+			communication2ContainedIn1 = communications1.stream()
+					.filter(c1 -> c1.getSourceClazz().getFullQualifiedName()
+							.equals(mergedCommunication.getSourceClazz().getFullQualifiedName())
+							&& c1.getTargetClazz().getFullQualifiedName()
+									.equals(mergedCommunication.getTargetClazz().getFullQualifiedName())
+							&& c1.getOperationName().equals(mergedCommunication.getOperationName()))
+					.findFirst().isPresent();
+			if (!communication2ContainedIn1) {
+				mergedCommunication.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
+			}
+			// else: communication is contained in version 1 and in version 2, thus the
+			// default status is not changed
+		}
+
+		boolean communication1ContainedIn2;
+		for (final ClazzCommunication communication1 : communications1) {
+			communication1ContainedIn2 = communications2.stream()
+					.filter(c2 -> c2.getSourceClazz().getFullQualifiedName()
+							.equals(communication1.getSourceClazz().getFullQualifiedName())
+							&& c2.getTargetClazz().getFullQualifiedName()
+									.equals(communication1.getTargetClazz().getFullQualifiedName())
+							&& c2.getOperationName().equals(communication1.getOperationName()))
+					.findFirst().isPresent();
+			if (!communication1ContainedIn2) {
+				communication1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
+				mergedCommunications.add(communication1);
+			}
+			// else: communication is contained in version 1 and in version 2, thus the
+			// default status is not changed
+		}
+
 		return mergedCommunications;
 	}
 
