@@ -2,6 +2,10 @@ package net.explorviz.extension.comparison.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.extension.comparison.util.EntityComparison;
@@ -20,6 +24,7 @@ import net.explorviz.model.application.Component;
 
 public class Merger {
 
+	static final Logger logger = LoggerFactory.getLogger(Merger.class.getName());
 	private final EntityComparison entityComparison = new EntityComparison();
 	private final PrepareForMerger preparing = new PrepareForMerger();
 
@@ -79,7 +84,7 @@ public class Merger {
 	private List<Component> componentMerge(final List<Component> components1, final List<Component> components2) {
 		final List<Component> componentsMergedVersion = components2;
 		List<Clazz> mergedClazzes = new ArrayList<Clazz>();
-		Component componentFrom1 = new Component();
+		List<Component> componentsFrom1 = null;
 
 		for (final Component component2 : componentsMergedVersion) {
 
@@ -90,26 +95,33 @@ public class Merger {
 			if (component2Containedin1) {
 				// get the component in components1 with the same fullQualifiedName as
 				// component2
-				componentFrom1 = components1.stream().filter(c1 -> c1.getFullQualifiedName().equals(fullName2))
-						.findFirst().get();
 
-				final boolean componentsIdentical = entityComparison.componentsIdentical(componentFrom1, component2);
+				componentsFrom1 = components1.stream().filter(c1 -> c1.getFullQualifiedName().equals(fullName2))
+						.collect(Collectors.toList());
 
-				// case: the identical component exists in version 1 and version 2 -> do nothing
-				if (!componentsIdentical) {
-					// case: the component exists in both versions, but children and/or clazzes are
-					// not identical
-					component2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.EDITED);
+				if (componentsFrom1.size() != 1) {
+					logger.error("Merger.componentMerge(): wrong amount of components with: {}", fullName2);
+				} else {
+					final Component componentFrom1 = componentsFrom1.get(0);
+					final boolean componentsIdentical = entityComparison.componentsIdentical(componentFrom1,
+							component2);
+
+					// case: the identical component exists in version 1 and version 2 -> do nothing
+					if (!componentsIdentical) {
+						// case: the component exists in both versions, but children and/or clazzes are
+						// not identical
+						component2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.EDITED);
+					}
+					// check the childcomponents of ORIGINAL and EDITED components
+					if ((componentFrom1.getChildren().size() > 0) || (component2.getChildren().size() > 0)) {
+						componentMerge(componentFrom1.getChildren(), component2.getChildren());
+					}
+					// check clazzes
+					mergedClazzes = clazzMerge(componentFrom1.getClazzes(), component2.getClazzes());
+					component2.setClazzes(mergedClazzes);
+
 				}
-				// check the childcomponents of ORIGINAL and EDITED components
-				if ((componentFrom1.getChildren().size() > 0) && (component2.getChildren().size() > 0)) {
-					componentMerge(componentFrom1.getChildren(), component2.getChildren());
-				}
-				// check clazzes
-				mergedClazzes = clazzMerge(componentFrom1.getClazzes(), component2.getClazzes());
-				component2.setClazzes(mergedClazzes);
-
-			} else if (!component2Containedin1) {
+			} else {
 				// case: the component does not exist in version 1, but exists in version 2
 				component2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
 				setStatusCLazzesAndChildren(component2, Status.ADDED);
@@ -117,14 +129,18 @@ public class Merger {
 		}
 
 		for (final Component component1 : components1) {
-			final String fullName1 = component1.getFullQualifiedName();
+
 			final boolean component1Containedin2 = componentsMergedVersion.stream()
-					.filter(e -> e.getFullQualifiedName().equals(fullName1)).findFirst().isPresent();
+					.filter(e -> e.getFullQualifiedName().equals(component1.getFullQualifiedName())).findFirst()
+					.isPresent();
 
 			if (!component1Containedin2) {
+				// case: the component and children do not exist in version 2, but existed in
+				// version 1
 				component1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
-				componentsMergedVersion.add(component1);
 				setStatusCLazzesAndChildren(component1, Status.DELETED);
+				// add deleted component to result component list
+				componentsMergedVersion.add(component1);
 			}
 		}
 		return componentsMergedVersion;
@@ -164,6 +180,7 @@ public class Merger {
 					.isPresent();
 
 			if (!clazz1Containedin2) {
+				// case: the clazz does exist in version 1, but not exists in version 2
 				clazz1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
 				clazzesMergedVersion.add(clazz1);
 			}
