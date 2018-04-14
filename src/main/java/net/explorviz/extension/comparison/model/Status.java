@@ -2,7 +2,7 @@ package net.explorviz.extension.comparison.model;
 
 import java.io.Serializable;
 
-import net.exlorviz.extension.comparison.repository.Merger;
+import net.explorviz.extension.comparison.repository.Merger;
 
 /**
  * This flag is attached to each entity of the meta-model. It shows whether an

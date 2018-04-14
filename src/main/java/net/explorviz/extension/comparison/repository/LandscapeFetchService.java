@@ -1,4 +1,4 @@
-package net.exlorviz.extension.comparison.repository;
+package net.explorviz.extension.comparison.repository;
 
 import net.explorviz.api.ExtensionAPIImpl;
 import net.explorviz.model.application.Application;

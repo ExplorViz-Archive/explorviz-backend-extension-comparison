@@ -1,4 +1,4 @@
-package net.exlorviz.extension.comparison.repository;
+package net.explorviz.extension.comparison.repository;
 
 import java.util.List;
 
@@ -20,6 +20,8 @@ import net.explorviz.model.landscape.Landscape;
  */
 public class PrepareForMerger {
 
+	public static final String STATUS = "status";
+
 	/**
 	 * Adds a {@link Status} attribute to every element in the {@link Application}.
 	 * This serves as preparation for merging two {@link Application}s.
@@ -33,15 +35,15 @@ public class PrepareForMerger {
 		for (final AggregatedClazzCommunication aggregatedCommunication : mergingApp
 				.getAggregatedOutgoingClazzCommunications()) {
 			for (final ClazzCommunication communication : aggregatedCommunication.getOutgoingClazzCommunications()) {
-				communication.getExtensionAttributes().put("status", Status.ORIGINAL);
+				communication.getExtensionAttributes().put(STATUS, Status.ORIGINAL);
 			}
 		}
 
 		for (final Component component : mergingApp.getComponents()) {
-			component.getExtensionAttributes().put("status", Status.ORIGINAL);
+			component.getExtensionAttributes().put(STATUS, Status.ORIGINAL);
 
 			for (final Clazz clazz : component.getClazzes()) {
-				clazz.getExtensionAttributes().put("status", Status.ORIGINAL);
+				clazz.getExtensionAttributes().put(STATUS, Status.ORIGINAL);
 			}
 
 			this.componentRecursive(component.getChildren());
@@ -59,10 +61,10 @@ public class PrepareForMerger {
 	 */
 	private void componentRecursive(final List<Component> components) {
 		for (final Component component : components) {
-			component.getExtensionAttributes().put("status", Status.ORIGINAL);
+			component.getExtensionAttributes().put(STATUS, Status.ORIGINAL);
 
 			for (final Clazz clazz : component.getClazzes()) {
-				clazz.getExtensionAttributes().put("status", Status.ORIGINAL);
+				clazz.getExtensionAttributes().put(STATUS, Status.ORIGINAL);
 			}
 
 			this.componentRecursive(component.getChildren());

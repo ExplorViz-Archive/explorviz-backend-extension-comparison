@@ -1,4 +1,4 @@
-package net.exlorviz.extension.comparison.repository;
+package net.explorviz.extension.comparison.repository;
 
 import java.util.Random;
 
@@ -61,7 +61,7 @@ public class LandscapeExampleCreator {
 
 		final Component org = new Component();
 		org.initializeID();
-		org.getExtensionAttributes().put("status", Status.ORIGINAL);
+		org.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		org.setName("orgV1");
 		org.setFullQualifiedName("orgV1");
 		org.setParentComponent(null);
@@ -69,7 +69,7 @@ public class LandscapeExampleCreator {
 
 		final Component org2 = new Component();
 		org2.initializeID();
-		org2.getExtensionAttributes().put("status", Status.ORIGINAL);
+		org2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		org2.setName("org2V1");
 		org2.setFullQualifiedName("org2V1");
 		org2.setParentComponent(null);
@@ -77,7 +77,7 @@ public class LandscapeExampleCreator {
 
 		final Component org3 = new Component();
 		org3.initializeID();
-		org3.getExtensionAttributes().put("status", Status.ORIGINAL);
+		org3.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		org3.setName("org3V1");
 		org3.setFullQualifiedName("org3V1");
 		org3.setParentComponent(null);
@@ -85,7 +85,7 @@ public class LandscapeExampleCreator {
 
 		final Clazz demoClass = new Clazz();
 		demoClass.initializeID();
-		demoClass.getExtensionAttributes().put("status", Status.ORIGINAL);
+		demoClass.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		demoClass.setName("demoV1");
 		demoClass.setFullQualifiedName("orgV1.demoV1");
 		demoClass.setInstanceCount(100);
@@ -95,7 +95,7 @@ public class LandscapeExampleCreator {
 
 		final Clazz demoClass3 = new Clazz();
 		demoClass3.initializeID();
-		demoClass3.getExtensionAttributes().put("status", Status.ORIGINAL);
+		demoClass3.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		demoClass3.setName("demo3V1");
 		demoClass3.setFullQualifiedName("org3V1.demo3V1");
 		demoClass3.setInstanceCount(100);
@@ -103,7 +103,7 @@ public class LandscapeExampleCreator {
 
 		final Component subOrg = new Component();
 		subOrg.initializeID();
-		subOrg.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subOrg.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		subOrg.setName("subOrgV1");
 		subOrg.setFullQualifiedName("orgV1.subOrgV1");
 		subOrg.setParentComponent(org);
@@ -113,7 +113,7 @@ public class LandscapeExampleCreator {
 
 		final Clazz subDemoClass = new Clazz();
 		subDemoClass.initializeID();
-		subDemoClass.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subDemoClass.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		subDemoClass.setName("subDemoV1");
 		subDemoClass.setFullQualifiedName("orgV1.subOrgV1.subDemoV1");
 		subDemoClass.setInstanceCount(100);
@@ -123,7 +123,7 @@ public class LandscapeExampleCreator {
 
 		final Clazz subDemo3Class = new Clazz();
 		subDemo3Class.initializeID();
-		subDemo3Class.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subDemo3Class.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		subDemo3Class.setName("subDemo3V1");
 		subDemo3Class.setFullQualifiedName("orgV1.subOrgV1.subDemo3V1");
 		subDemo3Class.setInstanceCount(100);
@@ -138,7 +138,7 @@ public class LandscapeExampleCreator {
 		// // communication
 		// final ClazzCommunication comm1 = new ClazzCommunication();
 		// comm1.initializeID();
-		// comm1.getExtensionAttributes().put("status", Status.ORIGINAL);
+		// comm1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		// comm1.setSourceClazz(demoClass);
 		// comm1.setTargetClazz(subDemoClass);
 		// comm1.setOperationName("FromDemoToSub()");
@@ -147,7 +147,8 @@ public class LandscapeExampleCreator {
 		//
 		// final ClazzCommunication comm1Return = new ClazzCommunication();
 		// comm1Return.initializeID();
-		// comm1Return.getExtensionAttributes().put("status", Status.ORIGINAL);
+		// comm1Return.getExtensionAttributes().put(PrepareForMerger.STATUS,
+		// Status.ORIGINAL);
 		// comm1Return.setSourceClazz(subDemoClass);
 		// comm1Return.setTargetClazz(demoClass);
 		// comm1Return.setOperationName("FromSubToDemo()");
@@ -156,7 +157,7 @@ public class LandscapeExampleCreator {
 		//
 		// final ClazzCommunication comm2 = new ClazzCommunication();
 		// comm2.initializeID();
-		// comm2.getExtensionAttributes().put("status", Status.ORIGINAL);
+		// comm2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		// comm2.setSourceClazz(demoClass);
 		// comm2.setTargetClazz(subDemoClass);
 		// comm2.setOperationName("FromDemoToSub2()");
@@ -165,7 +166,7 @@ public class LandscapeExampleCreator {
 		//
 		// final ClazzCommunication comm3 = new ClazzCommunication();
 		// comm3.initializeID();
-		// comm3.getExtensionAttributes().put("status", Status.ORIGINAL);
+		// comm3.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		// comm3.setSourceClazz(subDemoClass);
 		// comm3.setTargetClazz(subDemo3Class);
 		// comm3.setOperationName("FromSub1ToSub3()");
@@ -200,7 +201,7 @@ public class LandscapeExampleCreator {
 		// component ADDED
 		final Component net = new Component();
 		net.initializeID();
-		net.getExtensionAttributes().put("status", Status.ORIGINAL);
+		net.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		net.setName("netV2");
 		net.setFullQualifiedName("netV2");
 		net.setParentComponent(null);
@@ -208,14 +209,14 @@ public class LandscapeExampleCreator {
 
 		final Component subOrg2 = new Component();
 		subOrg2.initializeID();
-		subOrg2.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subOrg2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		subOrg2.setName("subOrg2");
 		subOrg2.setFullQualifiedName("netV2.subOrg2");
 		subOrg2.setParentComponent(net);
 
 		final Component subsubOrg2 = new Component();
 		subsubOrg2.initializeID();
-		subsubOrg2.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subsubOrg2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		subsubOrg2.setName("subsubOrg2");
 		subsubOrg2.setFullQualifiedName("netV2.subOrg2.subsubOrg2");
 		subsubOrg2.setParentComponent(subOrg2);
@@ -230,7 +231,7 @@ public class LandscapeExampleCreator {
 		// clazz ADDED
 		final Clazz subDemoClassNet = new Clazz();
 		subDemoClassNet.initializeID();
-		subDemoClassNet.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subDemoClassNet.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		subDemoClassNet.setName("subDemoNet");
 		subDemoClassNet.setFullQualifiedName("netV2.subOrg2.subsubOrg2.subDemoNet");
 		subDemoClassNet.setInstanceCount(24);
@@ -244,7 +245,7 @@ public class LandscapeExampleCreator {
 		final Component subOrg = simpleAppV2.getComponents().get(0).getChildren().get(0);
 		final Clazz subDemoClass2 = new Clazz();
 		subDemoClass2.initializeID();
-		subDemoClass2.getExtensionAttributes().put("status", Status.ORIGINAL);
+		subDemoClass2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
 		subDemoClass2.setName("subDemoV2");
 		subDemoClass2.setFullQualifiedName("orgV1.subOrgV1.subDemoV2");
 		subDemoClass2.setInstanceCount(100);
@@ -262,7 +263,8 @@ public class LandscapeExampleCreator {
 		// // communicationClazz ADDED
 		// final ClazzCommunication commAdded = new ClazzCommunication();
 		// commAdded.initializeID();
-		// commAdded.getExtensionAttributes().put("status", Status.ORIGINAL);
+		// commAdded.getExtensionAttributes().put(PrepareForMerger.STATUS,
+		// Status.ORIGINAL);
 		// commAdded.setSourceClazz(subDemoClass2);
 		// // orgV1.demoV1
 		// commAdded.setTargetClazz(simpleAppV2.getComponents().get(0).getClazzes().get(0));

@@ -2,7 +2,7 @@ package net.explorviz.extension.comparison.main;
 
 import javax.inject.Singleton;
 
-import net.exlorviz.extension.comparison.repository.LandscapeFetchService;
+import net.explorviz.extension.comparison.repository.LandscapeFetchService;
 
 public class ExtensionDependencyInjectionBinder extends net.explorviz.server.main.DependencyInjectionBinder {
 

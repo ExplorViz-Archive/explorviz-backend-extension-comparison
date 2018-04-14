@@ -23,7 +23,7 @@ public class CommunicationMergerTest extends MergerTest {
 	// c1.getOperationName().equals("FromDemoToSub2()")).findFirst().get();
 	// assertEquals(originalCommunication.getOperationName() + "is not ORIGINAL.",
 	// Status.ORIGINAL,
-	// originalCommunication.getExtensionAttributes().get("status"));
+	// originalCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
 	// }
 	//
 	// @Test
@@ -35,7 +35,7 @@ public class CommunicationMergerTest extends MergerTest {
 	// c1.getOperationName().equals("FromSub2ToDemo()")).findFirst().get();
 	// assertEquals(addedCommunication.getOperationName() + "is not ADDED.",
 	// Status.ADDED,
-	// addedCommunication.getExtensionAttributes().get("status"));
+	// addedCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
 	// }
 	//
 	// @Test
@@ -47,7 +47,7 @@ public class CommunicationMergerTest extends MergerTest {
 	// c1.getOperationName().equals("FromDemoToSubEdited()")).findFirst().get();
 	// assertEquals(editedCommunication.getOperationName() + "is not EDITED.",
 	// Status.EDITED,
-	// editedCommunication.getExtensionAttributes().get("status"));
+	// editedCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
 	//
 	// }
 	//
@@ -58,7 +58,7 @@ public class CommunicationMergerTest extends MergerTest {
 	// c1.getOperationName().equals("FromSub1ToSub3()")).findFirst().get();
 	// assertEquals(deletedCommunication.getOperationName() + "is not DELETED.",
 	// Status.DELETED,
-	// deletedCommunication.getExtensionAttributes().get("status"));
+	// deletedCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
 	// }
 
 }

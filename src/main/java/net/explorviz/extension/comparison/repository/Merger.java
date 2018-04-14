@@ -1,4 +1,4 @@
-package net.exlorviz.extension.comparison.repository;
+package net.explorviz.extension.comparison.repository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +99,7 @@ public class Merger {
 				if (!componentsIdentical) {
 					// case: the component exists in both versions, but children and/or clazzes are
 					// not identical
-					component2.getExtensionAttributes().put("status", Status.EDITED);
+					component2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.EDITED);
 				}
 				// check the childcomponents of ORIGINAL and EDITED components
 				if ((componentFrom1.getChildren().size() > 0) && (component2.getChildren().size() > 0)) {
@@ -111,7 +111,7 @@ public class Merger {
 
 			} else if (!component2Containedin1) {
 				// case: the component does not exist in version 1, but exists in version 2
-				component2.getExtensionAttributes().put("status", Status.ADDED);
+				component2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
 				setStatusCLazzesAndChildren(component2, Status.ADDED);
 			}
 		}
@@ -122,7 +122,7 @@ public class Merger {
 					.filter(e -> e.getFullQualifiedName().equals(fullName1)).findFirst().isPresent();
 
 			if (!component1Containedin2) {
-				component1.getExtensionAttributes().put("status", Status.DELETED);
+				component1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
 				componentsMergedVersion.add(component1);
 				setStatusCLazzesAndChildren(component1, Status.DELETED);
 			}
@@ -154,7 +154,7 @@ public class Merger {
 			// case: the identical component exists in version 1 and version 2 -> do nothing
 			if (!clazz2Containedin1) {
 				// case: the clazz does not exist in version 1, but exists in version 2
-				clazz2.getExtensionAttributes().put("status", Status.ADDED);
+				clazz2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
 			}
 		}
 
@@ -164,7 +164,7 @@ public class Merger {
 					.isPresent();
 
 			if (!clazz1Containedin2) {
-				clazz1.getExtensionAttributes().put("status", Status.DELETED);
+				clazz1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
 				clazzesMergedVersion.add(clazz1);
 			}
 		}
@@ -208,53 +208,59 @@ public class Merger {
 				if (communication2ContainedIn1 == null) {
 					// case: communication with same source and target does not exist, the
 					// methodName is not important yet
-					communication2.getExtensionAttributes().put("status", Status.ADDED);
+					communication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
 				} else if (!(communication2.getOperationName().equals(communication2ContainedIn1.getOperationName()))) {
 					// case: communication with same source and target exists, but the methodNames
 					// differ
-					communication2.getExtensionAttributes().put("status", Status.EDITED);
+					communication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.EDITED);
 					// communications1.remove(communication2ContainedIn1);
 
 				}
 			}
 		}
 
-		final List<AggregatedClazzCommunication> mergedCommunicationsIncludedDelete = includeDeletedIntoMerged(
-				communications1, communications2, mergedCommunications);
-		return mergedCommunicationsIncludedDelete;
+		// final List<AggregatedClazzCommunication> mergedCommunicationsIncludedDelete =
+		// includeDeletedIntoMerged(
+		// communications1, communications2, mergedCommunications);
+		// return mergedCommunicationsIncludedDelete;
+		return mergedCommunications;
 	}
 
 	/**
 	 * Include deleted Communications
 	 */
-	private List<AggregatedClazzCommunication> includeDeletedIntoMerged(
-			final List<AggregatedClazzCommunication> communications1,
-			final List<AggregatedClazzCommunication> communications2,
-			final List<AggregatedClazzCommunication> mergedCommunications) {
-
-		final List<ClazzCommunication> clazzCommunications2 = collectAllClazzCommunications(communications2);
-		ClazzCommunication communication1ContainedIn2;
-
-		for (final AggregatedClazzCommunication aggregatedCommunication1 : communications1) {
-			for (final ClazzCommunication communication1 : aggregatedCommunication1.getOutgoingClazzCommunications()) {
-				communication1ContainedIn2 = clazzCommunications2.stream()
-						.filter(c2 -> c2.getSourceClazz().getFullQualifiedName()
-								.equals(communication1.getSourceClazz().getFullQualifiedName())
-								&& c2.getTargetClazz().getFullQualifiedName()
-										.equals(communication1.getTargetClazz().getFullQualifiedName()))
-						.findFirst().orElse(null);
-
-				if (communication1ContainedIn2 == null) {
-					communication1.getExtensionAttributes().put("status", Status.DELETED);
-					aggregatedCommunication1.addClazzCommunication(communication1);
-					mergedCommunications.add(aggregatedCommunication1);
-				}
-
-			}
-		}
-
-		return mergedCommunications;
-	}
+	// private List<AggregatedClazzCommunication> includeDeletedIntoMerged(
+	// final List<AggregatedClazzCommunication> communications1,
+	// final List<AggregatedClazzCommunication> communications2,
+	// final List<AggregatedClazzCommunication> mergedCommunications) {
+	//
+	// final List<ClazzCommunication> clazzCommunications2 =
+	// collectAllClazzCommunications(communications2);
+	// ClazzCommunication communication1ContainedIn2;
+	//
+	// for (final AggregatedClazzCommunication aggregatedCommunication1 :
+	// communications1) {
+	// for (final ClazzCommunication communication1 :
+	// aggregatedCommunication1.getOutgoingClazzCommunications()) {
+	// communication1ContainedIn2 = clazzCommunications2.stream()
+	// .filter(c2 -> c2.getSourceClazz().getFullQualifiedName()
+	// .equals(communication1.getSourceClazz().getFullQualifiedName())
+	// && c2.getTargetClazz().getFullQualifiedName()
+	// .equals(communication1.getTargetClazz().getFullQualifiedName()))
+	// .findFirst().orElse(null);
+	//
+	// if (communication1ContainedIn2 == null) {
+	// communication1.getExtensionAttributes().put(PrepareForMerger.STATUS,
+	// Status.DELETED);
+	// aggregatedCommunication1.addClazzCommunication(communication1);
+	// mergedCommunications.add(aggregatedCommunication1);
+	// }
+	//
+	// }
+	// }
+	//
+	// return mergedCommunications;
+	// }
 
 	/**
 	 * Collect all clazzCommunications of an application in one list of
@@ -281,14 +287,14 @@ public class Merger {
 	private void setStatusCLazzesAndChildren(final Component component, final Status status) {
 		if (!component.getClazzes().isEmpty()) {
 			for (final Clazz clazz : component.getClazzes()) {
-				clazz.getExtensionAttributes().put("status", status);
+				clazz.getExtensionAttributes().put(PrepareForMerger.STATUS, status);
 			}
 		}
 		for (final Component child : component.getChildren()) {
-			child.getExtensionAttributes().put("status", status);
+			child.getExtensionAttributes().put(PrepareForMerger.STATUS, status);
 			setStatusCLazzesAndChildren(child, status);
 			for (final Clazz clazz : child.getClazzes()) {
-				clazz.getExtensionAttributes().put("status", status);
+				clazz.getExtensionAttributes().put(PrepareForMerger.STATUS, status);
 			}
 		}
 	}

@@ -6,7 +6,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import net.exlorviz.extension.comparison.repository.LandscapeFetchService;
+import net.explorviz.extension.comparison.repository.LandscapeFetchService;
 import net.explorviz.model.landscape.Landscape;
 import net.explorviz.server.security.Secured;
 

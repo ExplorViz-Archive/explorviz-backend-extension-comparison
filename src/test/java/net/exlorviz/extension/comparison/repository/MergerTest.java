@@ -2,6 +2,8 @@ package net.exlorviz.extension.comparison.repository;
 
 import org.junit.Before;
 
+import net.explorviz.extension.comparison.repository.LandscapeExampleCreator;
+import net.explorviz.extension.comparison.repository.Merger;
 import net.explorviz.model.application.Application;
 import net.explorviz.model.landscape.Node;
 
