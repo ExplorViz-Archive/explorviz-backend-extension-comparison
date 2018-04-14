@@ -2,6 +2,7 @@ package net.explorviz.extension.comparison.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -162,15 +163,28 @@ public class Merger {
 		final List<Clazz> clazzesMergedVersion = clazzes2;
 		boolean clazz2Containedin1;
 		boolean clazz1Containedin2;
+		Clazz clazzIn1 = null;
 
 		for (final Clazz clazz2 : clazzesMergedVersion) {
-			clazz2Containedin1 = clazzes1.stream()
-					.filter(e -> e.getFullQualifiedName().equals(clazz2.getFullQualifiedName())).findFirst()
-					.isPresent();
-			// case: the identical component exists in version 1 and version 2 -> do nothing
+			try {
+				clazzIn1 = clazzes1.stream()
+						.filter(c1 -> c1.getFullQualifiedName().equals(clazz2.getFullQualifiedName())).findFirst()
+						.get();
+				clazz2Containedin1 = true;
+			} catch (final NoSuchElementException e) {
+				clazz2Containedin1 = false;
+			}
+
 			if (!clazz2Containedin1) {
 				// case: the clazz does not exist in version 1, but exists in version 2
 				clazz2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
+				clazz2.getExtensionAttributes().put(PrepareForMerger.DIFF_INSTANCE_COUNT, clazz2.getInstanceCount());
+			} else {
+
+				// case: the identical clazz exists in version 1 and version 2 -> do not set
+				// status, but check instance count
+				clazz2.getExtensionAttributes().put(PrepareForMerger.DIFF_INSTANCE_COUNT,
+						clazz2.getInstanceCount() - clazzIn1.getInstanceCount());
 			}
 		}
 
@@ -182,6 +196,8 @@ public class Merger {
 			if (!clazz1Containedin2) {
 				// case: the clazz does exist in version 1, but not exists in version 2
 				clazz1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
+				clazz1.getExtensionAttributes().put(PrepareForMerger.DIFF_INSTANCE_COUNT,
+						clazz1.getInstanceCount() * -1);
 				clazzesMergedVersion.add(clazz1);
 			}
 		}

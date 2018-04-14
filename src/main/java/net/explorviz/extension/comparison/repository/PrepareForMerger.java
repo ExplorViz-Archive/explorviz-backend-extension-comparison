@@ -21,6 +21,9 @@ import net.explorviz.model.landscape.Landscape;
 public class PrepareForMerger {
 
 	public static final String STATUS = "status";
+	public static final Status DEFAULT_STATUS = Status.ORIGINAL;
+	public static final String DIFF_INSTANCE_COUNT = "diffInstanceCount";
+	public static final Integer DEFAULT_DIFF_INSTANCE_COUNT = 0;
 
 	/**
 	 * Adds a {@link Status} attribute to every element in the {@link Application}.
@@ -35,15 +38,16 @@ public class PrepareForMerger {
 		for (final AggregatedClazzCommunication aggregatedCommunication : mergingApp
 				.getAggregatedOutgoingClazzCommunications()) {
 			for (final ClazzCommunication communication : aggregatedCommunication.getOutgoingClazzCommunications()) {
-				communication.getExtensionAttributes().put(STATUS, Status.ORIGINAL);
+				communication.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);
 			}
 		}
 
 		for (final Component component : mergingApp.getComponents()) {
-			component.getExtensionAttributes().put(STATUS, Status.ORIGINAL);
+			component.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);
 
 			for (final Clazz clazz : component.getClazzes()) {
-				clazz.getExtensionAttributes().put(STATUS, Status.ORIGINAL);
+				clazz.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);
+				clazz.getExtensionAttributes().put(DIFF_INSTANCE_COUNT, DEFAULT_DIFF_INSTANCE_COUNT);
 			}
 
 			this.componentRecursive(component.getChildren());
@@ -61,10 +65,11 @@ public class PrepareForMerger {
 	 */
 	private void componentRecursive(final List<Component> components) {
 		for (final Component component : components) {
-			component.getExtensionAttributes().put(STATUS, Status.ORIGINAL);
+			component.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);
 
 			for (final Clazz clazz : component.getClazzes()) {
-				clazz.getExtensionAttributes().put(STATUS, Status.ORIGINAL);
+				clazz.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);
+				clazz.getExtensionAttributes().put(DIFF_INSTANCE_COUNT, DEFAULT_DIFF_INSTANCE_COUNT);
 			}
 
 			this.componentRecursive(component.getChildren());
