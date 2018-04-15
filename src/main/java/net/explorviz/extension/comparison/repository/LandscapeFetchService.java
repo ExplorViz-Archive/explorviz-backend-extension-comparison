@@ -38,6 +38,7 @@ public class LandscapeFetchService {
 	// two landscapes in the future
 	public Landscape fetchMergedLandscape(final Landscape firstLandscape, final Landscape secondLandscape) {
 		final Landscape mergedLandscape = secondLandscape;
+		Application mergedApp = null;
 
 		for (final net.explorviz.model.landscape.System sys : mergedLandscape.getSystems()) {
 			for (final NodeGroup nodegroup : sys.getNodeGroups()) {
@@ -51,9 +52,12 @@ public class LandscapeFetchService {
 									"You can not compare two complete different applications. The application {} is not contained in the other landscape.",
 									app2Name);
 						} else {
-							appMerger.appMerge(app1, app2);
+							mergedApp = appMerger.appMerge(app1, app2);
 						}
+						node.getApplications().remove(app2);
+						node.getApplications().add(mergedApp);
 					}
+
 				}
 
 			}
