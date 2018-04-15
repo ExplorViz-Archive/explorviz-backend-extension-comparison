@@ -37,8 +37,10 @@ public class PrepareForMerger {
 	public Application addStatusToApp(final Application mergingApp) {
 
 		for (final CumulatedClazzCommunication cumulatedCommunication : mergingApp.getCumulatedClazzCommunications()) {
+			cumulatedCommunication.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);
 			for (final AggregatedClazzCommunication aggregatedCommunication : cumulatedCommunication
 					.getAggregatedClazzCommunications()) {
+				aggregatedCommunication.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);
 				for (final ClazzCommunication communication : aggregatedCommunication
 						.getOutgoingClazzCommunications()) {
 					communication.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);

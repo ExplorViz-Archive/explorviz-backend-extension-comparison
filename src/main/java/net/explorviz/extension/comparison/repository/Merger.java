@@ -1,6 +1,7 @@
 package net.explorviz.extension.comparison.repository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ public class Merger {
 	static final Logger logger = LoggerFactory.getLogger(Merger.class.getName());
 	private final EntityComparison entityComparison = new EntityComparison();
 	private final PrepareForMerger preparing = new PrepareForMerger();
+	private static final List<Component> createdComponents = new ArrayList<>();
 
 	/**
 	 * * Takes two {@link Application}s and merges them into a new
@@ -112,14 +114,20 @@ public class Merger {
 					if (!componentsIdentical) {
 						// case: the component exists in both versions, but children and/or clazzes are
 						// not identical
+						System.out.printf("component2 EDITED: %s  and componentIn1: %s\n",
+								component2.getFullQualifiedName(), componentFrom1.getFullQualifiedName());
 						component2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.EDITED);
 					}
 					// check the childcomponents of ORIGINAL and EDITED components
 					if ((componentFrom1.getChildren().size() > 0) || (component2.getChildren().size() > 0)) {
 						componentMerge(componentFrom1.getChildren(), component2.getChildren());
 					}
+					if ("de.ppi.fis.lbr.ratingplatform.bos.rating.common".equals(component2.getFullQualifiedName())) {
+						System.out.println("Paket mit 2 gelöschten Klassen");
+					}
 					// check clazzes
-					mergedClazzes = clazzMerge(componentFrom1.getClazzes(), component2.getClazzes());
+					mergedClazzes = clazzMerge(componentFrom1.getClazzes(), component2.getClazzes(),
+							componentsMergedVersion);
 					component2.setClazzes(mergedClazzes);
 
 				}
@@ -140,9 +148,10 @@ public class Merger {
 				// case: the component and children do not exist in version 2, but existed in
 				// version 1
 				component1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
-				setStatusCLazzesAndChildren(component1, Status.DELETED);
+				// TODO componentsMergedVersion Inhalt
+				setDeletedCLazzesAndChildren(component1, componentsMergedVersion);
 				// add deleted component to result component list
-				componentsMergedVersion.add(component1);
+				// componentsMergedVersion.add(component1);
 			}
 		}
 		return componentsMergedVersion;
@@ -160,7 +169,8 @@ public class Merger {
 	 *            list of {@link Clazz}es
 	 * @return merged list of {@link Clazz}es
 	 */
-	private List<Clazz> clazzMerge(final List<Clazz> clazzes1, final List<Clazz> clazzes2) {
+	private List<Clazz> clazzMerge(final List<Clazz> clazzes1, final List<Clazz> clazzes2,
+			final List<Component> componentsMerged) {
 		final List<Clazz> clazzesMergedVersion = clazzes2;
 		boolean clazz2Containedin1;
 		boolean clazz1Containedin2;
@@ -190,6 +200,10 @@ public class Merger {
 		}
 
 		for (final Clazz clazz1 : clazzes1) {
+			if ("de.ppi.fis.lbr.ratingplatform.bos.rating.common.FinanceInformationUtility"
+					.equals(clazz1.getFullQualifiedName())) {
+				System.out.println("Klasse gelöscht");
+			}
 			clazz1Containedin2 = clazzesMergedVersion.stream()
 					.filter(e -> e.getFullQualifiedName().equals(clazz1.getFullQualifiedName())).findFirst()
 					.isPresent();
@@ -199,6 +213,15 @@ public class Merger {
 				clazz1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
 				clazz1.getExtensionAttributes().put(PrepareForMerger.DIFF_INSTANCE_COUNT,
 						clazz1.getInstanceCount() * -1);
+
+				final String parentName = clazz1.getParent().getFullQualifiedName();
+
+				final Clazz clazzWithSameParent = clazzesMergedVersion.stream()
+						.filter(c -> parentName.equals(c.getParent().getFullQualifiedName())).findAny().get();
+				if (clazzWithSameParent != null) {
+					// in the merged version the parentComponent of deleted clazz exists
+					clazz1.setParent(clazzWithSameParent.getParent());
+				}
 				clazzesMergedVersion.add(clazz1);
 			}
 		}
@@ -425,6 +448,8 @@ public class Merger {
 		if (!component.getClazzes().isEmpty()) {
 			for (final Clazz clazz : component.getClazzes()) {
 				clazz.getExtensionAttributes().put(PrepareForMerger.STATUS, status);
+				// in the merged version the parentComponent of deleted clazz does not exist ->
+				// create parentComponent(s)
 			}
 		}
 		for (final Component child : component.getChildren()) {
@@ -435,4 +460,94 @@ public class Merger {
 			}
 		}
 	}
+
+	/**
+	 * Set the status of all {@link Clazz}es and child{@link Component}s.
+	 *
+	 * @param component
+	 * @param status
+	 */
+	private void setDeletedCLazzesAndChildren(final Component component, final List<Component> componentsMerged) {
+
+		if (!component.getClazzes().isEmpty()) {
+			for (final Clazz clazz : component.getClazzes()) {
+				clazz.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
+				// in the merged version the parentComponent of deleted clazz does not exist ->
+				// create parentComponent(s)
+				createdComponents.clear();
+				// final Component parent = createParent(clazz.getParent(), clazz,
+				// componentsMerged);
+				System.out.println("created"); // clazz.setParent(parent);
+
+			}
+		}
+
+		for (final Component child : component.getChildren()) {
+			child.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
+			setDeletedCLazzesAndChildren(child, componentsMerged);
+			for (final Clazz clazz : child.getClazzes()) {
+				clazz.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
+			}
+		}
+	}
+
+	private Component createParent(final Component component1, final Clazz clazz1,
+			final List<Component> componentsMerged) {
+		// prüfe, ob es von component1 einen parent gibt in mergedVersionComponents ||
+		// ob parent eine Applikation ist (parentComponent == null)
+		String parentFullName;
+		Component parentInMerged = null;
+		final boolean isRootComponent = component1.getParentComponent() == null;
+		if (!isRootComponent) {
+			parentFullName = component1.getParentComponent().getFullQualifiedName();
+			parentInMerged = componentsMerged.stream().filter(c -> c.getFullQualifiedName().startsWith(parentFullName))
+					.findFirst().orElse(null);
+			System.out.println(parentFullName);
+		}
+		Component newMergedComponent = null;
+
+		if (parentInMerged != null) {
+			newMergedComponent = new Component();
+			newMergedComponent.initializeID();
+			newMergedComponent.setBelongingApplication(component1.getBelongingApplication());
+
+			final List<Clazz> clazzes = new ArrayList<>();
+			if (clazz1 != null) {
+				clazzes.add(clazz1);
+			}
+			newMergedComponent.setClazzes(clazzes);
+			newMergedComponent.setFullQualifiedName(component1.getFullQualifiedName());
+			newMergedComponent.setName(component1.getName());
+			newMergedComponent.setParentComponent(parentInMerged.getParentComponent());
+
+			final List<Component> children = new ArrayList<>(Arrays.asList(newMergedComponent));
+			newMergedComponent.getParentComponent().setChildren(children);
+			newMergedComponent.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
+			// createdComponents.add(newMergedComponent);
+		} else if (isRootComponent) {
+			newMergedComponent = new Component();
+			newMergedComponent.initializeID();
+			newMergedComponent.setBelongingApplication(component1.getBelongingApplication());
+
+			final List<Clazz> clazzes = new ArrayList<>();
+			if (clazz1 != null) {
+				clazzes.add(clazz1);
+			}
+			newMergedComponent.setClazzes(clazzes);
+			newMergedComponent.setFullQualifiedName(component1.getFullQualifiedName());
+			newMergedComponent.setName(component1.getName());
+			newMergedComponent.setParentComponent(null);
+
+			newMergedComponent.getBelongingApplication().getComponents().add(newMergedComponent);
+			newMergedComponent.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
+			// createdComponents.add(newMergedComponent);
+		} else {
+
+			// create parent of component1
+			createParent(component1.getParentComponent(), null, componentsMerged);
+		}
+
+		return newMergedComponent;
+	}
+
 }
