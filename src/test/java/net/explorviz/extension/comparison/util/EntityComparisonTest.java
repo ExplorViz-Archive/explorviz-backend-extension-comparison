@@ -128,18 +128,4 @@ public class EntityComparisonTest {
 		assertFalse(clazzesUnequal);
 	}
 
-	@Test
-	public void testClazzEqual() {
-		final boolean clazzEqual = entityComparison.clazzEqual(clazz1a, clazz1b);
-
-		assertTrue(clazzEqual);
-	}
-
-	@Test
-	public void testClazzNotEqual() {
-		final boolean clazzUnequal = entityComparison.clazzEqual(clazz2, clazz3);
-
-		assertFalse(clazzUnequal);
-	}
-
 }

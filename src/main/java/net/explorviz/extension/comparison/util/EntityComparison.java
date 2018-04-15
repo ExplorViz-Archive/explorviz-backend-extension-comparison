@@ -14,10 +14,6 @@ import net.explorviz.model.application.Component;
  */
 public class EntityComparison {
 
-	boolean fullNameEqual = false;
-	boolean clazzesEqual = false;
-	boolean childrenEqual = false;
-
 	/**
 	 * Two {@link Component}s are identical, if they have the same
 	 * fullQualifiedName, the same children and {@link Clazz}es. The children and
@@ -30,38 +26,35 @@ public class EntityComparison {
 	public boolean componentsIdentical(final Component component1, final Component component2) {
 		boolean componentsIdentical = false;
 
-		final String fullName1 = component1.getFullQualifiedName();
-		final String fullName2 = component2.getFullQualifiedName();
-
 		final List<Clazz> clazzes1 = component1.getClazzes();
 		final List<Clazz> clazzes2 = component2.getClazzes();
 		final List<Component> children1 = component1.getChildren();
 		final List<Component> children2 = component2.getChildren();
 
-		// TODO && (timestamp1 != timestamp2) not for testing, because timestamp=0, in
-		// example landscape
-		if (fullName1.equals(fullName2)) {
-			// same name
-			if ((clazzes1.isEmpty()) && (clazzes2.isEmpty())) {
-				if ((children1.isEmpty()) && (children2.isEmpty())) {
-					// empty clazzes and empty children
-					componentsIdentical = true;
-				} else if ((children1.size() == children2.size())) {
-					// empty clazzes, but children
+		// same name
+		if (clazzes1.size() == clazzes2.size()) {
+			if (clazzesEqual(clazzes1, clazzes2)) {
+				if ((children1.size() == children2.size())) {
 					componentsIdentical = childrenEqual(children1, children2);
-				}
-			} else if (clazzes1.size() == clazzes2.size()) {
-				// not empty clazzes
-				clazzesEqual = clazzesEqual(clazzes1, clazzes2);
-				if (clazzesEqual && (!children1.isEmpty()) && (children1.size() == children2.size())) {
-					// same clazzes and not empty children
-					componentsIdentical = childrenEqual(children1, children2);
-				}
-				if (clazzesEqual && children1.isEmpty() && children2.isEmpty()) {
-					// same clazzes, but empty children
-					componentsIdentical = true;
 				}
 			}
+		}
+
+		// System.out.printf("component1: %s; component2: %s; identical: %b\n",
+		// component1.getFullQualifiedName(),
+		// component2.getFullQualifiedName(), componentsIdentical);
+
+		if (!componentsIdentical) {
+			System.out.printf("component1: %s\n", component1.getFullQualifiedName());
+			for (final Clazz clazz : component1.getClazzes()) {
+				System.out.printf("clazz: %s\n", clazz.getFullQualifiedName());
+			}
+
+			System.out.printf("component2: %s\n", component2.getFullQualifiedName());
+			for (final Clazz clazz : component2.getClazzes()) {
+				System.out.printf("clazz: %s\n", clazz.getFullQualifiedName());
+			}
+
 		}
 		return componentsIdentical;
 	}
@@ -104,27 +97,14 @@ public class EntityComparison {
 	public boolean clazzesEqual(final List<Clazz> clazzes1, final List<Clazz> clazzes2) {
 		boolean clazzesEqual = true;
 
-		for (int i = 0; clazzes1.size() > i; i++) {
-			clazzesEqual = clazzEqual(clazzes1.get(i), clazzes2.get(i));
+		for (int i = 0; i < clazzes1.size(); i++) {
+			clazzesEqual = clazzes1.get(i).getFullQualifiedName().equals(clazzes2.get(i).getFullQualifiedName());
 			if (!clazzesEqual) {
 				break;
 			}
 		}
 
 		return clazzesEqual;
-	}
-
-	/**
-	 * Two {@link Clazz} are equal, if they have the same type and the same
-	 * fullQualifiedName.
-	 *
-	 * @param clazz1
-	 * @param clazz2
-	 * @return true: if elem1 and elem2 are equal, false:else
-	 */
-	public boolean clazzEqual(final Clazz clazz1, final Clazz clazz2) {
-
-		return clazz1.getFullQualifiedName().equals(clazz2.getFullQualifiedName());
 	}
 
 }
