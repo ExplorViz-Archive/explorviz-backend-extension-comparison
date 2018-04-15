@@ -270,11 +270,11 @@ public class Merger {
 				// booleans for checking status of clazz communications in aggregated
 				// communication
 				final boolean addedExist = aggregatedCommunication2.getOutgoingClazzCommunications().stream()
-						.filter(c -> c.getExtensionAttributes().get(PrepareForMerger.STATUS).equals(Status.ADDED))
+						.filter(c -> Status.ADDED.equals(c.getExtensionAttributes().get(PrepareForMerger.STATUS)))
 						.findAny().isPresent();
 
 				final boolean deletedExist = aggregatedCommunication2.getOutgoingClazzCommunications().stream()
-						.filter(c -> c.getExtensionAttributes().get(PrepareForMerger.STATUS).equals(Status.DELETED))
+						.filter(c -> Status.DELETED.equals(c.getExtensionAttributes().get(PrepareForMerger.STATUS)))
 						.findAny().isPresent();
 
 				// set status of aggregated communications
@@ -296,11 +296,11 @@ public class Merger {
 			// booleans for checking status of aggregated communications of cumulated
 			// communication
 			final boolean addedExist = cumulatedCommunication2.getAggregatedClazzCommunications().stream()
-					.filter(c -> c.getExtensionAttributes().get(PrepareForMerger.STATUS).equals(Status.ADDED)).findAny()
+					.filter(c -> Status.ADDED.equals(c.getExtensionAttributes().get(PrepareForMerger.STATUS))).findAny()
 					.isPresent();
 
 			final boolean deletedExist = cumulatedCommunication2.getAggregatedClazzCommunications().stream()
-					.filter(c -> c.getExtensionAttributes().get(PrepareForMerger.STATUS).equals(Status.DELETED))
+					.filter(c -> Status.DELETED.equals(c.getExtensionAttributes().get(PrepareForMerger.STATUS)))
 					.findAny().isPresent();
 
 			// set status of cumulated communication
