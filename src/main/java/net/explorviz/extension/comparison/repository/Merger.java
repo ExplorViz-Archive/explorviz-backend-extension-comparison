@@ -62,12 +62,12 @@ public class Merger {
 		// merge communication between clazzes
 		final List<AggregatedClazzCommunication> aggregatedCommunications1 = appVersion1
 				.getAggregatedOutgoingClazzCommunications();
-		final List<AggregatedClazzCommunication> aggregatedCommunications2 = appVersion2
-				.getAggregatedOutgoingClazzCommunications();
+		final List<CumulatedClazzCommunication> cumulatedCommunications2 = appVersion2
+				.getCumulatedClazzCommunications();
 
-		final List<AggregatedClazzCommunication> aggregatedCommunicationsMergedVersion = clazzCommunicationMerge(
-				aggregatedCommunications1, aggregatedCommunications2);
-		mergedApp.setAggregatedOutgoingClazzCommunications(aggregatedCommunicationsMergedVersion);
+		final List<CumulatedClazzCommunication> cumulatedCommunicationsMergedVersion = cumulatedClazzCommunicationMerge(
+				aggregatedCommunications1, cumulatedCommunications2);
+		mergedApp.setCumulatedClazzCommunications(cumulatedCommunicationsMergedVersion);
 
 		return mergedApp;
 	}
@@ -207,17 +207,18 @@ public class Merger {
 	}
 
 	/**
-	 * TODO Takes two lists of {@link ClazzCommunication}s and returns one merged
-	 * list of {@link ClazzCommunication}s. This method is used by
+	 * Takes one list of {@link AggregatedClazzCommunication}s and one list of
+	 * {@link CumulatedClazzCommunication}. It returns one merged list of
+	 * {@link CumulatedClazzCommunication}s. This method is used by
 	 * {@link Merger#appMerge(Application, Application)}. Two
 	 * {@link ClazzCommunication}s are identical, if they have the same source and
 	 * target {@link Application} and the same methodName.
 	 *
 	 * @param clazzes1
-	 *            list of {@link ClazzCommunication}s
+	 *            list of {@link AggregatedClazzCommunication}s
 	 * @param clazzes2
-	 *            list of {@link ClazzCommunication}s
-	 * @return merged list of {@link ClazzCommunication}s
+	 *            list of {@link CumulatedClazzCommunication}s
+	 * @return merged list of {@link CumulatedClazzCommunication}s
 	 */
 	private List<CumulatedClazzCommunication> cumulatedClazzCommunicationMerge(
 			final List<AggregatedClazzCommunication> aggregatedCommunications1,
@@ -253,8 +254,8 @@ public class Merger {
 					}
 
 				}
-				// prüfe, ob es in clazzCommunications1 Einträge gibt, mit: 1.sourceClazz/target
-				// == aggregatedCommunication2.sourceClazz/target && ohne "exists" -> deleted
+				// deleted communication exists in version one, but not in version two and is
+				// marked with "exists"
 				final List<ClazzCommunication> deletedCommunications = clazzCommunications1.stream()
 						.filter(c1 -> c1.getSourceClazz().getFullQualifiedName()
 								.equals(aggregatedCommunication2.getSourceClazz().getFullQualifiedName()))
@@ -265,8 +266,9 @@ public class Merger {
 					deletedCommunication.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
 				}
 				aggregatedCommunication2.getOutgoingClazzCommunications().addAll(deletedCommunications);
-				// check and set status of aggregated communications
 
+				// booleans for checking status of clazz communications in aggregated
+				// communication
 				final boolean addedExist = aggregatedCommunication2.getOutgoingClazzCommunications().stream()
 						.filter(c -> c.getExtensionAttributes().get(PrepareForMerger.STATUS).equals(Status.ADDED))
 						.findAny().isPresent();
@@ -291,8 +293,8 @@ public class Merger {
 					}
 				}
 			}
-			// check and set status of cumulated communications
-
+			// booleans for checking status of aggregated communications of cumulated
+			// communication
 			final boolean addedExist = cumulatedCommunication2.getAggregatedClazzCommunications().stream()
 					.filter(c -> c.getExtensionAttributes().get(PrepareForMerger.STATUS).equals(Status.ADDED)).findAny()
 					.isPresent();
@@ -301,7 +303,7 @@ public class Merger {
 					.filter(c -> c.getExtensionAttributes().get(PrepareForMerger.STATUS).equals(Status.DELETED))
 					.findAny().isPresent();
 
-			// set status of cumulated communications
+			// set status of cumulated communication
 			if (addedExist) {
 				if (deletedExist) {
 					// EDITED: addedExist=true, deletedExist=true

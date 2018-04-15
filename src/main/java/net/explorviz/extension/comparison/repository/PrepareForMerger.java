@@ -8,6 +8,7 @@ import net.explorviz.model.application.Application;
 import net.explorviz.model.application.Clazz;
 import net.explorviz.model.application.ClazzCommunication;
 import net.explorviz.model.application.Component;
+import net.explorviz.model.application.CumulatedClazzCommunication;
 import net.explorviz.model.landscape.Landscape;
 
 /**
@@ -35,10 +36,13 @@ public class PrepareForMerger {
 	 */
 	public Application addStatusToApp(final Application mergingApp) {
 
-		for (final AggregatedClazzCommunication aggregatedCommunication : mergingApp
-				.getAggregatedOutgoingClazzCommunications()) {
-			for (final ClazzCommunication communication : aggregatedCommunication.getOutgoingClazzCommunications()) {
-				communication.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);
+		for (final CumulatedClazzCommunication cumulatedCommunication : mergingApp.getCumulatedClazzCommunications()) {
+			for (final AggregatedClazzCommunication aggregatedCommunication : cumulatedCommunication
+					.getAggregatedClazzCommunications()) {
+				for (final ClazzCommunication communication : aggregatedCommunication
+						.getOutgoingClazzCommunications()) {
+					communication.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);
+				}
 			}
 		}
 
