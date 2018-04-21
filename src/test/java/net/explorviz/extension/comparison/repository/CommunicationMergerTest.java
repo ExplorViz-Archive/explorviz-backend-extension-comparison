@@ -1,4 +1,4 @@
-package net.exlorviz.extension.comparison.repository;
+package net.explorviz.extension.comparison.repository;
 
 import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.model.application.ClazzCommunication;
