@@ -9,14 +9,14 @@ import net.explorviz.model.application.Clazz;
 import net.explorviz.model.application.ClazzCommunication;
 import net.explorviz.model.application.Component;
 import net.explorviz.model.application.CumulatedClazzCommunication;
-import net.explorviz.model.landscape.Landscape;
 
 /**
- * Currently extends an {@link Application} by a {@link Status}. The
- * {@link Status} is necessary to merge two {@link Application}s. In future
- * {@link Landscape}s should be merged, too.
+ * Extends all elements of an {@link Application} by a {@link Status} and
+ * {@link Clazz}es further by an instance count that holds the difference of the
+ * instance counts between the clazz in the two versions. The {@link Status} is
+ * necessary to merge two {@link Application}s.
  *
- * @author josw
+ * @author jweg
  *
  */
 public class PrepareForMerger {
@@ -34,7 +34,7 @@ public class PrepareForMerger {
 	 *            {@link Application} that should be merged without status attribute
 	 * @return {@link Application} that should be merged with status attribute
 	 */
-	public Application addStatusToApp(final Application mergingApp) {
+	public static Application addStatusToApp(final Application mergingApp) {
 
 		for (final CumulatedClazzCommunication cumulatedCommunication : mergingApp.getCumulatedClazzCommunications()) {
 			cumulatedCommunication.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);
@@ -56,7 +56,7 @@ public class PrepareForMerger {
 				clazz.getExtensionAttributes().put(DIFF_INSTANCE_COUNT, DEFAULT_DIFF_INSTANCE_COUNT);
 			}
 
-			this.componentRecursive(component.getChildren());
+			addStatusToChildren(component.getChildren());
 		}
 
 		return mergingApp;
@@ -64,12 +64,12 @@ public class PrepareForMerger {
 
 	/**
 	 * Helps the {@link #addStatusToApp(Application)} method to add the status
-	 * recursively to all children of {@link Component}s.
+	 * recursively to all children of {@link Component}s and their {@link Clazz}es.
 	 *
 	 * @param components
 	 *            list of child components
 	 */
-	private void componentRecursive(final List<Component> components) {
+	private static void addStatusToChildren(final List<Component> components) {
 		for (final Component component : components) {
 			component.getExtensionAttributes().put(STATUS, DEFAULT_STATUS);
 
@@ -78,7 +78,7 @@ public class PrepareForMerger {
 				clazz.getExtensionAttributes().put(DIFF_INSTANCE_COUNT, DEFAULT_DIFF_INSTANCE_COUNT);
 			}
 
-			this.componentRecursive(component.getChildren());
+			addStatusToChildren(component.getChildren());
 
 		}
 	}

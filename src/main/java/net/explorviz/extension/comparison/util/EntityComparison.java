@@ -6,7 +6,7 @@ import net.explorviz.model.application.Clazz;
 import net.explorviz.model.application.Component;
 
 /**
- * Class for methods that compare elements from the meta-model, e.g.
+ * Class for methods that compare elements from the data model, e.g.
  * {@link Component}, {@link Communication}.
  *
  * @author josw
@@ -31,30 +31,14 @@ public class EntityComparison {
 		final List<Component> children1 = component1.getChildren();
 		final List<Component> children2 = component2.getChildren();
 
-		// same name
+		// fullQualifiedName was already checked in Merger -> we do not check
+		// fullQualifiedName again
 		if (clazzes1.size() == clazzes2.size()) {
 			if (clazzesEqual(clazzes1, clazzes2)) {
 				if ((children1.size() == children2.size())) {
 					componentsIdentical = childrenEqual(children1, children2);
 				}
 			}
-		}
-
-		// System.out.printf("component1: %s; component2: %s; identical: %b\n",
-		// component1.getFullQualifiedName(),
-		// component2.getFullQualifiedName(), componentsIdentical);
-
-		if (!componentsIdentical) {
-			System.out.printf("component1: %s\n", component1.getFullQualifiedName());
-			for (final Clazz clazz : component1.getClazzes()) {
-				System.out.printf("clazz: %s\n", clazz.getFullQualifiedName());
-			}
-
-			System.out.printf("component2: %s\n", component2.getFullQualifiedName());
-			for (final Clazz clazz : component2.getClazzes()) {
-				System.out.printf("clazz: %s\n", clazz.getFullQualifiedName());
-			}
-
 		}
 		return componentsIdentical;
 	}
