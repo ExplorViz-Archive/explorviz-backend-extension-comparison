@@ -1,9 +1,6 @@
 package net.explorviz.extension.comparison.repository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -11,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.extension.comparison.util.EntityComparison;
+import net.explorviz.extension.comparison.util.MergerHelper;
 import net.explorviz.model.application.AggregatedClazzCommunication;
 import net.explorviz.model.application.Application;
 import net.explorviz.model.application.Clazz;
@@ -21,7 +19,7 @@ import net.explorviz.model.application.CumulatedClazzCommunication;
 /**
  * Provides methods to merge two {@link Application}s.
  *
- * @author josw
+ * @author jweg
  *
  */
 
@@ -29,45 +27,62 @@ public class Merger {
 
 	static final Logger logger = LoggerFactory.getLogger(Merger.class.getName());
 	private final EntityComparison entityComparison = new EntityComparison();
-	private final PrepareForMerger preparing = new PrepareForMerger();
-	private static final List<Component> createdComponents = new ArrayList<>();
+	private final MergerHelper mergerHelper = new MergerHelper();
 
 	/**
-	 * * Takes two {@link Application}s and merges them into a new
+	 * Takes two {@link Application}s and merges them into a new
 	 * {@link Application}. Further it adds a {@link Status} flag to show whether an
 	 * element between the two {@link Application}s was added, edited, original or
 	 * deleted.
 	 *
 	 * @param appVersion1
 	 * @param appVersion2
-	 * @return
+	 * @return mergedApp
 	 */
 	public Application appMerge(final Application appVersion1, final Application appVersion2) {
 
-		Application mergedApp = new Application();
-
 		// prepares each version for merging
-		preparing.addStatusToApp(appVersion1);
-		preparing.addStatusToApp(appVersion2);
+		// set default status for components, clazzes and communications
+		// set default diffInstanceCount for clazzes
+		PrepareForMerger.addStatusToApp(appVersion1);
+		PrepareForMerger.addStatusToApp(appVersion2);
 
+		/** merge components and clazzes */
 		// we work on the second version of the application
-		mergedApp = appVersion2;
+		final Application mergedApp = appVersion2;
 
-		// merge packages and clazzes
 		final List<Component> componentsVersion1 = appVersion1.getComponents();
-		final List<Component> componentsVersion2 = appVersion2.getComponents();
+		List<Component> flatComponentsFrom1 = mergerHelper.createFlatComponents(componentsVersion1);
 
-		final List<Component> componentsMergedVersion = componentMerge(componentsVersion1, componentsVersion2);
+		final List<Component> mergedComponents = mergedApp.getComponents();
+		List<Component> flatMergedComponents = mergerHelper.createFlatComponents(mergedComponents);
 
-		mergedApp.setComponents(componentsMergedVersion);
+		// check, if components and clazzes from version 2 exist in version 1 (possible
+		// status: ORIGINAL, ADDED, EDITED)
+		checkComponentsAndClazzesAddedAndEdited(mergedComponents, flatComponentsFrom1);
+		// check, if components from version 1 exist in version 2 (possible
+		// status: ORIGINAL, DELETED)
+		checkComponentsDeleted(componentsVersion1, flatMergedComponents);
 
-		// merge communication between clazzes
+		// check, if clazzes from version 1 exist in version 2 (possible
+		// status: ORIGINAL, DELETED)
+		final List<Clazz> flatClazzesFrom1 = mergerHelper
+				.createFlatClazzes(mergerHelper.createFlatComponents(appVersion1.getComponents()));
+		flatMergedComponents = mergerHelper.createFlatComponents(mergedApp.getComponents());
+		final List<Clazz> flatMergedClazzes = mergerHelper.createFlatClazzes(flatMergedComponents);
+		checkClazzesDeleted(flatClazzesFrom1, flatMergedClazzes, flatMergedComponents);
+
+		flatComponentsFrom1 = mergerHelper.createFlatComponents(appVersion1.getComponents());
+		setDiffInstanceCountForMergedClazzes(mergerHelper.createFlatComponents(mergedApp.getComponents()),
+				mergerHelper.createFlatClazzes(flatComponentsFrom1));
+
+		/** merge communication between clazzes */
 		final List<AggregatedClazzCommunication> aggregatedCommunications1 = appVersion1
 				.getAggregatedOutgoingClazzCommunications();
 		final List<CumulatedClazzCommunication> cumulatedCommunications2 = appVersion2
 				.getCumulatedClazzCommunications();
 
-		final List<CumulatedClazzCommunication> cumulatedCommunicationsMergedVersion = cumulatedClazzCommunicationMerge(
+		final List<CumulatedClazzCommunication> cumulatedCommunicationsMergedVersion = checkCommunicationAll(
 				aggregatedCommunications1, cumulatedCommunications2);
 		mergedApp.setCumulatedClazzCommunications(cumulatedCommunicationsMergedVersion);
 
@@ -75,158 +90,238 @@ public class Merger {
 	}
 
 	/**
-	 * Takes two lists of {@link Component}s and returns one merged list of
-	 * {@link Component}s. This method is used by
-	 * {@link Merger#appMerge(Application, Application)}. Two {@link Component}s are
-	 * identical, if they have the same fullQualifiedName, the same {@link Clazz}es
-	 * and the same child{@link Component}s.
+	 * Checks, whether {@link Component}s and {@link Clazz}es from version 2 exist
+	 * in version 1 (possible status: ORIGINAL, ADDED, EDITED)
 	 *
-	 * @param components1
-	 * @param components2
-	 * @return merged list of {@link Component}s
+	 * @param mergedComponents
+	 *            List<{@link Component}> with {@link Component}s (incl. children
+	 *            and clazzes) from version 2
+	 * @param flatComponentsFrom1
+	 *            List<{@link Component}> with {@link Component}s from version 1
 	 */
-	private List<Component> componentMerge(final List<Component> components1, final List<Component> components2) {
-		final List<Component> componentsMergedVersion = components2;
-		List<Clazz> mergedClazzes = new ArrayList<Clazz>();
-		List<Component> componentsFrom1 = null;
 
-		for (final Component component2 : componentsMergedVersion) {
+	private void checkComponentsAndClazzesAddedAndEdited(final List<Component> mergedComponents,
+			final List<Component> flatComponentsFrom1) {
 
-			final String fullName2 = component2.getFullQualifiedName();
-			final boolean component2Containedin1 = components1.stream()
-					.filter(e -> e.getFullQualifiedName().equals(fullName2)).findFirst().isPresent();
+		if (!mergedComponents.isEmpty()) {
+			Component mergedComponentIn1;
+			for (final Component mergedComponent : mergedComponents) {
 
-			if (component2Containedin1) {
-				// get the component in components1 with the same fullQualifiedName as
-				// component2
+				mergedComponentIn1 = flatComponentsFrom1.stream()
+						.filter(c -> mergedComponent.getFullQualifiedName().equals(c.getFullQualifiedName()))
+						.findFirst().orElse(null);
 
-				componentsFrom1 = components1.stream().filter(c1 -> c1.getFullQualifiedName().equals(fullName2))
-						.collect(Collectors.toList());
-
-				if (componentsFrom1.size() != 1) {
-					logger.error("Merger.componentMerge(): wrong amount of components with: {}", fullName2);
+				if (mergedComponentIn1 == null) {
+					// case: mergedComponent does not exist in version 1 -> status ADDED
+					// status of clazzes in component: ADDED
+					mergerHelper.setStatusCLazzesAndChildren(mergedComponent, Status.ADDED);
 				} else {
-					final Component componentFrom1 = componentsFrom1.get(0);
-					final boolean componentsIdentical = entityComparison.componentsIdentical(componentFrom1,
-							component2);
-
-					// case: the identical component exists in version 1 and version 2 -> do nothing
-					if (!componentsIdentical) {
-						// case: the component exists in both versions, but children and/or clazzes are
-						// not identical
-						System.out.printf("component2 EDITED: %s  and componentIn1: %s\n",
-								component2.getFullQualifiedName(), componentFrom1.getFullQualifiedName());
-						component2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.EDITED);
+					// case: mergedComponent does exist in version 1 -> status EDITED or ORIGINAL
+					// check EDITED
+					checkComponentEdited(mergedComponentIn1, mergedComponent);
+					// check children
+					if (!mergedComponent.getChildren().isEmpty()) {
+						checkComponentsAndClazzesAddedAndEdited(mergedComponent.getChildren(), flatComponentsFrom1);
 					}
-					// check the childcomponents of ORIGINAL and EDITED components
-					if ((componentFrom1.getChildren().size() > 0) || (component2.getChildren().size() > 0)) {
-						componentMerge(componentFrom1.getChildren(), component2.getChildren());
-					}
-					if ("de.ppi.fis.lbr.ratingplatform.bos.rating.common".equals(component2.getFullQualifiedName())) {
-						System.out.println("Paket mit 2 gelöschten Klassen");
-					}
-					// check clazzes
-					mergedClazzes = clazzMerge(componentFrom1.getClazzes(), component2.getClazzes(),
-							componentsMergedVersion);
-					component2.setClazzes(mergedClazzes);
-
 				}
-			} else {
-				// case: the component does not exist in version 1, but exists in version 2
-				component2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
-				setStatusCLazzesAndChildren(component2, Status.ADDED);
 			}
 		}
-
-		for (final Component component1 : components1) {
-
-			final boolean component1Containedin2 = componentsMergedVersion.stream()
-					.filter(e -> e.getFullQualifiedName().equals(component1.getFullQualifiedName())).findFirst()
-					.isPresent();
-
-			if (!component1Containedin2) {
-				// case: the component and children do not exist in version 2, but existed in
-				// version 1
-				component1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
-				// TODO componentsMergedVersion Inhalt
-				setDeletedCLazzesAndChildren(component1, componentsMergedVersion);
-				// add deleted component to result component list
-				// componentsMergedVersion.add(component1);
-			}
-		}
-		return componentsMergedVersion;
 	}
 
 	/**
-	 * Takes two lists of {@link Clazz}es and returns one merged list of
-	 * {@link Clazz}es. This method is used by
-	 * {@link Merger#componentMerge(List, List)}. Two {@link Clazz}es are identical,
-	 * if they have the same fullQualifiedName.
+	 * Check status of {@link Component}. Possible status is ORIGINAL or EDITED.
 	 *
-	 * @param clazzes1
-	 *            list of {@link Clazz}es
-	 * @param clazzes2
-	 *            list of {@link Clazz}es
-	 * @return merged list of {@link Clazz}es
+	 * @param component1
+	 * @param component2
 	 */
-	private List<Clazz> clazzMerge(final List<Clazz> clazzes1, final List<Clazz> clazzes2,
-			final List<Component> componentsMerged) {
-		final List<Clazz> clazzesMergedVersion = clazzes2;
-		boolean clazz2Containedin1;
-		boolean clazz1Containedin2;
-		Clazz clazzIn1 = null;
+	private void checkComponentEdited(final Component component1, final Component component2) {
+		final boolean componentsIdentical = entityComparison.componentsIdentical(component1, component2);
 
-		for (final Clazz clazz2 : clazzesMergedVersion) {
-			try {
-				clazzIn1 = clazzes1.stream()
-						.filter(c1 -> c1.getFullQualifiedName().equals(clazz2.getFullQualifiedName())).findFirst()
-						.get();
-				clazz2Containedin1 = true;
-			} catch (final NoSuchElementException e) {
-				clazz2Containedin1 = false;
-			}
+		if (!componentsIdentical) {
+			// case: the component exists in both versions, but children and/or clazzes are
+			// not identical
+			component2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.EDITED);
+			// if not identical clazzes: check if clazzes added and set status of clazz
+			checkClazzesAdded(component1, component2);
+		}
+		// case: the identical component exists in version 1 and version 2 -> status:
+		// ORIGINAL (default)
+	}
 
-			if (!clazz2Containedin1) {
-				// case: the clazz does not exist in version 1, but exists in version 2
+	private void checkClazzesAdded(final Component component1, final Component component2) {
+
+		final List<Clazz> clazzes1 = component1.getClazzes();
+		final List<Clazz> clazzes2 = component2.getClazzes();
+
+		boolean clazzIn1;
+		for (final Clazz clazz2 : clazzes2) {
+			clazzIn1 = clazzes1.stream().filter(c -> clazz2.getFullQualifiedName().equals(c.getFullQualifiedName()))
+					.findFirst().isPresent();
+			if (!clazzIn1) {
 				clazz2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
-				clazz2.getExtensionAttributes().put(PrepareForMerger.DIFF_INSTANCE_COUNT, clazz2.getInstanceCount());
-			} else {
-
-				// case: the identical clazz exists in version 1 and version 2 -> do not set
-				// status, but check instance count
-				clazz2.getExtensionAttributes().put(PrepareForMerger.DIFF_INSTANCE_COUNT,
-						clazz2.getInstanceCount() - clazzIn1.getInstanceCount());
 			}
 		}
+	}
 
-		for (final Clazz clazz1 : clazzes1) {
-			if ("de.ppi.fis.lbr.ratingplatform.bos.rating.common.FinanceInformationUtility"
-					.equals(clazz1.getFullQualifiedName())) {
-				System.out.println("Klasse gelöscht");
-			}
-			clazz1Containedin2 = clazzesMergedVersion.stream()
-					.filter(e -> e.getFullQualifiedName().equals(clazz1.getFullQualifiedName())).findFirst()
-					.isPresent();
+	/**
+	 * Checks, whether {@link Component}s from version 1 exist in version 2
+	 * (possible status: ORIGINAL, DELETED)
+	 *
+	 * @param componentsVersion1
+	 *            List<{@link Component>s from version 1
+	 * @param flatMergedComponents
+	 *            List<{@link Component}>s from version 2
+	 */
+	private void checkComponentsDeleted(final List<Component> componentsVersion1,
+			final List<Component> flatMergedComponents) {
+		if (!componentsVersion1.isEmpty()) {
+			Component component1ContainedInMerged;
+			for (final Component component1 : componentsVersion1) {
 
-			if (!clazz1Containedin2) {
-				// case: the clazz does exist in version 1, but not exists in version 2
-				clazz1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
-				clazz1.getExtensionAttributes().put(PrepareForMerger.DIFF_INSTANCE_COUNT,
-						clazz1.getInstanceCount() * -1);
+				component1ContainedInMerged = flatMergedComponents.stream()
+						.filter(c -> component1.getFullQualifiedName().equals(c.getFullQualifiedName())).findFirst()
+						.orElse(null);
 
-				final String parentName = clazz1.getParent().getFullQualifiedName();
-
-				final Clazz clazzWithSameParent = clazzesMergedVersion.stream()
-						.filter(c -> parentName.equals(c.getParent().getFullQualifiedName())).findAny().get();
-				if (clazzWithSameParent != null) {
-					// in the merged version the parentComponent of deleted clazz exists
-					clazz1.setParent(clazzWithSameParent.getParent());
+				if (component1ContainedInMerged == null) {
+					// component1 does not exist in mergedComponents
+					// create component with clazzes with DELETED and set in mergedApp
+					createDeletedComponent(component1, flatMergedComponents);
+				} else {
+					// component1 exists in mergedComponents
+					// check children
+					if (!component1.getChildren().isEmpty()) {
+						checkComponentsDeleted(component1.getChildren(), flatMergedComponents);
+					}
 				}
-				clazzesMergedVersion.add(clazz1);
+
 			}
 		}
 
-		return clazzesMergedVersion;
+	}
+
+	/**
+	 * Inserts the DELETED {@link Component} from version 1 into the merged version.
+	 *
+	 * @param component1
+	 * @param flatMergedComponents
+	 *            List<{@link Component}>s from version 2
+	 */
+	private void createDeletedComponent(final Component component1, final List<Component> flatMergedComponents) {
+		final Component parent = component1.getParentComponent();
+		final boolean isRootComponent;
+
+		if (parent == null) {
+			isRootComponent = true;
+		} else {
+			isRootComponent = false;
+		}
+		;
+
+		String parentFullName;
+		Component parentInMerged = null;
+
+		final Component newMergedComponent = component1;
+		// newMergedComponent.getExtensionAttributes().put(PrepareForMerger.STATUS,
+		// Status.DELETED);
+		mergerHelper.setStatusCLazzesAndChildren(newMergedComponent, Status.DELETED);
+
+		if (isRootComponent) {
+			// case: component has no parent -> add newMergedComponent to components of
+			// merged application
+			flatMergedComponents.get(0).getBelongingApplication().getComponents().add(newMergedComponent);
+		} else {
+			// case: component has a parent
+			parentFullName = parent.getFullQualifiedName();
+
+			parentInMerged = flatMergedComponents.stream().filter(c -> parentFullName.equals(c.getFullQualifiedName()))
+					.findFirst().orElse(null);
+
+			if (parentInMerged != null) {
+				// link the newMergedComponent to the parent in the merged version
+				parentInMerged.getChildren().add(newMergedComponent);
+				newMergedComponent.setParentComponent(parentInMerged);
+			} else {
+				logger.error("parent of deleted component {} not found in merged component list.",
+						component1.getFullQualifiedName());
+			}
+		}
+
+	}
+
+	/**
+	 * Checks, whether {@link Clazz}es from version 1 exist in version 2 (possible
+	 * status: ORIGINAL, DELETED). If clazz is deleted, insert deleted clazz in the
+	 * merged version
+	 *
+	 * @param flatClazzesFrom1
+	 * @param flatMergedClazzes
+	 *            List<{@link Clazz}> clazzes of version 2
+	 * @param flatMergedComponents
+	 *            List<{@link Component}> components of version 2
+	 */
+	private void checkClazzesDeleted(final List<Clazz> flatClazzesFrom1, final List<Clazz> flatMergedClazzes,
+			final List<Component> flatMergedComponents) {
+
+		Clazz clazzInMerged;
+		Component parentInMerged = null;
+		for (final Clazz clazzFrom1 : flatClazzesFrom1) {
+			clazzInMerged = flatMergedClazzes.stream()
+					.filter(c -> clazzFrom1.getFullQualifiedName().equals(c.getFullQualifiedName())).findFirst()
+					.orElse(null);
+			if (clazzInMerged == null) {
+				// clazz not exist in merged version -> status:DELETED
+				clazzFrom1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
+				final String parentFullName = clazzFrom1.getParent().getFullQualifiedName();
+				// search parent in merged components with fullname
+				parentInMerged = flatMergedComponents.stream()
+						.filter(c -> parentFullName.equals(c.getFullQualifiedName())).findFirst().orElse(null);
+				if (parentInMerged != null) {
+					// link the clazzFrom1 to the parent in the merged version
+					parentInMerged.getClazzes().add(clazzFrom1);
+					clazzFrom1.setParent(parentInMerged);
+				} else {
+					logger.error("parent of deleted clazz {} not found in merged component list.",
+							clazzFrom1.getFullQualifiedName());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Computes the difference of the instance count of clazzes between version 1
+	 * and version 2.
+	 *
+	 * @param flatMergedComponents
+	 *            List<{@link Component} components from version 2
+	 * @param flatClazzesFrom1
+	 */
+	private void setDiffInstanceCountForMergedClazzes(final List<Component> flatMergedComponents,
+			final List<Clazz> flatClazzesFrom1) {
+		Clazz clazzIn1;
+
+		for (final Component component : flatMergedComponents) {
+			for (final Clazz clazz : component.getClazzes()) {
+
+				if (Status.DELETED.equals(clazz.getExtensionAttributes().get(PrepareForMerger.STATUS))) {
+					clazz.getExtensionAttributes().put(PrepareForMerger.DIFF_INSTANCE_COUNT,
+							clazz.getInstanceCount() * -1);
+				} else if (Status.ORIGINAL.equals(clazz.getExtensionAttributes().get(PrepareForMerger.STATUS))) {
+					clazzIn1 = flatClazzesFrom1.stream()
+							.filter(c -> clazz.getFullQualifiedName().equals(c.getFullQualifiedName())).findFirst()
+							.orElse(null);
+					if (clazzIn1 == null) {
+						logger.error("instanceCount: clazz {} with status ORIGINAL not found in clazzFrom1 list.",
+								clazz.getFullQualifiedName());
+					} else {
+						clazz.getExtensionAttributes().put(PrepareForMerger.DIFF_INSTANCE_COUNT,
+								clazz.getInstanceCount() - clazzIn1.getInstanceCount());
+					}
+				} else if (Status.ADDED.equals(clazz.getExtensionAttributes().get(PrepareForMerger.STATUS))) {
+					clazz.getExtensionAttributes().put(PrepareForMerger.DIFF_INSTANCE_COUNT, clazz.getInstanceCount());
+				}
+			}
+		}
+
 	}
 
 	/**
@@ -237,18 +332,19 @@ public class Merger {
 	 * {@link ClazzCommunication}s are identical, if they have the same source and
 	 * target {@link Application} and the same methodName.
 	 *
-	 * @param clazzes1
+	 * @param aggregatedCommunications1
 	 *            list of {@link AggregatedClazzCommunication}s
-	 * @param clazzes2
+	 * @param cumulatedCommunications2
 	 *            list of {@link CumulatedClazzCommunication}s
 	 * @return merged list of {@link CumulatedClazzCommunication}s
 	 */
-	private List<CumulatedClazzCommunication> cumulatedClazzCommunicationMerge(
+	private List<CumulatedClazzCommunication> checkCommunicationAll(
 			final List<AggregatedClazzCommunication> aggregatedCommunications1,
 			final List<CumulatedClazzCommunication> cumulatedCommunications2) {
 
 		final List<CumulatedClazzCommunication> mergedCumulatedCommunications = cumulatedCommunications2;
-		final List<ClazzCommunication> clazzCommunications1 = collectAllClazzCommunications(aggregatedCommunications1);
+		final List<ClazzCommunication> clazzCommunications1 = mergerHelper
+				.createFlatClazzCommunications(aggregatedCommunications1);
 
 		ClazzCommunication communication2ContainedIn1;
 		for (final CumulatedClazzCommunication cumulatedCommunication2 : mergedCumulatedCommunications) {
@@ -345,209 +441,4 @@ public class Merger {
 
 		return mergedCumulatedCommunications;
 	}
-
-	private List<ClazzCommunication> clazzCommunicationMerge(final List<ClazzCommunication> communications1,
-			final List<ClazzCommunication> communications2) {
-
-		final List<ClazzCommunication> mergedCommunications = communications2;
-		boolean communication2ContainedIn1;
-		for (final ClazzCommunication mergedCommunication : mergedCommunications) {
-			communication2ContainedIn1 = communications1.stream()
-					.filter(c1 -> c1.getSourceClazz().getFullQualifiedName()
-							.equals(mergedCommunication.getSourceClazz().getFullQualifiedName())
-							&& c1.getTargetClazz().getFullQualifiedName()
-									.equals(mergedCommunication.getTargetClazz().getFullQualifiedName())
-							&& c1.getOperationName().equals(mergedCommunication.getOperationName()))
-					.findFirst().isPresent();
-			if (!communication2ContainedIn1) {
-				mergedCommunication.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ADDED);
-			}
-			// else: communication is contained in version 1 and in version 2, thus the
-			// default status is not changed
-		}
-
-		boolean communication1ContainedIn2;
-		for (final ClazzCommunication communication1 : communications1) {
-			communication1ContainedIn2 = communications2.stream()
-					.filter(c2 -> c2.getSourceClazz().getFullQualifiedName()
-							.equals(communication1.getSourceClazz().getFullQualifiedName())
-							&& c2.getTargetClazz().getFullQualifiedName()
-									.equals(communication1.getTargetClazz().getFullQualifiedName())
-							&& c2.getOperationName().equals(communication1.getOperationName()))
-					.findFirst().isPresent();
-			if (!communication1ContainedIn2) {
-				communication1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
-				mergedCommunications.add(communication1);
-			}
-			// else: communication is contained in version 1 and in version 2, thus the
-			// default status is not changed
-		}
-
-		return mergedCommunications;
-	}
-
-	/**
-	 * Include deleted Communications
-	 */
-	// private List<AggregatedClazzCommunication> includeDeletedIntoMerged(
-	// final List<AggregatedClazzCommunication> communications1,
-	// final List<AggregatedClazzCommunication> communications2,
-	// final List<AggregatedClazzCommunication> mergedCommunications) {
-	//
-	// final List<ClazzCommunication> clazzCommunications2 =
-	// collectAllClazzCommunications(communications2);
-	// ClazzCommunication communication1ContainedIn2;
-	//
-	// for (final AggregatedClazzCommunication aggregatedCommunication1 :
-	// communications1) {
-	// for (final ClazzCommunication communication1 :
-	// aggregatedCommunication1.getOutgoingClazzCommunications()) {
-	// communication1ContainedIn2 = clazzCommunications2.stream()
-	// .filter(c2 -> c2.getSourceClazz().getFullQualifiedName()
-	// .equals(communication1.getSourceClazz().getFullQualifiedName())
-	// && c2.getTargetClazz().getFullQualifiedName()
-	// .equals(communication1.getTargetClazz().getFullQualifiedName()))
-	// .findFirst().orElse(null);
-	//
-	// if (communication1ContainedIn2 == null) {
-	// communication1.getExtensionAttributes().put(PrepareForMerger.STATUS,
-	// Status.DELETED);
-	// aggregatedCommunication1.addClazzCommunication(communication1);
-	// mergedCommunications.add(aggregatedCommunication1);
-	// }
-	//
-	// }
-	// }
-	//
-	// return mergedCommunications;
-	// }
-
-	/**
-	 * Collect all clazzCommunications of an application in one list of
-	 * ClazzCommunications
-	 */
-
-	public List<ClazzCommunication> collectAllClazzCommunications(final List<AggregatedClazzCommunication> inputList) {
-		final List<ClazzCommunication> outputList = new ArrayList<>();
-
-		for (final AggregatedClazzCommunication aggregatedCommu : inputList) {
-			for (final ClazzCommunication clazzCommu : aggregatedCommu.getOutgoingClazzCommunications()) {
-				outputList.add(clazzCommu);
-			}
-		}
-		return outputList;
-	}
-
-	/**
-	 * Set the status of all {@link Clazz}es and child{@link Component}s.
-	 *
-	 * @param component
-	 * @param status
-	 */
-	private void setStatusCLazzesAndChildren(final Component component, final Status status) {
-		if (!component.getClazzes().isEmpty()) {
-			for (final Clazz clazz : component.getClazzes()) {
-				clazz.getExtensionAttributes().put(PrepareForMerger.STATUS, status);
-				// in the merged version the parentComponent of deleted clazz does not exist ->
-				// create parentComponent(s)
-			}
-		}
-		for (final Component child : component.getChildren()) {
-			child.getExtensionAttributes().put(PrepareForMerger.STATUS, status);
-			setStatusCLazzesAndChildren(child, status);
-			for (final Clazz clazz : child.getClazzes()) {
-				clazz.getExtensionAttributes().put(PrepareForMerger.STATUS, status);
-			}
-		}
-	}
-
-	/**
-	 * Set the status of all {@link Clazz}es and child{@link Component}s.
-	 *
-	 * @param component
-	 * @param status
-	 */
-	private void setDeletedCLazzesAndChildren(final Component component, final List<Component> componentsMerged) {
-
-		if (!component.getClazzes().isEmpty()) {
-			for (final Clazz clazz : component.getClazzes()) {
-				clazz.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
-				// in the merged version the parentComponent of deleted clazz does not exist ->
-				// create parentComponent(s)
-				createdComponents.clear();
-				// final Component parent = createParent(clazz.getParent(), clazz,
-				// componentsMerged);
-				System.out.println("created"); // clazz.setParent(parent);
-
-			}
-		}
-
-		for (final Component child : component.getChildren()) {
-			child.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
-			setDeletedCLazzesAndChildren(child, componentsMerged);
-			for (final Clazz clazz : child.getClazzes()) {
-				clazz.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
-			}
-		}
-	}
-
-	private Component createParent(final Component component1, final Clazz clazz1,
-			final List<Component> componentsMerged) {
-		// prüfe, ob es von component1 einen parent gibt in mergedVersionComponents ||
-		// ob parent eine Applikation ist (parentComponent == null)
-		String parentFullName;
-		Component parentInMerged = null;
-		final boolean isRootComponent = component1.getParentComponent() == null;
-		if (!isRootComponent) {
-			parentFullName = component1.getParentComponent().getFullQualifiedName();
-			parentInMerged = componentsMerged.stream().filter(c -> c.getFullQualifiedName().startsWith(parentFullName))
-					.findFirst().orElse(null);
-			System.out.println(parentFullName);
-		}
-		Component newMergedComponent = null;
-
-		if (parentInMerged != null) {
-			newMergedComponent = new Component();
-			newMergedComponent.initializeID();
-			newMergedComponent.setBelongingApplication(component1.getBelongingApplication());
-
-			final List<Clazz> clazzes = new ArrayList<>();
-			if (clazz1 != null) {
-				clazzes.add(clazz1);
-			}
-			newMergedComponent.setClazzes(clazzes);
-			newMergedComponent.setFullQualifiedName(component1.getFullQualifiedName());
-			newMergedComponent.setName(component1.getName());
-			newMergedComponent.setParentComponent(parentInMerged.getParentComponent());
-
-			final List<Component> children = new ArrayList<>(Arrays.asList(newMergedComponent));
-			newMergedComponent.getParentComponent().setChildren(children);
-			newMergedComponent.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
-			// createdComponents.add(newMergedComponent);
-		} else if (isRootComponent) {
-			newMergedComponent = new Component();
-			newMergedComponent.initializeID();
-			newMergedComponent.setBelongingApplication(component1.getBelongingApplication());
-
-			final List<Clazz> clazzes = new ArrayList<>();
-			if (clazz1 != null) {
-				clazzes.add(clazz1);
-			}
-			newMergedComponent.setClazzes(clazzes);
-			newMergedComponent.setFullQualifiedName(component1.getFullQualifiedName());
-			newMergedComponent.setName(component1.getName());
-			newMergedComponent.setParentComponent(null);
-
-			newMergedComponent.getBelongingApplication().getComponents().add(newMergedComponent);
-			newMergedComponent.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.DELETED);
-			// createdComponents.add(newMergedComponent);
-		} else {
-
-			// create parent of component1
-			createParent(component1.getParentComponent(), null, componentsMerged);
-		}
-
-		return newMergedComponent;
-	}
-
 }
