@@ -1,8 +1,10 @@
-package net.explorviz.extension.comparison.repository;
+package net.explorviz.extension.comparison.testdata;
 
 import java.util.Random;
 
 import net.explorviz.extension.comparison.model.Status;
+import net.explorviz.extension.comparison.repository.Merger;
+import net.explorviz.extension.comparison.repository.PrepareForMerger;
 import net.explorviz.model.application.Application;
 import net.explorviz.model.application.ApplicationCommunication;
 import net.explorviz.model.application.Clazz;
