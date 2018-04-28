@@ -49,7 +49,7 @@ public class MergerHelper {
 	 * @param components
 	 * @return
 	 */
-	public List<Component> createFlatComponents(final List<Component> components) {
+	public static List<Component> createFlatComponents(final List<Component> components) {
 		final List<Component> flatComponents = new ArrayList<>();
 
 		for (final Component component : components) {
@@ -61,7 +61,7 @@ public class MergerHelper {
 		return flatComponents;
 	}
 
-	public void addChildrenToList(final List<Component> children, final List<Component> componentList) {
+	public static void addChildrenToList(final List<Component> children, final List<Component> componentList) {
 		if (!children.isEmpty()) {
 			for (final Component component : children) {
 				componentList.add(component);
@@ -77,7 +77,7 @@ public class MergerHelper {
 	 * @param flatComponentsFrom1
 	 * @return
 	 */
-	public List<Clazz> createFlatClazzes(final List<Component> flatComponentsFrom1) {
+	public static List<Clazz> createFlatClazzes(final List<Component> flatComponentsFrom1) {
 		final List<Clazz> flatClazzes = new ArrayList<>();
 		for (final Component component : flatComponentsFrom1) {
 			flatClazzes.addAll(component.getClazzes());
@@ -93,7 +93,7 @@ public class MergerHelper {
 	 * @param aggregatedCommus
 	 * @return
 	 */
-	public List<ClazzCommunication> createFlatClazzCommunications(
+	public static List<ClazzCommunication> createFlatClazzCommunications(
 			final List<AggregatedClazzCommunication> aggregatedCommus) {
 		final List<ClazzCommunication> clazzCommus = new ArrayList<>();
 

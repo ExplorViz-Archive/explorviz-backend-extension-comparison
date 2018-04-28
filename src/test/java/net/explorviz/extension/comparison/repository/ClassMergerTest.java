@@ -2,10 +2,14 @@ package net.explorviz.extension.comparison.repository;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import net.explorviz.extension.comparison.model.Status;
-import net.explorviz.extension.comparison.repository.PrepareForMerger;
+import net.explorviz.extension.comparison.util.MergerHelper;
 import net.explorviz.model.application.Clazz;
 
 /**
@@ -17,12 +21,19 @@ import net.explorviz.model.application.Clazz;
  *
  */
 public class ClassMergerTest extends MergerTest {
+	/* create flat clazzes for easier searching */
+	List<Clazz> flatClazzes = new ArrayList<Clazz>();
+
+	@Before
+	public void createFlatClazzes() {
+		flatClazzes = MergerHelper
+				.createFlatClazzes(MergerHelper.createFlatComponents(mergedApplication.getComponents()));
+	}
 
 	@Test
 	public void testAppMergeOriginalClazz() {
-		// clazz: orgV1.demoV1
-		final Clazz originalClazz = mergedApplication.getComponents().get(0).getClazzes().stream()
-				.filter(c1 -> c1.getFullQualifiedName().equals("orgV1.demoV1")).findFirst().get();
+		final Clazz originalClazz = flatClazzes.stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("org1V1.clazz1V1")).findFirst().get();
 		assertEquals(originalClazz.getFullQualifiedName() + "is not ORIGINAL.", Status.ORIGINAL,
 				originalClazz.getExtensionAttributes().get(PrepareForMerger.STATUS));
 
@@ -30,10 +41,8 @@ public class ClassMergerTest extends MergerTest {
 
 	@Test
 	public void testAppMergeAddedClazz() {
-		// clazz: netV2.subOrg2.subsubOrg2.subDemoNet
-		final Clazz addedClazz = mergedApplication.getComponents().get(2).getChildren().get(0).getChildren().get(0)
-				.getClazzes().stream()
-				.filter(c1 -> c1.getFullQualifiedName().equals("netV2.subOrg2.subsubOrg2.subDemoNet")).findFirst()
+		final Clazz addedClazz = flatClazzes.stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("netV2.subNet1V2.subsubNet1V2.clazz1V2")).findFirst()
 				.get();
 		assertEquals(addedClazz.getFullQualifiedName() + "is not ADDED.", Status.ADDED,
 				addedClazz.getExtensionAttributes().get(PrepareForMerger.STATUS));
@@ -42,9 +51,8 @@ public class ClassMergerTest extends MergerTest {
 
 	@Test
 	public void testAppMergeDeletedClazz() {
-		// clazz orgV1.subOrgV1.subDemo3V1
-		final Clazz deletedClazz = mergedApplication.getComponents().get(0).getChildren().get(0).getClazzes().stream()
-				.filter(c1 -> c1.getFullQualifiedName().equals("orgV1.subOrgV1.subDemo3V1")).findFirst().get();
+		final Clazz deletedClazz = flatClazzes.stream()
+				.filter(c1 -> c1.getFullQualifiedName().equals("org1V1.subOrg1V1.subClazz3V1")).findFirst().get();
 		assertEquals(deletedClazz.getFullQualifiedName() + "is not DELETED.", Status.DELETED,
 				deletedClazz.getExtensionAttributes().get(PrepareForMerger.STATUS));
 	}

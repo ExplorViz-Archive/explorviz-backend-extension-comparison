@@ -1,15 +1,19 @@
 package net.explorviz.extension.comparison.testdata;
 
+import java.util.List;
 import java.util.Random;
 
 import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.extension.comparison.repository.Merger;
 import net.explorviz.extension.comparison.repository.PrepareForMerger;
+import net.explorviz.extension.comparison.util.MergerHelper;
+import net.explorviz.model.application.AggregatedClazzCommunication;
 import net.explorviz.model.application.Application;
-import net.explorviz.model.application.ApplicationCommunication;
 import net.explorviz.model.application.Clazz;
+import net.explorviz.model.application.ClazzCommunication;
 import net.explorviz.model.application.Component;
 import net.explorviz.model.helper.EProgrammingLanguage;
+import net.explorviz.model.helper.ModelHelper;
 import net.explorviz.model.landscape.Landscape;
 import net.explorviz.model.landscape.Node;
 import net.explorviz.model.landscape.NodeGroup;
@@ -17,7 +21,6 @@ import net.explorviz.model.landscape.System;
 import net.explorviz.repository.LandscapePreparer;
 
 public class LandscapeExampleCreator {
-	public static int counter = 1;
 
 	/**
 	 * Creates an example landscape for testing
@@ -61,129 +64,25 @@ public class LandscapeExampleCreator {
 	public static Application createSimpleApplicationVersion1(final Node node) {
 		final Application simpleAppV1 = createApplication("AppVersion1", node);
 
-		final Component org = new Component();
-		org.initializeID();
-		org.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		org.setName("orgV1");
-		org.setFullQualifiedName("orgV1");
-		org.setParentComponent(null);
-		org.setBelongingApplication(simpleAppV1);
+		final Component org1 = createComponent(simpleAppV1, null, "org1V1", "org1V1");
+		final Clazz clazz1 = createClazz(simpleAppV1, org1, "org1V1.clazz1V1", "clazz1V1", 100);
+		final Component subOrg1 = createComponent(simpleAppV1, org1, "orgV1.subOrg1V1", "subOrg1V1");
+		final Clazz subClazz1 = createClazz(simpleAppV1, subOrg1, "org1V1.subOrg1V1.subClazz1V1", "subClazz1V1", 90);
+		final Clazz subClazz3 = createClazz(simpleAppV1, subOrg1, "org1V1.subOrg1V1.subClazz3V1", "subClazz3V1", 42);
 
-		final Component org2 = new Component();
-		org2.initializeID();
-		org2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		org2.setName("org2V1");
-		org2.setFullQualifiedName("org2V1");
-		org2.setParentComponent(null);
-		org2.setBelongingApplication(simpleAppV1);
+		final Component org2 = createComponent(simpleAppV1, null, "org2V1", "org2V1");
 
-		final Component org3 = new Component();
-		org3.initializeID();
-		org3.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		org3.setName("org3V1");
-		org3.setFullQualifiedName("org3V1");
-		org3.setParentComponent(null);
-		org3.setBelongingApplication(simpleAppV1);
+		final Component org3 = createComponent(simpleAppV1, null, "org3V1", "org3V1");
+		final Clazz clazz3 = createClazz(simpleAppV1, org3, "org3V1.clazz3V1", "clazz3V1", 500);
 
-		final Clazz demoClass = new Clazz();
-		demoClass.initializeID();
-		demoClass.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		demoClass.setName("demoV1");
-		demoClass.setFullQualifiedName("orgV1.demoV1");
-		demoClass.setInstanceCount(100);
-		demoClass.setParent(org);
-
-		org.getClazzes().add(demoClass);
-
-		final Clazz demoClass3 = new Clazz();
-		demoClass3.initializeID();
-		demoClass3.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		demoClass3.setName("demo3V1");
-		demoClass3.setFullQualifiedName("org3V1.demo3V1");
-		demoClass3.setInstanceCount(100);
-		demoClass3.setParent(org3);
-
-		final Component subOrg = new Component();
-		subOrg.initializeID();
-		subOrg.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		subOrg.setName("subOrgV1");
-		subOrg.setFullQualifiedName("orgV1.subOrgV1");
-		subOrg.setParentComponent(org);
-		subOrg.setBelongingApplication(simpleAppV1);
-
-		org.getChildren().add(subOrg);
-
-		final Clazz subDemoClass = new Clazz();
-		subDemoClass.initializeID();
-		subDemoClass.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		subDemoClass.setName("subDemoV1");
-		subDemoClass.setFullQualifiedName("orgV1.subOrgV1.subDemoV1");
-		subDemoClass.setInstanceCount(100);
-		subDemoClass.setParent(subOrg);
-
-		subOrg.getClazzes().add(subDemoClass);
-
-		final Clazz subDemo3Class = new Clazz();
-		subDemo3Class.initializeID();
-		subDemo3Class.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		subDemo3Class.setName("subDemo3V1");
-		subDemo3Class.setFullQualifiedName("orgV1.subOrgV1.subDemo3V1");
-		subDemo3Class.setInstanceCount(100);
-		subDemo3Class.setParent(subOrg);
-
-		subOrg.getClazzes().add(subDemo3Class);
-
-		simpleAppV1.getComponents().add(org);
-		simpleAppV1.getComponents().add(org2);
-		simpleAppV1.getComponents().add(org3);
-
-		// // communication
-		// final ClazzCommunication comm1 = new ClazzCommunication();
-		// comm1.initializeID();
-		// comm1.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		// comm1.setSourceClazz(demoClass);
-		// comm1.setTargetClazz(subDemoClass);
-		// comm1.setOperationName("FromDemoToSub()");
-		// ModelHelper.addClazzCommunication(demoClass, subDemoClass, simpleAppV1, 6, 3,
-		// 65, 2, 4, "FromDemoToSub()");
-		//
-		// final ClazzCommunication comm1Return = new ClazzCommunication();
-		// comm1Return.initializeID();
-		// comm1Return.getExtensionAttributes().put(PrepareForMerger.STATUS,
-		// Status.ORIGINAL);
-		// comm1Return.setSourceClazz(subDemoClass);
-		// comm1Return.setTargetClazz(demoClass);
-		// comm1Return.setOperationName("FromSubToDemo()");
-		// ModelHelper.addClazzCommunication(subDemoClass, demoClass, simpleAppV1, 6, 3,
-		// 65, 2, 4, "FromSubToDemo()");
-		//
-		// final ClazzCommunication comm2 = new ClazzCommunication();
-		// comm2.initializeID();
-		// comm2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		// comm2.setSourceClazz(demoClass);
-		// comm2.setTargetClazz(subDemoClass);
-		// comm2.setOperationName("FromDemoToSub2()");
-		// ModelHelper.addClazzCommunication(demoClass, subDemoClass, simpleAppV1, 6, 3,
-		// 65, 2, 4, "FromDemoToSub2()");
-		//
-		// final ClazzCommunication comm3 = new ClazzCommunication();
-		// comm3.initializeID();
-		// comm3.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		// comm3.setSourceClazz(subDemoClass);
-		// comm3.setTargetClazz(subDemo3Class);
-		// comm3.setOperationName("FromSub1ToSub3()");
-		// ModelHelper.addClazzCommunication(subDemoClass, subDemo3Class, simpleAppV1,
-		// 6, 3, 65, 2, 4, "FromSub1ToSub3()");
-
-		// final List<ClazzCommunication> communications = new ArrayList<>();
-		// communications.add(comm1);
-		// communications.add(comm1Return);
-		// communications.add(comm2);
-		// communications.add(comm3);
-		//
-		// simpleAppV1.setCommunications(communications);
-
-		counter = 1;
+		final ClazzCommunication communication_clazz1ToSubClazz1 = createClazzCommunication(clazz1, subClazz1,
+				"fromClazz1ToSubClazz1()");
+		final ClazzCommunication communication_subClazz1ToClazz1 = createClazzCommunication(subClazz1, clazz1,
+				"fromSubClazz1ToClazz1()");
+		final ClazzCommunication communication2_clazz1ToSubClazz1 = createClazzCommunication(clazz1, subClazz1,
+				"AnotherFromClazz1ToSubClazz1()");
+		final ClazzCommunication communication_subClazz1ToSubClazz3 = createClazzCommunication(subClazz1, subClazz3,
+				"fromSubClazz1ToSubClazz3");
 
 		return simpleAppV1;
 	}
@@ -199,102 +98,83 @@ public class LandscapeExampleCreator {
 	 */
 	public static Application createSimpleApplicationVersion2(final Node node) {
 		final Application simpleAppV2 = createSimpleApplicationVersion1(node);
+		final List<Component> flatComponents = MergerHelper.createFlatComponents(simpleAppV2.getComponents());
 
 		// component ADDED
-		final Component net = new Component();
-		net.initializeID();
-		net.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		net.setName("netV2");
-		net.setFullQualifiedName("netV2");
-		net.setParentComponent(null);
-		net.setBelongingApplication(simpleAppV2);
+		final Component net = createComponent(simpleAppV2, null, "netV2", "netV2");
 
-		final Component subOrg2 = new Component();
-		subOrg2.initializeID();
-		subOrg2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		subOrg2.setName("subOrg2");
-		subOrg2.setFullQualifiedName("netV2.subOrg2");
-		subOrg2.setParentComponent(net);
-
-		final Component subsubOrg2 = new Component();
-		subsubOrg2.initializeID();
-		subsubOrg2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		subsubOrg2.setName("subsubOrg2");
-		subsubOrg2.setFullQualifiedName("netV2.subOrg2.subsubOrg2");
-		subsubOrg2.setParentComponent(subOrg2);
+		final Component subNet = createComponent(simpleAppV2, net, "netV2.subNet1V2", "subNet1V2");
+		final Component subSubNet = createComponent(simpleAppV2, subNet, "netV2.subNet1V2.subsubNet1V2",
+				"subsubNet1V2");
 
 		// component EDITED
 
 		// component DELETED
-		final Component toBeDeletedComponent = simpleAppV2.getComponents().stream()
-				.filter(c1 -> c1.getFullQualifiedName().equals("org3V1")).findFirst().get();
+		final Component toBeDeletedComponent = flatComponents.stream()
+				.filter(c1 -> "org3V1".equals(c1.getFullQualifiedName())).findFirst().get();
 		simpleAppV2.getComponents().remove(toBeDeletedComponent);
 
 		// clazz ADDED
-		final Clazz subDemoClassNet = new Clazz();
-		subDemoClassNet.initializeID();
-		subDemoClassNet.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		subDemoClassNet.setName("subDemoNet");
-		subDemoClassNet.setFullQualifiedName("netV2.subOrg2.subsubOrg2.subDemoNet");
-		subDemoClassNet.setInstanceCount(24);
-		subDemoClassNet.setParent(subOrg2);
-
-		subsubOrg2.getClazzes().add(subDemoClassNet);
-		net.getChildren().add(subOrg2);
-		subOrg2.getChildren().add(subsubOrg2);
+		final Clazz subSubNetClazz = createClazz(simpleAppV2, subSubNet, "netV2.subNet1V2.subsubNet1V2.clazz1V2",
+				"clazz1V2", 280);
 
 		// clazz ADDED
-		final Component subOrg = simpleAppV2.getComponents().get(0).getChildren().get(0);
-		final Clazz subDemoClass2 = new Clazz();
-		subDemoClass2.initializeID();
-		subDemoClass2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
-		subDemoClass2.setName("subDemoV2");
-		subDemoClass2.setFullQualifiedName("orgV1.subOrgV1.subDemoV2");
-		subDemoClass2.setInstanceCount(100);
-		subDemoClass2.setParent(subOrg);
-
-		subOrg.getClazzes().add(subDemoClass2);
-
-		simpleAppV2.getComponents().add(net);
+		final Component subOrg = flatComponents.stream().filter(c -> "orgV1.subOrg1V1".equals(c.getFullQualifiedName()))
+				.findFirst().get();
+		final Clazz subOrgClazzV2 = createClazz(simpleAppV2, subOrg, "orgV1.subOrg1V1.clazz2V2", "clazz2V2", 66);
 
 		// clazz DELETED
-		final Clazz toBeDeletedClazz = simpleAppV2.getComponents().get(0).getChildren().get(0).getClazzes().stream()
-				.filter(c1 -> c1.getFullQualifiedName().equals("orgV1.subOrgV1.subDemo3V1")).findFirst().get();
-		simpleAppV2.getComponents().get(0).getChildren().get(0).getClazzes().remove(toBeDeletedClazz);
+		final List<Clazz> flatClazzes = MergerHelper.createFlatClazzes(flatComponents);
+		final Clazz toBeDeletedClazz = flatClazzes.stream()
+				.filter(c1 -> "org1V1.subOrg1V1.subClazz3V1".equals(c1.getFullQualifiedName())).findFirst().get();
+		toBeDeletedClazz.getParent().getClazzes().remove(toBeDeletedClazz);
 
-		// // communicationClazz ADDED
-		// final ClazzCommunication commAdded = new ClazzCommunication();
-		// commAdded.initializeID();
-		// commAdded.getExtensionAttributes().put(PrepareForMerger.STATUS,
-		// Status.ORIGINAL);
-		// commAdded.setSourceClazz(subDemoClass2);
-		// // orgV1.demoV1
-		// commAdded.setTargetClazz(simpleAppV2.getComponents().get(0).getClazzes().get(0));
-		// commAdded.setOperationName("FromSub2ToDemo()");
-		//
-		// // communicationClazz EDITED
-		// final ClazzCommunication commEdited = simpleAppV2.getCommunications().get(0);
-		// commEdited.setOperationName("FromDemoToSubEdited()");
-		//
-		// simpleAppV2.getAggregatedOutgoingClazzCommunications().add(commAdded);
-		//
-		// // communicationClazz DELETED
-		// final ClazzCommunication toBeDeletedCommunication =
-		// simpleAppV2.getCommunications().stream()
-		// .filter(c1 ->
-		// c1.getMethodName().equals("FromSub1ToSub3()")).findFirst().get();
-		// simpleAppV2.getCommunications().remove(toBeDeletedCommunication);
+		// clazzCommunication ADDED
+		final Clazz clazz1V1 = flatClazzes.stream().filter(c -> "org1V1.clazz1V1".equals(c.getFullQualifiedName()))
+				.findFirst().get();
+		final ClazzCommunication communication_subOrgClazzV2ToClazz1 = createClazzCommunication(subOrgClazzV2, clazz1V1,
+				"fromSubOrgClazzV2ToClazz1()");
+
+		// clazzCommunication DELETED
+		final List<ClazzCommunication> flatClazzCommunications = MergerHelper
+				.createFlatClazzCommunications(simpleAppV2.getAggregatedOutgoingClazzCommunications());
+		final ClazzCommunication clazzCommunicationToBeDeleted = flatClazzCommunications.stream()
+				.filter(c -> "fromSubClazz1ToSubClazz3".equals(c.getOperationName())).findFirst().get();
+		// deleted communication from source class and from aggregated communication
+		clazzCommunicationToBeDeleted.getSourceClazz().getOutgoingClazzCommunications()
+				.remove(clazzCommunicationToBeDeleted);
+		final List<AggregatedClazzCommunication> aggregatedClazzCommunications = simpleAppV2
+				.getAggregatedOutgoingClazzCommunications();
+		final AggregatedClazzCommunication deletedClazzCommunicationInAggregated = aggregatedClazzCommunications
+				.stream().filter(ac -> clazzCommunicationToBeDeleted.getSourceClazz().equals(ac.getSourceClazz()))
+				.filter(ac -> clazzCommunicationToBeDeleted.getTargetClazz().equals(ac.getTargetClazz())).findAny()
+				.get();
+		deletedClazzCommunicationInAggregated.getOutgoingClazzCommunications().remove(clazzCommunicationToBeDeleted);
+
+		// prepare EDITED aggregatedCommunication
+		// delete
+		final ClazzCommunication clazzCommunicationToBeDeleted2 = flatClazzCommunications.stream()
+				.filter(c -> "AnotherFromClazz1ToSubClazz1()".equals(c.getOperationName())).findFirst().get();
+		clazzCommunicationToBeDeleted2.getSourceClazz().getOutgoingClazzCommunications()
+				.remove(clazzCommunicationToBeDeleted2);
+
+		final AggregatedClazzCommunication deletedClazzCommunication2InAggregated = aggregatedClazzCommunications
+				.stream().filter(ac -> clazzCommunicationToBeDeleted2.getSourceClazz().equals(ac.getSourceClazz()))
+				.filter(ac -> clazzCommunicationToBeDeleted2.getTargetClazz().equals(ac.getTargetClazz())).findAny()
+				.get();
+		deletedClazzCommunication2InAggregated.getOutgoingClazzCommunications().remove(clazzCommunicationToBeDeleted2);
+
+		// add
+		final Clazz subClazz1 = flatClazzes.stream()
+				.filter(c -> "org1V1.subOrg1V1.subClazz1V1".equals(c.getFullQualifiedName())).findAny().get();
+		final ClazzCommunication communication_clazz1TosubClazz1 = createClazzCommunication(clazz1V1, subClazz1,
+				"NEWAnotherFromClazz1ToSubClazz1()");
 
 		return simpleAppV2;
 	}
 
 	/**
-	 * Helper classes for creating nodeGroups, nodes, applications..
-	 *
-	 * @param name
-	 * @param parent
-	 * @param system
-	 * @return
+	 * Helper methods for creating nodeGroups, nodes, applications..
 	 */
 
 	private static NodeGroup createNodeGroup(final String name, final Landscape parent,
@@ -322,22 +202,57 @@ public class LandscapeExampleCreator {
 		application.setLastUsage(java.lang.System.currentTimeMillis());
 		application.setProgrammingLanguage(EProgrammingLanguage.JAVA);
 
-		if (name == "Eprints") {
-			application.setProgrammingLanguage(EProgrammingLanguage.PERL);
-		}
-
 		application.setName(name);
 		parent.getApplications().add(application);
 		return application;
 	}
 
-	private static void createCommunication(final Application source, final Application target,
-			final Landscape landscape, final int requests) {
-		final ApplicationCommunication communication = new ApplicationCommunication();
-		communication.initializeID();
-		communication.setSourceApplication(source);
-		communication.setTargetApplication(target);
-		communication.setRequests(requests);
-		landscape.getOutgoingApplicationCommunications().add(communication);
+	private static Component createComponent(final Application application, final Component parent,
+			final String fullName, final String name) {
+		final Component newComponent = new Component();
+		newComponent.initializeID();
+		newComponent.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
+		newComponent.setName(name);
+		newComponent.setFullQualifiedName(fullName);
+		newComponent.setParentComponent(parent);
+		newComponent.setBelongingApplication(application);
+
+		if (parent != null) {
+			parent.getChildren().add(newComponent);
+		} else {
+			application.getComponents().add(newComponent);
+		}
+
+		return newComponent;
+	}
+
+	private static Clazz createClazz(final Application application, final Component parent, final String fullName,
+			final String name, final int instanceCount) {
+		final Clazz newClazz = new Clazz();
+		newClazz.initializeID();
+		newClazz.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
+		newClazz.setName(name);
+		newClazz.setFullQualifiedName(fullName);
+		newClazz.setInstanceCount(instanceCount);
+		newClazz.setParent(parent);
+
+		parent.getClazzes().add(newClazz);
+
+		return newClazz;
+	}
+
+	private static ClazzCommunication createClazzCommunication(final Clazz source, final Clazz target,
+			final String operationName) {
+		final ClazzCommunication newClazzCommunication = new ClazzCommunication();
+		newClazzCommunication.initializeID();
+		newClazzCommunication.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.ORIGINAL);
+		newClazzCommunication.setSourceClazz(source);
+		newClazzCommunication.setTargetClazz(target);
+		newClazzCommunication.setOperationName(operationName);
+
+		source.getOutgoingClazzCommunications().add(newClazzCommunication);
+		ModelHelper.updateAggregatedClazzCommunication(source.getParent().getBelongingApplication(),
+				newClazzCommunication);
+		return newClazzCommunication;
 	}
 }

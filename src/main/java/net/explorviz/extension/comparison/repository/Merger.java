@@ -343,7 +343,7 @@ public class Merger {
 			final List<CumulatedClazzCommunication> cumulatedCommunications2) {
 
 		final List<CumulatedClazzCommunication> mergedCumulatedCommunications = cumulatedCommunications2;
-		final List<ClazzCommunication> clazzCommunications1 = mergerHelper
+		final List<ClazzCommunication> clazzCommunications1 = MergerHelper
 				.createFlatClazzCommunications(aggregatedCommunications1);
 
 		ClazzCommunication communication2ContainedIn1;

@@ -7,7 +7,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import junit.framework.TestCase;
 
 @RunWith(Suite.class)
-@SuiteClasses({ ClassMergerTest.class, ComponentMergerTest.class }) // , CommunicationMergerTest.class })
+@SuiteClasses({ ClassMergerTest.class, ComponentMergerTest.class, CommunicationMergerTest.class })
 public class MergerTests extends TestCase {
 
 }

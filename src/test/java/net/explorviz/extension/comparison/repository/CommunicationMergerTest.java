@@ -1,64 +1,91 @@
 package net.explorviz.extension.comparison.repository;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import net.explorviz.extension.comparison.model.Status;
+import net.explorviz.extension.comparison.util.MergerHelper;
+import net.explorviz.model.application.AggregatedClazzCommunication;
 import net.explorviz.model.application.ClazzCommunication;
 
 /**
  * This class holds tests for all states a {@link ClazzCommunication} can adopt,
- * refer {@link Status.ORIGINAL}, {@link Status.ADDED}, {@link Status.EDITED}
- * and {@link Status.DELETED}. The merged application is taken from
+ * refer {@link Status.ORIGINAL}, {@link Status.ADDED} and
+ * {@link Status.DELETED}. The merged application is taken from
  * {@link MergerTest}.
  *
  * @author josw
  *
  */
 public class CommunicationMergerTest extends MergerTest {
-	//
-	// @Test
-	// public void testAppMergeOriginalCommunication() {
-	// // communications2: FromDemoToSubEdited(), FromSubToDemo(), FromDemoToSub2(),
-	// // FromSub2ToDemo()
-	// final ClazzCommunication originalCommunication = mergedCommunication.stream()
-	// .filter(c1 ->
-	// c1.getOperationName().equals("FromDemoToSub2()")).findFirst().get();
-	// assertEquals(originalCommunication.getOperationName() + "is not ORIGINAL.",
-	// Status.ORIGINAL,
-	// originalCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
-	// }
-	//
-	// @Test
-	// public void testAppMergeAddedCommunication() {
-	// // communications2: FromDemoToSubEdited(), FromSubToDemo(), FromDemoToSub2(),
-	// // FromSub2ToDemo()
-	// final ClazzCommunication addedCommunication = mergedCommunication.stream()
-	// .filter(c1 ->
-	// c1.getOperationName().equals("FromSub2ToDemo()")).findFirst().get();
-	// assertEquals(addedCommunication.getOperationName() + "is not ADDED.",
-	// Status.ADDED,
-	// addedCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
-	// }
-	//
-	// @Test
-	// public void testAppMergeEditedCommunication() {
-	// // communications2: FromDemoToSubEdited(), FromSubToDemo(), FromDemoToSub2(),
-	// // FromSub2ToDemo()
-	// final ClazzCommunication editedCommunication = mergedCommunication.stream()
-	// .filter(c1 ->
-	// c1.getOperationName().equals("FromDemoToSubEdited()")).findFirst().get();
-	// assertEquals(editedCommunication.getOperationName() + "is not EDITED.",
-	// Status.EDITED,
-	// editedCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
-	//
-	// }
-	//
-	// @Test
-	// public void testAppMergeDeletedCommunication() {
-	// final ClazzCommunication deletedCommunication = mergedCommunication.stream()
-	// .filter(c1 ->
-	// c1.getOperationName().equals("FromSub1ToSub3()")).findFirst().get();
-	// assertEquals(deletedCommunication.getOperationName() + "is not DELETED.",
-	// Status.DELETED,
-	// deletedCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
-	// }
+
+	List<ClazzCommunication> flatClazzCommunications = new ArrayList<>();
+
+	@Before
+	public void createFlatClazzCommunication() {
+		flatClazzCommunications = MergerHelper
+				.createFlatClazzCommunications(mergedApplication.getAggregatedOutgoingClazzCommunications());
+	}
+
+	@Test
+	public void testAppMergeOriginalCommunication() {
+		final ClazzCommunication originalCommunication = flatClazzCommunications.stream()
+				.filter(c1 -> "fromClazz1ToSubClazz1()".equals(c1.getOperationName())).findAny().get();
+		assertEquals(originalCommunication.getOperationName() + "is not ORIGINAL.", Status.ORIGINAL,
+				originalCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
+	}
+
+	@Test
+	public void testAppMergeAddedCommunication() {
+		final ClazzCommunication addedCommunication = flatClazzCommunications.stream()
+				.filter(c1 -> "fromSubOrgClazzV2ToClazz1()".equals(c1.getOperationName())).findAny().get();
+		assertEquals(addedCommunication.getOperationName() + "is not ADDED.", Status.ADDED,
+				addedCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
+	}
+
+	@Test
+	public void testAppMergeAddedAggregatedCommunication() {
+		final AggregatedClazzCommunication addedAggregatedCommunication = mergedApplication
+				.getAggregatedOutgoingClazzCommunications().stream()
+				.filter(ac -> "orgV1.subOrg1V1.clazz2V2".equals(ac.getSourceClazz().getFullQualifiedName())).findAny()
+				.get();
+		assertEquals("Aggregated is not ADDED", Status.ADDED,
+				addedAggregatedCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
+
+	}
+
+	@Test
+	public void testAppMergeDeletedCommunication() {
+		final ClazzCommunication deletedCommunication = flatClazzCommunications.stream()
+				.filter(c -> "fromSubClazz1ToSubClazz3".equals(c.getOperationName())).findAny().get();
+		assertEquals(deletedCommunication.getOperationName() + "is not DELETED", Status.DELETED,
+				deletedCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
+	}
+
+	@Test
+	public void testAppMergeDeletedAggregatedCommunication() {
+		final AggregatedClazzCommunication deletedAggregatedCommunication = mergedApplication
+				.getAggregatedOutgoingClazzCommunications().stream()
+				.filter(ac -> "org1V1.subOrg1V1.subClazz3V1".equals(ac.getTargetClazz().getFullQualifiedName()))
+				.findAny().get();
+
+		assertEquals("Aggregated is not DELETED", Status.DELETED,
+				deletedAggregatedCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
+	}
+
+	@Test
+	public void testAppMergeEditedAggregatedCommunication() {
+		final AggregatedClazzCommunication editedAggregatedCommunication = mergedApplication
+				.getAggregatedOutgoingClazzCommunications().stream()
+				.filter(ac -> "org1V1.clazz1V1".equals(ac.getSourceClazz().getFullQualifiedName())).findAny().get();
+
+		assertEquals("Aggregated is not EDITED", Status.EDITED,
+				editedAggregatedCommunication.getExtensionAttributes().get(PrepareForMerger.STATUS));
+	}
 
 }
