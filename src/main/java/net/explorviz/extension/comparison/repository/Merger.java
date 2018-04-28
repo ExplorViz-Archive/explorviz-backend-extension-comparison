@@ -114,7 +114,7 @@ public class Merger {
 				if (mergedComponentIn1 == null) {
 					// case: mergedComponent does not exist in version 1 -> status ADDED
 					// status of clazzes in component: ADDED
-					mergerHelper.setStatusCLazzesAndChildren(mergedComponent, Status.ADDED);
+					mergerHelper.setStatusComponentCLazzesAndChildren(mergedComponent, Status.ADDED);
 				} else {
 					// case: mergedComponent does exist in version 1 -> status EDITED or ORIGINAL
 					// check EDITED
@@ -223,7 +223,7 @@ public class Merger {
 		final Component newMergedComponent = component1;
 		// newMergedComponent.getExtensionAttributes().put(PrepareForMerger.STATUS,
 		// Status.DELETED);
-		mergerHelper.setStatusCLazzesAndChildren(newMergedComponent, Status.DELETED);
+		mergerHelper.setStatusComponentCLazzesAndChildren(newMergedComponent, Status.DELETED);
 
 		if (isRootComponent) {
 			// case: component has no parent -> add newMergedComponent to components of
@@ -422,7 +422,14 @@ public class Merger {
 					.filter(c -> Status.DELETED.equals(c.getExtensionAttributes().get(PrepareForMerger.STATUS)))
 					.findAny().isPresent();
 
+			final boolean editedExist = cumulatedCommunication2.getAggregatedClazzCommunications().stream()
+					.filter(c -> Status.EDITED.equals(c.getExtensionAttributes().get(PrepareForMerger.STATUS)))
+					.findAny().isPresent();
+
 			// set status of cumulated communication
+			if (editedExist) {
+				cumulatedCommunication2.getExtensionAttributes().put(PrepareForMerger.STATUS, Status.EDITED);
+			}
 			if (addedExist) {
 				if (deletedExist) {
 					// EDITED: addedExist=true, deletedExist=true
