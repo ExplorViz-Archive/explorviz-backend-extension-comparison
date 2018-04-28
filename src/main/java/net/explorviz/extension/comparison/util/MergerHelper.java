@@ -26,7 +26,7 @@ public class MergerHelper {
 	 * @param component
 	 * @param status
 	 */
-	public void setStatusCLazzesAndChildren(final Component component, final Status status) {
+	public void setStatusComponentCLazzesAndChildren(final Component component, final Status status) {
 		component.getExtensionAttributes().put(PrepareForMerger.STATUS, status);
 		if (!component.getClazzes().isEmpty()) {
 			for (final Clazz clazz : component.getClazzes()) {
@@ -35,7 +35,7 @@ public class MergerHelper {
 		}
 		for (final Component child : component.getChildren()) {
 			child.getExtensionAttributes().put(PrepareForMerger.STATUS, status);
-			setStatusCLazzesAndChildren(child, status);
+			setStatusComponentCLazzesAndChildren(child, status);
 			for (final Clazz clazz : child.getClazzes()) {
 				clazz.getExtensionAttributes().put(PrepareForMerger.STATUS, status);
 			}
