@@ -31,8 +31,7 @@ public class EntityComparison {
 		final List<Component> children1 = component1.getChildren();
 		final List<Component> children2 = component2.getChildren();
 
-		// fullQualifiedName was already checked in Merger -> we do not check
-		// fullQualifiedName again
+		// fullQualifiedNames are equal -> was already checked before
 		if (clazzes1.size() == clazzes2.size()) {
 			if (clazzesEqual(clazzes1, clazzes2)) {
 				if ((children1.size() == children2.size())) {
@@ -57,9 +56,14 @@ public class EntityComparison {
 		boolean childrenEqual = true;
 
 		for (int i = 0; i < children1.size(); i++) {
-			childrenEqual = this.componentsIdentical(children1.get(i), children2.get(i));
+			if (children1.get(i).getFullQualifiedName().equals(children2.get(i).getFullQualifiedName())) {
+				childrenEqual = this.componentsIdentical(children1.get(i), children2.get(i));
 
-			if (!childrenEqual) {
+				if (!childrenEqual) {
+					break;
+				}
+			} else {
+				childrenEqual = false;
 				break;
 			}
 		}
