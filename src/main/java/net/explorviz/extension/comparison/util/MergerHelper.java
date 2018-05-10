@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.extension.comparison.repository.Merger;
-import net.explorviz.extension.comparison.repository.PrepareForMerger;
 import net.explorviz.model.application.AggregatedClazzCommunication;
 import net.explorviz.model.application.Clazz;
 import net.explorviz.model.application.ClazzCommunication;
@@ -17,7 +16,12 @@ import net.explorviz.model.application.Component;
  * @author josw
  *
  */
-public class MergerHelper {
+public final class MergerHelper {
+
+	// because this is a utility class
+	private MergerHelper() {
+
+	}
 
 	/**
 	 * Set the status of the {@link Component}, child{@link Component}s and all
@@ -26,7 +30,7 @@ public class MergerHelper {
 	 * @param component
 	 * @param status
 	 */
-	public void setStatusComponentCLazzesAndChildren(final Component component, final Status status) {
+	public static void setStatusComponentCLazzesAndChildren(final Component component, final Status status) {
 		component.getExtensionAttributes().put(PrepareForMerger.STATUS, status);
 		if (!component.getClazzes().isEmpty()) {
 			for (final Clazz clazz : component.getClazzes()) {

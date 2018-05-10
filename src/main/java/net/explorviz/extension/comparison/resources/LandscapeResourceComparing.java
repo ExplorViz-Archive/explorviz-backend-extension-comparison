@@ -7,9 +7,17 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import net.explorviz.extension.comparison.repository.LandscapeFetchService;
+import net.explorviz.model.application.Application;
 import net.explorviz.model.landscape.Landscape;
 import net.explorviz.server.security.Secured;
 
+/**
+ * REST resource that provides a {@link Landscape} with merged
+ * {@link Application}s to the frontend.
+ * 
+ * @author josw
+ *
+ */
 @Secured
 @Path("/landscape")
 public class LandscapeResourceComparing {

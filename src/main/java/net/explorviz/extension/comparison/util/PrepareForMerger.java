@@ -1,4 +1,4 @@
-package net.explorviz.extension.comparison.repository;
+package net.explorviz.extension.comparison.util;
 
 import java.util.List;
 
@@ -19,12 +19,16 @@ import net.explorviz.model.application.CumulatedClazzCommunication;
  * @author jweg
  *
  */
-public class PrepareForMerger {
+public final class PrepareForMerger {
 
 	public static final String STATUS = "status";
 	public static final Status DEFAULT_STATUS = Status.ORIGINAL;
 	public static final String DIFF_INSTANCE_COUNT = "diffInstanceCount";
 	public static final Integer DEFAULT_DIFF_INSTANCE_COUNT = 0;
+
+	// because this is a utility class
+	private PrepareForMerger() {
+	}
 
 	/**
 	 * Adds a {@link Status} attribute to every element in the {@link Application}.

@@ -5,8 +5,8 @@ import java.util.Random;
 
 import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.extension.comparison.repository.Merger;
-import net.explorviz.extension.comparison.repository.PrepareForMerger;
 import net.explorviz.extension.comparison.util.MergerHelper;
+import net.explorviz.extension.comparison.util.PrepareForMerger;
 import net.explorviz.model.application.AggregatedClazzCommunication;
 import net.explorviz.model.application.Application;
 import net.explorviz.model.application.Clazz;

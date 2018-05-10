@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.extension.comparison.util.EntityComparison;
 import net.explorviz.extension.comparison.util.MergerHelper;
+import net.explorviz.extension.comparison.util.PrepareForMerger;
 import net.explorviz.model.application.AggregatedClazzCommunication;
 import net.explorviz.model.application.Application;
 import net.explorviz.model.application.Clazz;
@@ -19,15 +20,14 @@ import net.explorviz.model.application.CumulatedClazzCommunication;
 /**
  * Provides methods to merge two {@link Application}s.
  *
- * @author jweg
+ * @author josw
  *
  */
 
 public class Merger {
 
-	static final Logger logger = LoggerFactory.getLogger(Merger.class.getName());
+	static final Logger LOGGER = LoggerFactory.getLogger(Merger.class.getName());
 	private final EntityComparison entityComparison = new EntityComparison();
-	private final MergerHelper mergerHelper = new MergerHelper();
 
 	/**
 	 * Takes two {@link Application}s and merges them into a new
@@ -52,29 +52,30 @@ public class Merger {
 		final Application mergedApp = appVersion2;
 
 		final List<Component> componentsVersion1 = appVersion1.getComponents();
-		List<Component> flatComponentsFrom1 = mergerHelper.createFlatComponents(componentsVersion1);
+		List<Component> flatComponentsFrom1 = MergerHelper.createFlatComponents(componentsVersion1);
 
 		final List<Component> mergedComponents = mergedApp.getComponents();
-		List<Component> flatMergedComponents = mergerHelper.createFlatComponents(mergedComponents);
+		List<Component> flatMergedComponents = MergerHelper.createFlatComponents(mergedComponents);
 
 		// check, if components and clazzes from version 2 exist in version 1 (possible
 		// status: ORIGINAL, ADDED, EDITED)
 		checkComponentsAndClazzesAddedAndEdited(mergedComponents, flatComponentsFrom1);
+
 		// check, if components from version 1 exist in version 2 (possible
 		// status: ORIGINAL, DELETED)
 		checkComponentsDeleted(componentsVersion1, flatMergedComponents);
-
 		// check, if clazzes from version 1 exist in version 2 (possible
 		// status: ORIGINAL, DELETED)
-		final List<Clazz> flatClazzesFrom1 = mergerHelper
-				.createFlatClazzes(mergerHelper.createFlatComponents(appVersion1.getComponents()));
-		flatMergedComponents = mergerHelper.createFlatComponents(mergedApp.getComponents());
-		final List<Clazz> flatMergedClazzes = mergerHelper.createFlatClazzes(flatMergedComponents);
+		final List<Clazz> flatClazzesFrom1 = MergerHelper
+				.createFlatClazzes(MergerHelper.createFlatComponents(appVersion1.getComponents()));
+		flatMergedComponents = MergerHelper.createFlatComponents(mergedApp.getComponents());
+		final List<Clazz> flatMergedClazzes = MergerHelper.createFlatClazzes(flatMergedComponents);
 		checkClazzesDeleted(flatClazzesFrom1, flatMergedClazzes, flatMergedComponents);
 
-		flatComponentsFrom1 = mergerHelper.createFlatComponents(appVersion1.getComponents());
-		setDiffInstanceCountForMergedClazzes(mergerHelper.createFlatComponents(mergedApp.getComponents()),
-				mergerHelper.createFlatClazzes(flatComponentsFrom1));
+		// set difference of instance count
+		flatComponentsFrom1 = MergerHelper.createFlatComponents(appVersion1.getComponents());
+		setDiffInstanceCountForMergedClazzes(MergerHelper.createFlatComponents(mergedApp.getComponents()),
+				MergerHelper.createFlatClazzes(flatComponentsFrom1));
 
 		/** merge communication between clazzes */
 		final List<AggregatedClazzCommunication> aggregatedCommunications1 = appVersion1
@@ -97,7 +98,8 @@ public class Merger {
 	 *            List<{@link Component}> with {@link Component}s (incl. children
 	 *            and clazzes) from version 2
 	 * @param flatComponentsFrom1
-	 *            List<{@link Component}> with {@link Component}s from version 1
+	 *            List<{@link Component}> with {@link Component}s from version 1,
+	 *            flat for easier searching
 	 */
 
 	private void checkComponentsAndClazzesAddedAndEdited(final List<Component> mergedComponents,
@@ -113,8 +115,8 @@ public class Merger {
 
 				if (mergedComponentIn1 == null) {
 					// case: mergedComponent does not exist in version 1 -> status ADDED
-					// status of clazzes in component: ADDED
-					mergerHelper.setStatusComponentCLazzesAndChildren(mergedComponent, Status.ADDED);
+					// status of clazzes and children in component: ADDED
+					MergerHelper.setStatusComponentCLazzesAndChildren(mergedComponent, Status.ADDED);
 				} else {
 					// case: mergedComponent does exist in version 1 -> status EDITED or ORIGINAL
 					// check EDITED
@@ -208,22 +210,19 @@ public class Merger {
 	 */
 	private void createDeletedComponent(final Component component1, final List<Component> flatMergedComponents) {
 		final Component parent = component1.getParentComponent();
-		final boolean isRootComponent;
+		boolean isRootComponent;
 
 		if (parent == null) {
 			isRootComponent = true;
 		} else {
 			isRootComponent = false;
 		}
-		;
 
 		String parentFullName;
 		Component parentInMerged = null;
 
 		final Component newMergedComponent = component1;
-		// newMergedComponent.getExtensionAttributes().put(PrepareForMerger.STATUS,
-		// Status.DELETED);
-		mergerHelper.setStatusComponentCLazzesAndChildren(newMergedComponent, Status.DELETED);
+		MergerHelper.setStatusComponentCLazzesAndChildren(newMergedComponent, Status.DELETED);
 
 		if (isRootComponent) {
 			// case: component has no parent -> add newMergedComponent to components of
@@ -241,7 +240,7 @@ public class Merger {
 				parentInMerged.getChildren().add(newMergedComponent);
 				newMergedComponent.setParentComponent(parentInMerged);
 			} else {
-				logger.error("parent of deleted component {} not found in merged component list.",
+				LOGGER.error("parent of deleted component {} not found in merged component list.",
 						component1.getFullQualifiedName());
 			}
 		}
@@ -280,7 +279,7 @@ public class Merger {
 					parentInMerged.getClazzes().add(clazzFrom1);
 					clazzFrom1.setParent(parentInMerged);
 				} else {
-					logger.error("parent of deleted clazz {} not found in merged component list.",
+					LOGGER.error("parent of deleted clazz {} not found in merged component list.",
 							clazzFrom1.getFullQualifiedName());
 				}
 			}
@@ -310,7 +309,7 @@ public class Merger {
 							.filter(c -> clazz.getFullQualifiedName().equals(c.getFullQualifiedName())).findFirst()
 							.orElse(null);
 					if (clazzIn1 == null) {
-						logger.error("instanceCount: clazz {} with status ORIGINAL not found in clazzFrom1 list.",
+						LOGGER.error("instanceCount: clazz {} with status ORIGINAL not found in clazzFrom1 list.",
 								clazz.getFullQualifiedName());
 					} else {
 						clazz.getExtensionAttributes().put(PrepareForMerger.DIFF_INSTANCE_COUNT,
@@ -330,7 +329,7 @@ public class Merger {
 	 * {@link CumulatedClazzCommunication}s. This method is used by
 	 * {@link Merger#appMerge(Application, Application)}. Two
 	 * {@link ClazzCommunication}s are identical, if they have the same source and
-	 * target {@link Application} and the same methodName.
+	 * target {@link Application} and the same operation name.
 	 *
 	 * @param aggregatedCommunications1
 	 *            list of {@link AggregatedClazzCommunication}s
@@ -364,7 +363,8 @@ public class Merger {
 					if (communication2ContainedIn1 != null) {
 						// communication is contained in version 1 and in version 2, thus the
 						// default status is not changed
-						// marked that communication exists in both versions, used for detection of
+						// add label, because communication exists in both versions, used for detection
+						// of
 						// deleted communication
 						communication2ContainedIn1.getExtensionAttributes().put("exists", true);
 
@@ -373,8 +373,8 @@ public class Merger {
 					}
 
 				}
-				// deleted communication exists in version one, but not in version two and is
-				// marked with "exists"
+				// deleted communication exists in version one, but not in version two and has
+				// label "exists"
 				final List<ClazzCommunication> deletedCommunications = clazzCommunications1.stream()
 						.filter(c1 -> c1.getSourceClazz().getFullQualifiedName()
 								.equals(aggregatedCommunication2.getSourceClazz().getFullQualifiedName()))

@@ -6,7 +6,7 @@ import net.explorviz.model.application.Clazz;
 import net.explorviz.model.application.Component;
 
 /**
- * Class for methods that compare elements from the data model, e.g.
+ * Provides methods that compare elements from the data model, e.g.,
  * {@link Component}, {@link Communication}.
  *
  * @author josw
@@ -15,9 +15,9 @@ import net.explorviz.model.application.Component;
 public class EntityComparison {
 
 	/**
-	 * Two {@link Component}s are identical, if they have the same
-	 * fullQualifiedName, the same children and {@link Clazz}es. The children and
-	 * {@link Clazz}es may be empty.
+	 * Two {@link Component}s are identical, if they have the same fully qualified
+	 * name, the same children and {@link Clazz}es. The children and {@link Clazz}es
+	 * may be empty.
 	 *
 	 * @param component1
 	 * @param component2
@@ -31,7 +31,7 @@ public class EntityComparison {
 		final List<Component> children1 = component1.getChildren();
 		final List<Component> children2 = component2.getChildren();
 
-		// fullQualifiedNames are equal -> was already checked before
+		// fully qualified names are equal -> was already checked before
 		if (clazzes1.size() == clazzes2.size()) {
 			if (clazzesEqual(clazzes1, clazzes2)) {
 				if ((children1.size() == children2.size())) {

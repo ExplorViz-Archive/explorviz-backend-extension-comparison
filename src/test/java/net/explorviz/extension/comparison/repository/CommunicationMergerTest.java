@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import net.explorviz.extension.comparison.model.Status;
 import net.explorviz.extension.comparison.util.MergerHelper;
+import net.explorviz.extension.comparison.util.PrepareForMerger;
 import net.explorviz.model.application.AggregatedClazzCommunication;
 import net.explorviz.model.application.ClazzCommunication;
 

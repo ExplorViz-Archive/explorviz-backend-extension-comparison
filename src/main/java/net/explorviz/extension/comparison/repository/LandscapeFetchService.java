@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.explorviz.api.ExtensionAPIImpl;
+import net.explorviz.extension.comparison.resources.LandscapeResourceComparing;
 import net.explorviz.model.application.Application;
 import net.explorviz.model.landscape.Landscape;
 import net.explorviz.model.landscape.Node;
@@ -11,13 +12,15 @@ import net.explorviz.model.landscape.NodeGroup;
 import net.explorviz.server.main.Configuration;
 
 /**
+ * Service for fetching landscapes (merged and replay) that is used by
+ * {@link LandscapeResourceComparing}.
  *
  * @author josw
  *
  */
 public class LandscapeFetchService {
 
-	static final Logger logger = LoggerFactory.getLogger(LandscapeFetchService.class.getName());
+	static final Logger LOGGER = LoggerFactory.getLogger(LandscapeFetchService.class.getName());
 	private static LandscapeFetchService instance;
 
 	private final ExtensionAPIImpl extensionApi = ExtensionAPIImpl.getInstance();
@@ -34,8 +37,15 @@ public class LandscapeFetchService {
 		return extensionApi.getLandscape(timestamp, Configuration.REPLAY_REPOSITORY);
 	}
 
-	// Right now this works for two landscapes, this can be extended to more than
-	// two landscapes in the future
+	/**
+	 * Takes two {@link Landscape}s and builds one merged {@link Landscape}, i.e.
+	 * {@link Landscape} with merged {@link Application}s.
+	 * 
+	 * @param firstLandscape
+	 * @param secondLandscape
+	 * @return merged {@link Landscape}, i.e. {@link Landscape} with merged
+	 *         {@link Application}s
+	 */
 	public Landscape fetchMergedLandscape(final Landscape firstLandscape, final Landscape secondLandscape) {
 		final Landscape mergedLandscape = secondLandscape;
 		Application mergedApp = null;
@@ -48,7 +58,7 @@ public class LandscapeFetchService {
 
 						final Application app1 = appContained(firstLandscape, app2Name);
 						if (app1 == null) {
-							logger.error(
+							LOGGER.error(
 									"You can not compare two complete different applications. The application {} is not contained in the other landscape.",
 									app2Name);
 						} else {
@@ -65,6 +75,13 @@ public class LandscapeFetchService {
 		return mergedLandscape;
 	}
 
+	/**
+	 * Searches {@link Application} with fully qualified name (appName).
+	 *
+	 * @param landscape
+	 * @param appName
+	 * @return if {@link Application} with name exists: return it, else: null
+	 */
 	private Application appContained(final Landscape landscape, final String appName) {
 		Application app = new Application();
 
