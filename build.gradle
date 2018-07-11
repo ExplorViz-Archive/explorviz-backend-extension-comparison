@@ -5,6 +5,13 @@ apply plugin: 'pmd'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 
+def loadProperties = {
+    def properties = new Properties()
+    file('src/main/webapp/WEB-INF/classes/explorviz.properties').withInputStream {
+        properties.load(it)
+    }
+    return properties
+}
 
 buildscript {
     repositories {
@@ -124,11 +131,11 @@ task renameProject(type: Copy) {
 
 // Embedded Webserver
 gretty {
-  httpPort = 8083
-  servletContainer = 'jetty9'
-  contextPath = '/'
-  recompileOnSourceChange = false
-  reloadOnClassChange = false
-  reloadOnConfigChange = false
-  reloadOnLibChange = false
+	httpPort = loadProperties().httpPort.toInteger()
+	servletContainer = loadProperties().servletContainer
+	contextPath = loadProperties().contextPath
+	recompileOnSourceChange = false
+  	reloadOnClassChange = false
+  	reloadOnConfigChange = false
+  	reloadOnLibChange = false
 }
