@@ -1,5 +1,5 @@
 {
-      "imgUrl": "img/comparison.svg",
+      "imgSrc": "comparison.svg",
       "requiredExtensions": [
         "backend",
         "frontend",
