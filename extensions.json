@@ -1,9 +1,9 @@
 {
       "imgSrc": "comparison.svg",
       "requiredExtensions": [
-        "backend",
-        "frontend",
-        "frontend-extension-comparison"
+        "backend_master",
+        "frontend_master",
+        "frontend-extension-comparison_master"
       ],
       "incompatibleExtensions": []
 }
