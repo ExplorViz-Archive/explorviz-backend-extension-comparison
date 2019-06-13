@@ -1,0 +1,148 @@
+plugins {
+    id 'java'
+    id 'application'
+    id "com.github.johnrengelman.shadow" version "4.0.4"
+}
+
+apply from: 'https://raw.githubusercontent.com/ExplorViz/gradle-script-plugins/master/microservice.gradle'
+
+repositories {
+    jcenter()
+    maven { url 'https://jitpack.io' }
+}
+
+
+configurations.all {
+	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+ext {
+  // Version tag for the Explorviz-Backend-Shared project dependency
+  // https://github.com/ExplorViz/explorviz-backend-shared
+  explorvizSharedVersion = 'v1.3.20'
+}
+
+dependencies {
+
+	// ExplorViz provides a project that contains shared source code classes for 
+	// different concerns. See:
+	// https://github.com/ExplorViz/explorviz-backend-shared
+
+  	// ExplorViz config injection
+  	implementation "com.github.explorviz.explorviz-backend-shared:config-injection:${explorvizSharedVersion}"
+  	
+  	// ExplorViz common exception handling
+  	implementation "com.github.explorviz.explorviz-backend-shared:exception-handling:${explorvizSharedVersion}"
+  	
+  	implementation "com.github.explorviz.explorviz-backend-shared:common-concerns:${explorvizSharedVersion}"
+  	
+  	implementation "com.github.explorviz.explorviz-backend-shared:security:${explorvizSharedVersion}"
+  	
+  	// Local linking of external project dependency instead of Jitpack
+  	//implementation project(':common-concerns')
+  	
+  	// ExplorViz landscape model
+  	implementation "com.github.explorviz.explorviz-backend-shared:landscape-model:${explorvizSharedVersion}"
+  	
+  	implementation group: 'org.apache.kafka', name: 'kafka_2.12', version: '2.2.0'
+  		
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+}
+
+// Disable standard Jar build and
+// use fat-Jar instead with all dependencies
+assemble.dependsOn shadowJar
+jar.enabled = false
+
+// Define the main class for the gradle jar task
+jar {
+  manifest {
+    attributes(
+      'Main-Class': 'net.explorviz.extension.comparison.main.Main'
+    )
+  }
+}
+
+// Define the main class for the gradle application tasks
+application {
+    mainClassName = 'net.explorviz.extension.comparison.main.Main'
+}
+
+shadowJar {
+  archiveName = "${project.name}.${extension}"
+}
+
+// Renaming Dummy task
+// Run with ./gradlew renameProject -PextensionName="X"
+task renameProject() {
+  if (project.hasProperty('extensionName')) {
+  
+	// temporary dir for modification (needed for Win OS based on current gradle implementation)
+	def tmpDir = 'tmp'
+	
+	// default src dir
+	def srcDir = 'src'
+	
+	// default base dir
+	def baseDir = '.'
+	
+	// Rename dummy package and replace dummy string import declarations
+    def newExtensionName = project.property('extensionName')
+    def javaSrcDir = srcDir + '/main/java/net/explorviz/extension/'
+	
+	println("Trying to rename backend extension from dummy to: " + newExtensionName)
+	
+	// initial setup
+	// copy src folder to tmp dir for modification
+	copy {	
+		from srcDir
+		into tmpDir + '/' + srcDir
+	}
+		
+	// delete old src folder
+	delete srcDir
+		
+	// Rename dummy package and replace dummy string import declarations
+	copy {
+		from tmpDir + '/' + javaSrcDir + 'dummy'
+		filter{it.replaceAll("\\.dummy\\.", "\\." + newExtensionName + "\\.")}
+		into javaSrcDir + newExtensionName
+	}
+		
+	// Replace dummy string in explorviz.properties
+    String file = new File(tmpDir + '/' + "src/main/resources/explorviz.properties").getText("UTF-8")
+    file = file.replaceAll("dummy-", newExtensionName + "-")
+    new File(tmpDir + '/' + "src/main/resources/explorviz.properties").write(file, "UTF-8")
+	
+	// Replace dummy string in settings.gradle
+    file = new File("settings.gradle").getText("UTF-8")
+    file = file.replaceAll("-dummy", "-" + newExtensionName)
+    new File(tmpDir + '/' + "settings.gradle").write(file, "UTF-8")
+    
+    // Replace dummy string in build.gradle
+    file = new File("build.gradle").getText("UTF-8")
+    file = file.replaceAll("extension.comparison", "extension." + newExtensionName)
+    new File(tmpDir + '/' + "build.gradle").write(file, "UTF-8")
+	
+	// java src files 
+	copy {	
+		from tmpDir + '/' + srcDir
+		into srcDir
+	}
+		
+	// settings.gradle
+	copy {	
+		from tmpDir
+		into baseDir
+		include 'settings.gradle'
+		include 'build.gradle'
+	}
+		
+	//cleanup
+	delete javaSrcDir + '/dummy'
+	delete tmpDir
+		
+	println("Backend extension renamed to: " + newExtensionName)
+  }
+}

@@ -1,0 +1,20 @@
+# Eclipse
+.settings/*
+
+# We want Findbugs settings
+!.settings/edu.umd.cs.findbugs.core.prefs
+
+# We want Eclipse Save Action settings
+!.settings/org.eclipse.jdt.ui.prefs
+
+# Gradle output and temp files
+build
+.gradle
+
+# Eclipse files (created with 'gradlew eclipse')
+bin
+.classpath
+.project
+
+# Mac Finder file
+.DS_Store
