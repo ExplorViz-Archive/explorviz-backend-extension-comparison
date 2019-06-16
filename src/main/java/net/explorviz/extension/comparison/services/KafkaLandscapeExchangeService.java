@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 public class KafkaLandscapeExchangeService implements Runnable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaLandscapeExchangeService.class);
+  
+  private final HistoryService historyService;
 
   private final KafkaConsumer<String, String> kafkaConsumer;
 
@@ -37,12 +39,14 @@ public class KafkaLandscapeExchangeService implements Runnable {
    */
   @Inject
   public KafkaLandscapeExchangeService(final LandscapeSerializationHelper serializationHelper,
+      final HistoryService historyService,
       @Config("exchange.kafka.topic.name") final String kafkaTopic,
       @Config("exchange.kafka.group.id") final String kafkaGroupId,
       @Config("exchange.kafka.bootstrap.servers") final String kafkaBootStrapServerList) {
 
     this.serializationHelper = serializationHelper;
     this.kafkaTopic = kafkaTopic;
+    this.historyService = historyService;
 
     final Properties properties = new Properties();
     properties.put("bootstrap.servers", kafkaBootStrapServerList);
@@ -82,7 +86,7 @@ public class KafkaLandscapeExchangeService implements Runnable {
 
         LOGGER.info("Serialized landscape with id {}: {}", l.getId(), serializedLandscape);
 
-        // you may persist the landscape here
+        historyService.computeHistory(l);
       }
     }
 

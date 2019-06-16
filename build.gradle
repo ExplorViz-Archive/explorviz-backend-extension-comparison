@@ -48,6 +48,12 @@ dependencies {
   		
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+    
+    // Database
+    implementation group: 'org.mongodb', name: 'mongo-java-driver', version: '3.10.1'
+    
+    // jaxb runtime
+    implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '2.4.0-b180830.0438'
 }
 
 // Disable standard Jar build and

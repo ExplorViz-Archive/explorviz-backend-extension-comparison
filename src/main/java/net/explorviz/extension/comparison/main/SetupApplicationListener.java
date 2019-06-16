@@ -23,8 +23,8 @@ public class SetupApplicationListener implements ApplicationEventListener {
   @Inject
   private KafkaLandscapeExchangeService landscapeExchangeService;
 
-  @Inject
-  private DummyService dummyService;
+  //@Inject
+ // private DummyService dummyService;
 
   @Override
   public void onEvent(final ApplicationEvent event) {
@@ -54,7 +54,7 @@ public class SetupApplicationListener implements ApplicationEventListener {
     
     new Thread(this.landscapeExchangeService).start();
 
-    dummyService.startMyDummyStuff();
+    //dummyService.startMyDummyStuff();
 
   }
 

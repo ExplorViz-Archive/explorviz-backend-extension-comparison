@@ -16,7 +16,7 @@ public class BaseModel {
 
   public BaseModel() {
 
-    if (idGenerator == null) {
+	if (idGenerator == null) {
       throw new IllegalStateException("No id generator set. Call BaseEntity.initialize() first");
     }
 

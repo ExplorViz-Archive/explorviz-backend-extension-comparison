@@ -3,6 +3,7 @@ package net.explorviz.extension.comparison.main;
 import net.explorviz.extension.comparison.model.DummyModel;
 import net.explorviz.extension.comparison.model.SubDummyModel;
 import net.explorviz.extension.comparison.resources.TestResource;
+import net.explorviz.extension.comparison.services.HistoryService;
 import net.explorviz.shared.common.provider.GenericTypeFinder;
 import net.explorviz.shared.common.provider.JsonApiListProvider;
 import net.explorviz.shared.common.provider.JsonApiProvider;
@@ -41,5 +42,7 @@ public class Application extends ResourceConfig {
 
     // Starting point for your DI-based extension
     this.register(SetupApplicationListener.class);
+    
+    register(HistoryService.class);
   }
 }
