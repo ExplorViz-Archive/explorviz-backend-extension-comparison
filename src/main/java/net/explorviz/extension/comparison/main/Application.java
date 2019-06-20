@@ -2,8 +2,10 @@ package net.explorviz.extension.comparison.main;
 
 import net.explorviz.extension.comparison.model.DummyModel;
 import net.explorviz.extension.comparison.model.SubDummyModel;
+import net.explorviz.extension.comparison.resources.ComparisonResource;
 import net.explorviz.extension.comparison.resources.TestResource;
 import net.explorviz.extension.comparison.services.HistoryService;
+import net.explorviz.extension.comparison.services.PersistenceService;
 import net.explorviz.shared.common.provider.GenericTypeFinder;
 import net.explorviz.shared.common.provider.JsonApiListProvider;
 import net.explorviz.shared.common.provider.JsonApiProvider;
@@ -44,5 +46,7 @@ public class Application extends ResourceConfig {
     this.register(SetupApplicationListener.class);
     
     register(HistoryService.class);
+    register(ComparisonResource.class);
+    register(PersistenceService.class);
   }
 }

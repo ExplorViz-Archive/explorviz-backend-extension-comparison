@@ -86,7 +86,7 @@ public class KafkaLandscapeExchangeService implements Runnable {
 
         LOGGER.info("Serialized landscape with id {}: {}", l.getId(), serializedLandscape);
 
-        historyService.computeHistory(l);
+        //historyService.computeHistory(l);
       }
     }
 
