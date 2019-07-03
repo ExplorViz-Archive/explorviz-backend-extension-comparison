@@ -1,10 +1,20 @@
 package net.explorviz.extension.comparison.services;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import net.explorviz.shared.landscape.model.application.Application;
+import net.explorviz.shared.landscape.model.application.Clazz;
 import net.explorviz.shared.landscape.model.application.Component;
+import net.explorviz.shared.landscape.model.landscape.Landscape;
+import net.explorviz.shared.landscape.model.landscape.Node;
+import net.explorviz.shared.landscape.model.landscape.NodeGroup;
+import net.explorviz.shared.landscape.model.landscape.System;
 
 public class MergerHelper {
 	private MergerHelper() {
@@ -26,5 +36,32 @@ public class MergerHelper {
 
 		return flatComponents;
 	}
-
+	
+	public static Map<String, Clazz> getAllClazzes(Collection<Component> collection) {
+		Map<String, Clazz> clazzes= new HashMap<>();
+		
+		for(Component component : collection) {
+			for(Clazz clazz : component.getClazzes()) {
+				clazzes.put(clazz.getFullQualifiedName(), clazz);
+			}
+		}
+		
+		return clazzes;
+	}
+	
+	public static Map<String, Application> getApplicationsFromLandscape(Landscape landscape) {
+		Map<String, Application> applications = new HashMap<>();
+		
+		for(System system : landscape.getSystems()) {
+			for(NodeGroup nodeGroup : system.getNodeGroups()) {
+				for(Node node : nodeGroup.getNodes()) {
+					for(Application application : node.getApplications()) {
+						applications.put(application.getName(), application);
+					}
+				}
+			}
+		}
+		
+		return applications;
+	}
 }

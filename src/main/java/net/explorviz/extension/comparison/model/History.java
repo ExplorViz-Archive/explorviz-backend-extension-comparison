@@ -9,6 +9,7 @@ import net.explorviz.extension.comparison.services.Status;
 public class History {
 	
 	private Map<String, Map<Long, Status>> componentHistory = new HashMap<>();
+	private Map<String, Map<Long, Status>> clazzHistory = new HashMap<>();
 	
 	public History() {
 		
@@ -24,6 +25,14 @@ public class History {
 	
 	public Map<String, Map<Long, Status>> getComponentHistory() {
 		return componentHistory;
+	}
+	
+	public void addHistoryToClazz(String clazzName, long timestamp, Status status) {
+		if(!clazzHistory.containsKey(clazzName)) {
+			clazzHistory.put(clazzName, new LinkedHashMap<>());
+		}
+		
+		clazzHistory.get(clazzName).put(timestamp, status);
 	}
 
 }

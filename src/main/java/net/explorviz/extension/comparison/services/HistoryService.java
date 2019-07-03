@@ -1,16 +1,13 @@
 package net.explorviz.extension.comparison.services;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.explorviz.extension.comparison.model.History;
+import net.explorviz.shared.landscape.model.application.Application;
+import net.explorviz.shared.landscape.model.application.Clazz;
 import net.explorviz.shared.landscape.model.application.Component;
 import net.explorviz.shared.landscape.model.landscape.Landscape;
 
@@ -18,54 +15,78 @@ public class HistoryService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
 
 	public History computeHistory(List<Landscape> landscapes) {
-		Landscape lastLandscape = landscapes.get(0);
-		//initializeComponents(mergedLandscape.getSystems().get(0).getNodeGroups().get(0).getNodes().get(0)
-				//.getApplications().get(0).getComponents());
-		
 		History history = new History();
 
-		for (int i = 1; i < landscapes.size(); i++) {
-			computeLandscapeDifference(lastLandscape, landscapes.get(i), history);
-			lastLandscape = landscapes.get(i);
+		for (int i = 0; i < landscapes.size() - 1; i++) {
+			compareLandscapes(landscapes.get(i), landscapes.get(i + 1), history);
 		}
 
 		return history;
 	}
 
-	private void computeLandscapeDifference(Landscape mergedLandscape, Landscape additionalLandscape, History history) {
-		Map<String, Component> mergedComponents = MergerHelper.flatComponents(mergedLandscape.getSystems().get(0).getNodeGroups()
-				.get(0).getNodes().get(0).getApplications().get(0).getComponents());
-		Map<String, Component> additionalComponents = MergerHelper.flatComponents(additionalLandscape.getSystems().get(0)
-				.getNodeGroups().get(0).getNodes().get(0).getApplications().get(0).getComponents());
-		
-		long timestamp = additionalLandscape.getTimestamp().getTimestamp();
+	private void compareLandscapes(Landscape oldLandscape, Landscape newLandscape, History history) {
+		Map<String, Application> oldApplications = MergerHelper.getApplicationsFromLandscape(oldLandscape);
+		Map<String, Application> newApplications = MergerHelper.getApplicationsFromLandscape(oldLandscape);
 
-		//Map<Component, Status> history = new HashMap<>();
+		long timestamp = newLandscape.getTimestamp().getTimestamp();
 
-		for (Map.Entry<String, Component> component : mergedComponents.entrySet()) {
-			if (!additionalComponents.containsKey(component.getKey())) {
-				history.addHistoryToComponent(component.getValue().getFullQualifiedName(), timestamp, Status.REMOVED);
-			} 
+		for (Map.Entry<String, Application> oldApplication : oldApplications.entrySet()) {
+			Application newApplication = newApplications.get(oldApplication.getKey());
+
+			if (newApplication != null) {
+				compareComponentsAndClazzes(oldApplication.getValue().getComponents(), newApplication.getComponents(), history,
+						timestamp);
+			} else {
+				markApplication(newApplication, history, timestamp, Status.REMOVED);
+			}
 		}
 
-		for (Map.Entry<String, Component> component : additionalComponents.entrySet()) {
-			if (!mergedComponents.containsKey(component.getKey())) {
-				history.addHistoryToComponent(component.getValue().getFullQualifiedName(), timestamp, Status.ADDED);
-			} 
+		for (Map.Entry<String, Application> newApplication : newApplications.entrySet()) {
+			if (!oldApplications.containsKey(newApplication.getKey())) {
+				markApplication(newApplication.getValue(), history, timestamp, Status.ADDED);
+			}
+		}
+	}
+
+	private void markApplication(Application application, History history, long timestamp, Status status) {
+		for (Component component : application.getComponents()) {
+			history.addHistoryToComponent(component.getFullQualifiedName(), timestamp, status);
 		}
 
 	}
 
-	private void initializeComponents(List<Component> components) {
-		for (Component component : components) {
-			List<Component> children = component.getChildren();
+	private void compareComponentsAndClazzes(List<Component> oldComponents, List<Component> newComponents, History history,
+			long timestamp) {
 
-			if (children.isEmpty()) {
-				component.getExtensionAttributes().put("Status", Status.ORIGINAL);
-				component.getExtensionAttributes().put("History", new LinkedHashMap<Long, Status>());
-			} else {
-				initializeComponents(children);
+		Map<String, Component> flatOldComponents = MergerHelper.flatComponents(oldComponents);
+		Map<String, Component> flatNewComponents = MergerHelper.flatComponents(newComponents);
+
+		for (Map.Entry<String, Component> component : flatOldComponents.entrySet()) {
+			if (!flatNewComponents.containsKey(component.getKey())) {
+				history.addHistoryToComponent(component.getValue().getFullQualifiedName(), timestamp, Status.REMOVED);
 			}
 		}
+
+		for (Map.Entry<String, Component> component : flatNewComponents.entrySet()) {
+			if (!flatOldComponents.containsKey(component.getKey())) {
+				history.addHistoryToComponent(component.getValue().getFullQualifiedName(), timestamp, Status.ADDED);
+			}
+		}
+		
+		Map<String, Clazz> oldClazzes = MergerHelper.getAllClazzes(flatOldComponents.values());
+		Map<String, Clazz> newClazzes = MergerHelper.getAllClazzes(flatNewComponents.values());
+		
+		for (Map.Entry<String, Clazz> clazz : oldClazzes.entrySet()) {
+			if (!newClazzes.containsKey(clazz.getKey())) {
+				history.addHistoryToClazz(clazz.getValue().getFullQualifiedName(), timestamp, Status.REMOVED);
+			}
+		}
+
+		for (Map.Entry<String, Clazz> clazz : newClazzes.entrySet()) {
+			if (!oldClazzes.containsKey(clazz.getKey())) {
+				history.addHistoryToComponent(clazz.getValue().getFullQualifiedName(), timestamp, Status.ADDED);
+			}
+		}
+
 	}
 }
