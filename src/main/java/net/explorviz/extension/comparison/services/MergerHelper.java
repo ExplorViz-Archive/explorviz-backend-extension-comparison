@@ -1,13 +1,9 @@
 package net.explorviz.extension.comparison.services;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import net.explorviz.shared.landscape.model.application.Application;
 import net.explorviz.shared.landscape.model.application.Clazz;
 import net.explorviz.shared.landscape.model.application.Component;
@@ -17,6 +13,9 @@ import net.explorviz.shared.landscape.model.landscape.NodeGroup;
 import net.explorviz.shared.landscape.model.landscape.System;
 
 public class MergerHelper {
+	
+	public static final String STATUS = "Status";
+	
 	private MergerHelper() {
 
 	}
