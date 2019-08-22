@@ -1,9 +1,9 @@
 package net.explorviz.extension.comparison.main;
 
-import net.explorviz.extension.comparison.model.DummyModel;
+import net.explorviz.extension.comparison.model.History;
 import net.explorviz.extension.comparison.model.SubDummyModel;
 import net.explorviz.extension.comparison.resources.ComparisonResource;
-import net.explorviz.extension.comparison.resources.TestResource;
+import net.explorviz.extension.comparison.resources.HistoryResource;
 import net.explorviz.extension.comparison.services.HistoryService;
 import net.explorviz.extension.comparison.services.PersistenceService;
 import net.explorviz.shared.common.provider.GenericTypeFinder;
@@ -19,7 +19,7 @@ public class Application extends ResourceConfig {
 
   public Application() {
 
-    GenericTypeFinder.getTypeMap().put("DummyModel", DummyModel.class);
+    GenericTypeFinder.getTypeMap().put("DummyModel", History.class);
     GenericTypeFinder.getTypeMap().put("SubDummyModel", SubDummyModel.class);
 
     // register Landscape Model classes, since we want to use them
@@ -39,14 +39,12 @@ public class Application extends ResourceConfig {
     this.register(JsonApiProvider.class);
     this.register(JsonApiListProvider.class);
 
-    // register the TestResource
-    register(TestResource.class);
-
     // Starting point for your DI-based extension
     this.register(SetupApplicationListener.class);
     
     register(HistoryService.class);
     register(ComparisonResource.class);
     register(PersistenceService.class);
+    register(HistoryResource.class);
   }
 }

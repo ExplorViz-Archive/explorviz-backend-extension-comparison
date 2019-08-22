@@ -4,15 +4,25 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.github.jasminb.jsonapi.annotations.Type;
+
 import net.explorviz.extension.comparison.services.Status;
 
-public class History {
-	
+@Type("history")
+public class History extends BaseModel {
 	private Map<String, Map<Long, Status>> componentHistory = new HashMap<>();
 	private Map<String, Map<Long, Status>> clazzHistory = new HashMap<>();
-	
-	public History() {
-		
+
+	public void setComponentHistory(Map<String, Map<Long, Status>> componentHistory) {
+		this.componentHistory = componentHistory;
+	}
+
+	public Map<String, Map<Long, Status>> getClazzHistory() {
+		return clazzHistory;
+	}
+
+	public void setClazzHistory(Map<String, Map<Long, Status>> clazzHistory) {
+		this.clazzHistory = clazzHistory;
 	}
 	
 	public void addHistoryToComponent(String componentName, long timestamp, Status status) {
@@ -35,4 +45,7 @@ public class History {
 		clazzHistory.get(clazzName).put(timestamp, status);
 	}
 
+	public History() {
+		// default constructor for JSON API parsing
+	}
 }

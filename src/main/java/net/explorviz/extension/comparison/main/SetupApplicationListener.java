@@ -2,8 +2,14 @@ package net.explorviz.extension.comparison.main;
 
 import javax.inject.Inject;
 import javax.servlet.annotation.WebListener;
-import net.explorviz.extension.comparison.services.DummyService;
+
+import net.explorviz.extension.comparison.model.BaseModel;
 import net.explorviz.extension.comparison.services.KafkaLandscapeExchangeService;
+import net.explorviz.shared.common.idgen.AtomicEntityIdGenerator;
+import net.explorviz.shared.common.idgen.IdGenerator;
+import net.explorviz.shared.common.idgen.UuidServiceIdGenerator;
+import net.explorviz.shared.config.annotations.Config;
+
 import org.glassfish.jersey.server.monitoring.ApplicationEvent;
 import org.glassfish.jersey.server.monitoring.ApplicationEvent.Type;
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
@@ -19,6 +25,9 @@ import org.slf4j.LoggerFactory;
 public class SetupApplicationListener implements ApplicationEventListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SetupApplicationListener.class);
+  
+  @Config("service.prefix")
+  String prefix;
 
   @Inject
   private KafkaLandscapeExchangeService landscapeExchangeService;
@@ -54,7 +63,7 @@ public class SetupApplicationListener implements ApplicationEventListener {
     
     new Thread(this.landscapeExchangeService).start();
 
-    //dummyService.startMyDummyStuff();
+    BaseModel.initialize(new IdGenerator(new UuidServiceIdGenerator(), new AtomicEntityIdGenerator(), prefix));
 
   }
 

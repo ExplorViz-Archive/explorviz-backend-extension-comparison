@@ -24,13 +24,14 @@ public class KafkaLandscapeExchangeService implements Runnable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaLandscapeExchangeService.class);
   
-  private final HistoryService historyService;
+  private final PersistenceService persistenceService;
 
   private final KafkaConsumer<String, String> kafkaConsumer;
 
   private final LandscapeSerializationHelper serializationHelper;
 
   private final String kafkaTopic;
+  
 
   /**
    * Exchange service for consuming landscape objects via Kafka topics. Started by @see
@@ -39,14 +40,14 @@ public class KafkaLandscapeExchangeService implements Runnable {
    */
   @Inject
   public KafkaLandscapeExchangeService(final LandscapeSerializationHelper serializationHelper,
-      final HistoryService historyService,
+      final PersistenceService persistenceService,
       @Config("exchange.kafka.topic.name") final String kafkaTopic,
       @Config("exchange.kafka.group.id") final String kafkaGroupId,
       @Config("exchange.kafka.bootstrap.servers") final String kafkaBootStrapServerList) {
 
     this.serializationHelper = serializationHelper;
     this.kafkaTopic = kafkaTopic;
-    this.historyService = historyService;
+    this.persistenceService = persistenceService;
 
     final Properties properties = new Properties();
     properties.put("bootstrap.servers", kafkaBootStrapServerList);
@@ -84,9 +85,9 @@ public class KafkaLandscapeExchangeService implements Runnable {
           continue;
         }
 
-        LOGGER.info("Serialized landscape with id {}: {}", l.getId(), serializedLandscape);
+        //LOGGER.info("Serialized landscape with id {}: {}", l.getId(), serializedLandscape);
 
-        //historyService.computeHistory(l);
+        persistenceService.save(l.getTimestamp().getTimestamp(), serializedLandscape);
       }
     }
 

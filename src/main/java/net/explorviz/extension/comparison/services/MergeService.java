@@ -3,16 +3,22 @@ package net.explorviz.extension.comparison.services;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.explorviz.shared.landscape.model.application.Application;
 import net.explorviz.shared.landscape.model.application.Clazz;
 import net.explorviz.shared.landscape.model.application.Component;
 import net.explorviz.shared.landscape.model.landscape.Landscape;
 
 public class MergeService {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(MergeService.class);
 
 	public Landscape mergeLandscapes(Landscape landscape1, Landscape landscape2) {
 		Map<String, Application> applications1 = MergerHelper.getApplicationsFromLandscape(landscape1);
-		Map<String, Application> applications2 = MergerHelper.getApplicationsFromLandscape(landscape1);
+		Map<String, Application> applications2 = MergerHelper.getApplicationsFromLandscape(landscape2);
 
 		for (Map.Entry<String, Application> application : applications2.entrySet()) {
 			if (applications1.containsKey(application.getKey())) {

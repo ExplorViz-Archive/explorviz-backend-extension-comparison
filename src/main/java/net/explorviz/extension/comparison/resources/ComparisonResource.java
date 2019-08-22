@@ -1,8 +1,5 @@
 package net.explorviz.extension.comparison.resources;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -12,30 +9,27 @@ import javax.ws.rs.QueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.explorviz.extension.comparison.services.HistoryService;
+import net.explorviz.extension.comparison.services.MergeService;
 import net.explorviz.extension.comparison.services.PersistenceService;
 import net.explorviz.shared.landscape.model.landscape.Landscape;
 
 @Path(value = "merged")
 @PermitAll
 public class ComparisonResource {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(ComparisonResource.class);
-	
+
 	@Inject
-	private HistoryService historyService;
-	
+	private MergeService mergeService;
+
 	@Inject
 	private PersistenceService persistanceService;
-	
+
 	@GET
-	public Landscape getMergedLandscape(@QueryParam("timestamps") final List<String> timestamps) {
-		List<Landscape> landscapes = new ArrayList<>(timestamps.size());
+	public Landscape getMergedLandscape(@QueryParam("timestamp1") final long timestamp1,
+			@QueryParam("timestamp2") final long timestamp2) {
 		
-		for(String timestamp : timestamps) {
-			landscapes.add(persistanceService.retrieveLandscapeByTimestamp(Long.parseLong(timestamp)));
-		}
-		
-		return null;
+		return mergeService.mergeLandscapes(persistanceService.retrieveLandscapeByTimestamp(timestamp1),
+				persistanceService.retrieveLandscapeByTimestamp(timestamp2));
 	}
 }
