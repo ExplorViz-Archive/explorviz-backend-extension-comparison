@@ -17,7 +17,7 @@ import net.explorviz.extension.comparison.services.HistoryService;
 import net.explorviz.extension.comparison.services.PersistenceService;
 import net.explorviz.shared.landscape.model.landscape.Landscape;
 
-@Path(value = "history")
+@Path(value = "histories")
 @PermitAll
 public class HistoryResource {
 	

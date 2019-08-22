@@ -13,7 +13,7 @@ import net.explorviz.extension.comparison.services.MergeService;
 import net.explorviz.extension.comparison.services.PersistenceService;
 import net.explorviz.shared.landscape.model.landscape.Landscape;
 
-@Path(value = "merged")
+@Path(value = "merged-landscapes")
 @PermitAll
 public class ComparisonResource {
 

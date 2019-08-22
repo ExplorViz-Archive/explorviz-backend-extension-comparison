@@ -1,7 +1,6 @@
 package net.explorviz.extension.comparison.main;
 
 import net.explorviz.extension.comparison.model.History;
-import net.explorviz.extension.comparison.model.SubDummyModel;
 import net.explorviz.extension.comparison.resources.ComparisonResource;
 import net.explorviz.extension.comparison.resources.HistoryResource;
 import net.explorviz.extension.comparison.services.HistoryService;
@@ -18,9 +17,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 public class Application extends ResourceConfig {
 
   public Application() {
-
-    GenericTypeFinder.getTypeMap().put("DummyModel", History.class);
-    GenericTypeFinder.getTypeMap().put("SubDummyModel", SubDummyModel.class);
+    GenericTypeFinder.getTypeMap().put("History", History.class);
 
     // register Landscape Model classes, since we want to use them
     TypeProvider.getExplorVizCoreTypesAsMap().forEach((classname, classRef) -> {
@@ -31,16 +28,16 @@ public class Application extends ResourceConfig {
     register(new DependencyInjectionBinder());
 
     // Security
-    this.register(AuthenticationFilter.class);
-    this.register(AuthorizationFilter.class);
-    this.register(CorsResponseFilter.class);
+    register(AuthenticationFilter.class);
+    register(AuthorizationFilter.class);
+    register(CorsResponseFilter.class);
 
     // register providers
-    this.register(JsonApiProvider.class);
-    this.register(JsonApiListProvider.class);
+    register(JsonApiProvider.class);
+    register(JsonApiListProvider.class);
 
     // Starting point for your DI-based extension
-    this.register(SetupApplicationListener.class);
+    register(SetupApplicationListener.class);
     
     register(HistoryService.class);
     register(ComparisonResource.class);

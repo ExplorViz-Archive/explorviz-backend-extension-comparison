@@ -54,6 +54,8 @@ dependencies {
     
     // jaxb runtime
     implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '2.4.0-b180830.0438'
+    
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
 }
 
 // Disable standard Jar build and
