@@ -1,5 +1,6 @@
 package net.explorviz.extension.comparison.resources;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,9 +13,11 @@ import javax.ws.rs.QueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
+
 import net.explorviz.extension.comparison.model.History;
 import net.explorviz.extension.comparison.services.HistoryService;
-import net.explorviz.extension.comparison.services.PersistenceService;
+import net.explorviz.extension.comparison.services.LandscapeRetrievalService;
 import net.explorviz.shared.landscape.model.landscape.Landscape;
 
 @Path(value = "histories")
@@ -27,14 +30,14 @@ public class HistoryResource {
 	private HistoryService historyService;
 	
 	@Inject
-	private PersistenceService persistanceService;
+	private LandscapeRetrievalService landscapeRetrievalService;
 	
 	@GET
-	public History getMergedLandscape(@QueryParam("timestamps") final List<String> timestamps) {
+	public History getMergedLandscape(@QueryParam("timestamps") final List<Long> timestamps) throws IOException, DocumentSerializationException {
 		List<Landscape> landscapes = new ArrayList<>(timestamps.size());
 		
-		for(String timestamp : timestamps) {
-			landscapes.add(persistanceService.retrieveLandscapeByTimestamp(Long.parseLong(timestamp)));
+		for(Long timestamp : timestamps) {
+			landscapes.add(landscapeRetrievalService.retrieveLandscapeByTimestamp(timestamp));
 		}
 		
 		return historyService.computeHistory(landscapes);

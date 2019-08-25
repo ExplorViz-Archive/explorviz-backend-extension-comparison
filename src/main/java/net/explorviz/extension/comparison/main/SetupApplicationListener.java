@@ -1,10 +1,8 @@
 package net.explorviz.extension.comparison.main;
 
-import javax.inject.Inject;
 import javax.servlet.annotation.WebListener;
 
 import net.explorviz.extension.comparison.model.BaseModel;
-import net.explorviz.extension.comparison.services.KafkaLandscapeExchangeService;
 import net.explorviz.shared.common.idgen.AtomicEntityIdGenerator;
 import net.explorviz.shared.common.idgen.IdGenerator;
 import net.explorviz.shared.common.idgen.UuidServiceIdGenerator;
@@ -29,12 +27,6 @@ public class SetupApplicationListener implements ApplicationEventListener {
   @Config("service.prefix")
   String prefix;
 
-  @Inject
-  private KafkaLandscapeExchangeService landscapeExchangeService;
-
-  //@Inject
- // private DummyService dummyService;
-
   @Override
   public void onEvent(final ApplicationEvent event) {
 
@@ -56,16 +48,13 @@ public class SetupApplicationListener implements ApplicationEventListener {
 
   private void startExtension() {
     LOGGER.info("* * * * * * * * * * * * * * * * * * *\n");
-    LOGGER.info("Dummy Extension Servlet initialized.\n");
+    LOGGER.info("Comparison Extension Servlet initialized.\n");
     LOGGER.info("* * * * * * * * * * * * * * * * * * *");
 
     // add your DI injected code here for full DI context access
     
-    new Thread(this.landscapeExchangeService).start();
+    // new Thread(this.landscapeExchangeService).start();
 
     BaseModel.initialize(new IdGenerator(new UuidServiceIdGenerator(), new AtomicEntityIdGenerator(), prefix));
-
   }
-
-
 }

@@ -85,7 +85,7 @@ public class KafkaLandscapeExchangeService implements Runnable {
           continue;
         }
 
-        //LOGGER.info("Serialized landscape with id {}: {}", l.getId(), serializedLandscape);
+        //LOGGER.info("Serialized landscape with timestamp {}: {}", l.getTimestamp().getTimestamp(), serializedLandscape);
 
         persistenceService.save(l.getTimestamp().getTimestamp(), serializedLandscape);
       }
