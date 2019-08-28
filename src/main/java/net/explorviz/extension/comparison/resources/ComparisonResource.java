@@ -15,7 +15,6 @@ import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 
 import net.explorviz.extension.comparison.services.LandscapeRetrievalService;
 import net.explorviz.extension.comparison.services.MergeService;
-import net.explorviz.extension.comparison.services.PersistenceService;
 import net.explorviz.shared.landscape.model.landscape.Landscape;
 
 @Path(value = "merged-landscapes")

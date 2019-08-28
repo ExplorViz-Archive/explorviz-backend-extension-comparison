@@ -37,7 +37,7 @@ public class HistoryService {
 				compareComponentsAndClazzes(oldApplication.getValue().getComponents(), newApplication.getComponents(), history,
 						timestamp);
 			} else {
-				markApplication(newApplication, history, timestamp, Status.REMOVED);
+				markApplication(newApplication, history, timestamp, Status.DELETED);
 			}
 		}
 
@@ -63,7 +63,7 @@ public class HistoryService {
 
 		for (Map.Entry<String, Component> component : flatOldComponents.entrySet()) {
 			if (!flatNewComponents.containsKey(component.getKey())) {
-				history.addHistoryToComponent(component.getValue().getFullQualifiedName(), timestamp, Status.REMOVED);
+				history.addHistoryToComponent(component.getValue().getFullQualifiedName(), timestamp, Status.DELETED);
 			}
 		}
 
@@ -78,7 +78,7 @@ public class HistoryService {
 		
 		for (Map.Entry<String, Clazz> clazz : oldClazzes.entrySet()) {
 			if (!newClazzes.containsKey(clazz.getKey())) {
-				history.addHistoryToClazz(clazz.getValue().getFullQualifiedName(), timestamp, Status.REMOVED);
+				history.addHistoryToClazz(clazz.getValue().getFullQualifiedName(), timestamp, Status.DELETED);
 			}
 		}
 

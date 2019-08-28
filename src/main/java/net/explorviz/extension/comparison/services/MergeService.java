@@ -1,7 +1,9 @@
 package net.explorviz.extension.comparison.services;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -56,6 +58,16 @@ public class MergeService {
 	private void mergeApplications(Application application1, Application application2) {
 		Map<String, Component> components1 = MergerHelper.flatComponents(application1.getComponents());
 		Map<String, Component> components2 = MergerHelper.flatComponents(application2.getComponents());
+		
+		List<String> applications = new ArrayList<>();
+		
+		application1.getComponents().forEach((component) -> applications.add(component.getFullQualifiedName()));
+		
+		LOGGER.info(applications.toString());
+		//LOGGER.info(application2.getComponents().toString());
+		
+		LOGGER.info(String.join(",", components1.keySet()));
+		LOGGER.info(String.join(",", components2.keySet()));
 
 		for (Map.Entry<String, Component> component : components2.entrySet()) {
 			if (components1.containsKey(component.getKey())) {
@@ -65,7 +77,7 @@ public class MergeService {
 			}
 		}
 
-		Map<String, Component> orphanComponents = new HashMap<>();
+		Map<String, Component> addedComponentsTo2 = new HashMap<>();
 
 		for (Map.Entry<String, Component> component : components1.entrySet()) {
 			if (!components2.containsKey(component.getKey())) {
@@ -79,24 +91,19 @@ public class MergeService {
 
 						parentIn2.getChildren().add(component.getValue());
 						component.getValue().setParentComponent(parentIn2);
-						components2.put(component.getKey(), component.getValue());
-
-						if (orphanComponents.containsKey(component.getValue().getFullQualifiedName())) {
-							
-						}
-					} else {
-						orphanComponents.put(parentIn1.getFullQualifiedName(), component.getValue());
-					}
-
+					} 
+					addedComponentsTo2.put(component.getKey(), component.getValue());
 				}
 
-				component.getValue().getExtensionAttributes().put(MergerHelper.STATUS, Status.REMOVED);
+				component.getValue().getExtensionAttributes().put(MergerHelper.STATUS, Status.DELETED);
 			}
 		}
 
 		Map<String, Clazz> clazzes1 = MergerHelper.getAllClazzes(components1.values());
 		Map<String, Clazz> clazzes2 = MergerHelper.getAllClazzes(components2.values());
-
+		
+		components2.putAll(addedComponentsTo2);
+		
 		for (Map.Entry<String, Clazz> clazz : clazzes2.entrySet()) {
 			if (clazzes1.containsKey(clazz.getKey())) {
 				clazz.getValue().getExtensionAttributes().put(MergerHelper.STATUS, Status.ORIGINAL);
@@ -111,12 +118,8 @@ public class MergeService {
 
 				clazz.getValue().setParent(clazzParent);
 				clazzParent.getClazzes().add(clazz.getValue());
-				clazz.getValue().getExtensionAttributes().put(MergerHelper.STATUS, Status.REMOVED);
+				clazz.getValue().getExtensionAttributes().put(MergerHelper.STATUS, Status.DELETED);
 			}
 		}
-	}
-	
-	private void addComponentToComponent(Component parentComponent, Component childComponent) {
-		
 	}
 }
