@@ -26,7 +26,7 @@ public class HistoryService {
 
 	private void compareLandscapes(Landscape oldLandscape, Landscape newLandscape, History history) {
 		Map<String, Application> oldApplications = MergerHelper.getApplicationsFromLandscape(oldLandscape);
-		Map<String, Application> newApplications = MergerHelper.getApplicationsFromLandscape(oldLandscape);
+		Map<String, Application> newApplications = MergerHelper.getApplicationsFromLandscape(newLandscape);
 
 		long timestamp = newLandscape.getTimestamp().getTimestamp();
 
@@ -37,7 +37,7 @@ public class HistoryService {
 				compareComponentsAndClazzes(oldApplication.getValue().getComponents(), newApplication.getComponents(), history,
 						timestamp);
 			} else {
-				markApplication(newApplication, history, timestamp, Status.DELETED);
+				markApplication(oldApplication.getValue(), history, timestamp, Status.DELETED);
 			}
 		}
 

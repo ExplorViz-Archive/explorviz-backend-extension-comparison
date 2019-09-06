@@ -18,6 +18,7 @@ import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import net.explorviz.extension.comparison.model.History;
 import net.explorviz.extension.comparison.services.HistoryService;
 import net.explorviz.extension.comparison.services.LandscapeRetrievalService;
+import net.explorviz.extension.comparison.services.Status;
 import net.explorviz.shared.landscape.model.landscape.Landscape;
 
 @Path(value = "histories")
@@ -39,6 +40,10 @@ public class HistoryResource {
 		for(Long timestamp : timestamps) {
 			landscapes.add(landscapeRetrievalService.retrieveLandscapeByTimestamp(timestamp));
 		}
+		
+		landscapes.forEach((landscape) -> {
+			LOGGER.info(Long.toString(landscape.getTimestamp().getTimestamp()));
+		});
 		
 		return historyService.computeHistory(landscapes);
 	}

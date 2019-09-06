@@ -59,15 +59,9 @@ public class MergeService {
 		Map<String, Component> components1 = MergerHelper.flatComponents(application1.getComponents());
 		Map<String, Component> components2 = MergerHelper.flatComponents(application2.getComponents());
 		
-		List<String> applications = new ArrayList<>();
+		List<String> components = new ArrayList<>();
 		
-		application1.getComponents().forEach((component) -> applications.add(component.getFullQualifiedName()));
-		
-		LOGGER.info(applications.toString());
-		//LOGGER.info(application2.getComponents().toString());
-		
-		LOGGER.info(String.join(",", components1.keySet()));
-		LOGGER.info(String.join(",", components2.keySet()));
+		application1.getComponents().forEach((component) -> components.add(component.getFullQualifiedName()));
 
 		for (Map.Entry<String, Component> component : components2.entrySet()) {
 			if (components1.containsKey(component.getKey())) {
