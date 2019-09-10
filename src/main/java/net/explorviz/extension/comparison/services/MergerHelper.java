@@ -8,6 +8,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.explorviz.shared.landscape.model.application.AggregatedClazzCommunication;
 import net.explorviz.shared.landscape.model.application.Application;
 import net.explorviz.shared.landscape.model.application.Clazz;
 import net.explorviz.shared.landscape.model.application.Component;
@@ -27,7 +28,7 @@ public class MergerHelper {
 
 	public static Map<String, Component> flatComponents(List<Component> components) {
 		Map<String, Component> flatComponents = new HashMap<>();
-		
+
 		flatComponentsInternal(components, flatComponents);
 
 		return flatComponents;
@@ -70,5 +71,17 @@ public class MergerHelper {
 		}
 
 		return applications;
+	}
+
+	public static Map<String, AggregatedClazzCommunication> prepareCommuncations(
+			List<AggregatedClazzCommunication> communcations) {
+		Map<String, AggregatedClazzCommunication> newCommunications = new HashMap<>();
+
+		for (AggregatedClazzCommunication communication : communcations) {
+			newCommunications.put(communication.getSourceClazz().getFullQualifiedName() + " "
+					+ communication.getTargetClazz().getFullQualifiedName(), communication);
+		}
+		
+		return newCommunications;
 	}
 }

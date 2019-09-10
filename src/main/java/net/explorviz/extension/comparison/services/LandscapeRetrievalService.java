@@ -75,6 +75,11 @@ public class LandscapeRetrievalService {
 		landscapeConnection.setRequestMethod("GET");
 		landscapeConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
 		landscapeConnection.setRequestProperty("Authorization", "Bearer " + token);
+		
+		if(landscapeConnection.getResponseCode() == 403) {
+			getToken();
+			return retrieveLandscapeByTimestamp(timestamp);
+		}
 
 		final InputStream inputStream = landscapeConnection.getInputStream();
 		String jsonString = IOUtils.toString(inputStream, StandardCharsets.UTF_8);

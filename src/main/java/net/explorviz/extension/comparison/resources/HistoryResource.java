@@ -18,7 +18,6 @@ import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import net.explorviz.extension.comparison.model.History;
 import net.explorviz.extension.comparison.services.HistoryService;
 import net.explorviz.extension.comparison.services.LandscapeRetrievalService;
-import net.explorviz.extension.comparison.services.Status;
 import net.explorviz.shared.landscape.model.landscape.Landscape;
 
 @Path(value = "histories")
@@ -34,16 +33,12 @@ public class HistoryResource {
 	private LandscapeRetrievalService landscapeRetrievalService;
 	
 	@GET
-	public History getMergedLandscape(@QueryParam("timestamps") final List<Long> timestamps) throws IOException, DocumentSerializationException {
+	public History getMergedLandscape(@QueryParam("timestamps[]") final List<Long> timestamps) throws IOException, DocumentSerializationException {
 		List<Landscape> landscapes = new ArrayList<>(timestamps.size());
 		
 		for(Long timestamp : timestamps) {
 			landscapes.add(landscapeRetrievalService.retrieveLandscapeByTimestamp(timestamp));
 		}
-		
-		landscapes.forEach((landscape) -> {
-			LOGGER.info(Long.toString(landscape.getTimestamp().getTimestamp()));
-		});
 		
 		return historyService.computeHistory(landscapes);
 	}

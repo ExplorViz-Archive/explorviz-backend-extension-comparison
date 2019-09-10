@@ -1,5 +1,6 @@
 package net.explorviz.extension.comparison.main;
 
+import net.explorviz.extension.comparison.model.CommunicationHistory;
 import net.explorviz.extension.comparison.model.History;
 import net.explorviz.extension.comparison.resources.ComparisonResource;
 import net.explorviz.extension.comparison.resources.HistoryResource;
@@ -22,6 +23,7 @@ public class Application extends ResourceConfig {
   public Application() {
     GenericTypeFinder.getTypeMap().put("History", History.class);
     GenericTypeFinder.getTypeMap().put("User", User.class);
+    GenericTypeFinder.getTypeMap().put("CommunicationHistory", CommunicationHistory.class);
 
     // register Landscape Model classes, since we want to use them
     TypeProvider.getExplorVizCoreTypesAsMap().forEach((classname, classRef) -> {
