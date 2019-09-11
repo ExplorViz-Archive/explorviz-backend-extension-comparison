@@ -51,20 +51,21 @@ public class HistoryService {
 
 	private void markApplication(Application application, History history, long timestamp, Status status) {
 		application.getExtensionAttributes().put(MergerHelper.STATUS, status);
+		history.addApplication(application.getName());
 
 		Collection<Component> components = MergerHelper.flatComponents(application.getComponents()).values();
 		Collection<Clazz> clazzes = MergerHelper.getAllClazzes(components).values();
 
 		for (Component component : application.getComponents()) {
-			history.addHistoryToComponent(component.getFullQualifiedName(), timestamp, status);
+			history.addHistoryToComponent(application.getName(), component.getFullQualifiedName(), timestamp, status);
 		}
 
 		for (Clazz clazz : clazzes) {
-			history.addHistoryToClazz(clazz.getFullQualifiedName(), timestamp, status);
+			history.addHistoryToClazz(application.getName(), clazz.getFullQualifiedName(), timestamp, status);
 		}
 
 		for (AggregatedClazzCommunication communication : application.getAggregatedClazzCommunications()) {
-			history.addHistoryToCommunication(communication.getSourceClazz().getFullQualifiedName(),
+			history.addHistoryToCommunication(application.getName(), communication.getSourceClazz().getFullQualifiedName(),
 					communication.getTargetClazz().getFullQualifiedName(), timestamp, status);
 		}
 
@@ -75,16 +76,21 @@ public class HistoryService {
 
 		Map<String, Component> flatOldComponents = MergerHelper.flatComponents(oldApplication.getComponents());
 		Map<String, Component> flatNewComponents = MergerHelper.flatComponents(newApplication.getComponents());
+		
+		assert oldApplication.getName() == newApplication.getName();
+		String applicationName = oldApplication.getName();
+		
+		history.addApplication(applicationName);
 
 		for (Map.Entry<String, Component> component : flatOldComponents.entrySet()) {
 			if (!flatNewComponents.containsKey(component.getKey())) {
-				history.addHistoryToComponent(component.getValue().getFullQualifiedName(), timestamp, Status.DELETED);
+				history.addHistoryToComponent(applicationName, component.getValue().getFullQualifiedName(), timestamp, Status.DELETED);
 			}
 		}
 
 		for (Map.Entry<String, Component> component : flatNewComponents.entrySet()) {
 			if (!flatOldComponents.containsKey(component.getKey())) {
-				history.addHistoryToComponent(component.getValue().getFullQualifiedName(), timestamp, Status.ADDED);
+				history.addHistoryToComponent(applicationName, component.getValue().getFullQualifiedName(), timestamp, Status.ADDED);
 			}
 		}
 
@@ -93,13 +99,13 @@ public class HistoryService {
 
 		for (Map.Entry<String, Clazz> clazz : oldClazzes.entrySet()) {
 			if (!newClazzes.containsKey(clazz.getKey())) {
-				history.addHistoryToClazz(clazz.getValue().getFullQualifiedName(), timestamp, Status.DELETED);
+				history.addHistoryToClazz(applicationName, clazz.getValue().getFullQualifiedName(), timestamp, Status.DELETED);
 			}
 		}
 
 		for (Map.Entry<String, Clazz> clazz : newClazzes.entrySet()) {
 			if (!oldClazzes.containsKey(clazz.getKey())) {
-				history.addHistoryToComponent(clazz.getValue().getFullQualifiedName(), timestamp, Status.ADDED);
+				history.addHistoryToComponent(applicationName, clazz.getValue().getFullQualifiedName(), timestamp, Status.ADDED);
 			}
 		}
 
@@ -110,14 +116,14 @@ public class HistoryService {
 
 		for (Map.Entry<String, AggregatedClazzCommunication> communication : communications2.entrySet()) {
 			if (!communications1.containsKey(communication.getKey())) {
-				history.addHistoryToCommunication(communication.getValue().getSourceClazz().getFullQualifiedName(),
+				history.addHistoryToCommunication(applicationName, communication.getValue().getSourceClazz().getFullQualifiedName(),
 						communication.getValue().getTargetClazz().getFullQualifiedName(), timestamp, Status.ADDED);
 			}
 		}
 
 		for (Map.Entry<String, AggregatedClazzCommunication> communication : communications1.entrySet()) {
 			if (!communications2.containsKey(communication.getKey())) {
-				history.addHistoryToCommunication(communication.getValue().getSourceClazz().getFullQualifiedName(),
+				history.addHistoryToCommunication(applicationName, communication.getValue().getSourceClazz().getFullQualifiedName(),
 						communication.getValue().getTargetClazz().getFullQualifiedName(), timestamp, Status.DELETED);
 			}
 		}

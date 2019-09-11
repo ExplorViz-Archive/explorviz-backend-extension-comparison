@@ -1,5 +1,6 @@
 package net.explorviz.extension.comparison.model;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import net.explorviz.extension.comparison.services.Status;
 public class CommunicationHistory extends BaseModel {
 	private String sourceClazz;
 	private String targetClazz;
+	private String application;
 
 	private Map<Long, Status> history = new HashMap<>();
 
@@ -18,9 +20,10 @@ public class CommunicationHistory extends BaseModel {
 
 	}
 
-	public CommunicationHistory(String sourceClazz, String targetClazz) {
+	public CommunicationHistory(String application, String sourceClazz, String targetClazz) {
 		this.sourceClazz = sourceClazz;
 		this.targetClazz = targetClazz;
+		this.setApplication(application);
 	}
 
 	public void addHistory(long timestamp, Status status) {
@@ -51,6 +54,14 @@ public class CommunicationHistory extends BaseModel {
 
 	public void setTargetClazz(String targetClazz) {
 		this.targetClazz = targetClazz;
+	}
+
+	public String getApplication() {
+		return application;
+	}
+
+	public void setApplication(String application) {
+		this.application = application;
 	}
 
 	public Map<Long, Status> getHistory() {

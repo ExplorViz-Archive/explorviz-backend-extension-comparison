@@ -1,6 +1,7 @@
 package net.explorviz.extension.comparison.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,8 +14,8 @@ import net.explorviz.extension.comparison.services.Status;
 
 @Type("history")
 public class History extends BaseModel {
-	private Map<String, Map<Long, Status>> componentHistory = new HashMap<>();
-	private Map<String, Map<Long, Status>> clazzHistory = new HashMap<>();
+	private Map<String, Map<String, Map<Long, Status>>> componentHistory = new HashMap<>();
+	private Map<String, Map<String, Map<Long, Status>>> clazzHistory = new HashMap<>();
 	
 	@Relationship("communicationHistory")
 	private List<CommunicationHistory> communicationHistory = new ArrayList<>();
@@ -22,19 +23,19 @@ public class History extends BaseModel {
 	public History() {
 	}
 
-	public Map<String, Map<Long, Status>> getComponentHistory() {
+	public Map<String, Map<String, Map<Long, Status>>> getComponentHistory() {
 		return componentHistory;
 	}
 
-	public void setComponentHistory(Map<String, Map<Long, Status>> componentHistory) {
+	public void setComponentHistory(Map<String, Map<String, Map<Long, Status>>> componentHistory) {
 		this.componentHistory = componentHistory;
 	}
 
-	public Map<String, Map<Long, Status>> getClazzHistory() {
+	public Map<String, Map<String, Map<Long, Status>>> getClazzHistory() {
 		return clazzHistory;
 	}
 
-	public void setClazzHistory(Map<String, Map<Long, Status>> clazzHistory) {
+	public void setClazzHistory(Map<String, Map<String, Map<Long, Status>>> clazzHistory) {
 		this.clazzHistory = clazzHistory;
 	}
 
@@ -46,7 +47,20 @@ public class History extends BaseModel {
 		this.communicationHistory = communicationHistory;
 	}
 
-	public void addHistoryToComponent(String componentName, long timestamp, Status status) {
+	public void addApplication(String applicationName) {
+		if(!componentHistory.containsKey(applicationName)) {
+			componentHistory.put(applicationName, new HashMap<>());
+		}
+		
+		if(!clazzHistory.containsKey(applicationName)) {
+			clazzHistory.put(applicationName, new HashMap<>());
+		}
+
+	}
+	
+	public void addHistoryToComponent(String applicationName, String componentName, long timestamp, Status status) {
+		Map<String, Map<Long, Status>> componentHistory = this.componentHistory.get(applicationName);
+		
 		if (!componentHistory.containsKey(componentName)) {
 			componentHistory.put(componentName, new LinkedHashMap<>());
 		}
@@ -54,7 +68,9 @@ public class History extends BaseModel {
 		componentHistory.get(componentName).put(timestamp, status);
 	}
 
-	public void addHistoryToClazz(String clazzName, long timestamp, Status status) {
+	public void addHistoryToClazz(String applicationName, String clazzName, long timestamp, Status status) {
+		Map<String, Map<Long, Status>> clazzHistory = this.clazzHistory.get(applicationName);
+		
 		if (!clazzHistory.containsKey(clazzName)) {
 			clazzHistory.put(clazzName, new LinkedHashMap<>());
 		}
@@ -62,8 +78,8 @@ public class History extends BaseModel {
 		clazzHistory.get(clazzName).put(timestamp, status);
 	}
 
-	public void addHistoryToCommunication(String sourceClazz, String targetClazz, long timestamp, Status status) {
-		CommunicationHistory clazzPair = new CommunicationHistory(sourceClazz, targetClazz);
+	public void addHistoryToCommunication(String applicationName, String sourceClazz, String targetClazz, long timestamp, Status status) {
+		CommunicationHistory clazzPair = new CommunicationHistory(applicationName, sourceClazz, targetClazz);
 		int index = communicationHistory.indexOf(clazzPair);
 		
 		if (index == -1) {
