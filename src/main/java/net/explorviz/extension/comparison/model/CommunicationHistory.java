@@ -1,6 +1,5 @@
 package net.explorviz.extension.comparison.model;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +7,9 @@ import com.github.jasminb.jsonapi.annotations.Type;
 
 import net.explorviz.extension.comparison.services.Status;
 
+/**
+ * Represents the history of a single communication.
+ */
 @Type("communicationHistory")
 public class CommunicationHistory extends BaseModel {
 	private String sourceClazz;
@@ -20,24 +22,27 @@ public class CommunicationHistory extends BaseModel {
 
 	}
 
+	/**
+	 * Creates a new communication history.
+	 * 
+	 * @param application the name of the application
+	 * @param sourceClazz the full qualified name of the source clazz of the communication
+	 * @param targetClazz the full qualified name of the target clazz of the communication
+	 */
 	public CommunicationHistory(String application, String sourceClazz, String targetClazz) {
 		this.sourceClazz = sourceClazz;
 		this.targetClazz = targetClazz;
-		this.setApplication(application);
+		this.application = application;
 	}
 
+	/**
+	 * Adds a new entry to this communication history.
+	 * 
+	 * @param timestamp the timestamp of the change
+	 * @param status the change that occured
+	 */
 	public void addHistory(long timestamp, Status status) {
 		history.put(timestamp, status);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof CommunicationHistory) {
-			CommunicationHistory otherClazzPair = (CommunicationHistory) obj;
-			return otherClazzPair.sourceClazz.equals(sourceClazz) && otherClazzPair.targetClazz.equals(targetClazz);
-		}
-
-		return false;
 	}
 
 	public String getSourceClazz() {

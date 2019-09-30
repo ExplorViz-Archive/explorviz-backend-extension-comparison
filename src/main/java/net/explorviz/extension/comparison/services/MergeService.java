@@ -4,9 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.explorviz.shared.landscape.model.application.AggregatedClazzCommunication;
 import net.explorviz.shared.landscape.model.application.Application;
 import net.explorviz.shared.landscape.model.application.Clazz;
@@ -16,29 +13,41 @@ import net.explorviz.shared.landscape.model.landscape.Node;
 import net.explorviz.shared.landscape.model.landscape.NodeGroup;
 import net.explorviz.shared.landscape.model.landscape.System;
 
+/**
+ * A service that merges two landscapes.
+ */
 public class MergeService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MergeService.class);
-
+	/**
+	 * Merges two landscapes
+	 * 
+	 * @param landscape1 the first version
+	 * @param landscape2 the second version
+	 * @return the merged landscape
+	 */
 	public Landscape mergeLandscapes(Landscape landscape1, Landscape landscape2) {
 		Map<String, Application> applications1 = MergerHelper.getApplicationsFromLandscape(landscape1);
 		Map<String, Application> applications2 = MergerHelper.getApplicationsFromLandscape(landscape2);
 
-		for (Map.Entry<String, Application> application : applications2.entrySet()) {
-			if (applications1.containsKey(application.getKey())) {
-				application.getValue().getExtensionAttributes().put(MergerHelper.STATUS, Status.ORIGINAL);
-				mergeApplications(applications1.get(application.getKey()), application.getValue());
+		for (Map.Entry<String, Application> application2 : applications2.entrySet()) {
+			Application application1 = applications1.get(application2.getKey());
+
+			if (application1 != null) {
+				application2.getValue().getExtensionAttributes().put(MergerHelper.STATUS, Status.ORIGINAL);
+				mergeApplications(application1, application2.getValue());
 			} else {
-				markApplication(application.getValue(), Status.ADDED);
+				markApplication(application2.getValue(), Status.ADDED);
 			}
 		}
 
 		for (Map.Entry<String, Application> application : applications1.entrySet()) {
 			if (!applications2.containsKey(application.getKey())) {
+				// get all entities the application is contained in
 				Node node = application.getValue().getParent();
 				NodeGroup nodeGroup = node.getParent();
 				System system = nodeGroup.getParent();
 
+				// test if those entities already exist in landscape 2
 				int systemIndex = indexOfSystem(landscape2, system.getName());
 
 				if (systemIndex != -1) {
@@ -107,6 +116,12 @@ public class MergeService {
 		return -1;
 	}
 
+	/**
+	 * Marks an application with a single status.
+	 * 
+	 * @param application the application to mark
+	 * @param status the status to mark
+	 */
 	private void markApplication(Application application, Status status) {
 		application.getExtensionAttributes().put(MergerHelper.STATUS, status);
 
@@ -126,7 +141,15 @@ public class MergeService {
 		}
 	}
 
+	/**
+	 * Merges two applications together.
+	 * 
+	 * @param application1 the first version
+	 * @param application2 the second version
+	 */
 	private void mergeApplications(Application application1, Application application2) {
+		
+		// compare components
 		Map<String, Component> components1 = MergerHelper.flatComponents(application1.getComponents());
 		Map<String, Component> components2 = MergerHelper.flatComponents(application2.getComponents());
 
@@ -142,14 +165,17 @@ public class MergeService {
 
 		for (Map.Entry<String, Component> component : components1.entrySet()) {
 			if (!components2.containsKey(component.getKey())) {
+				// component gets added to the second application
 				Component parentIn1 = component.getValue().getParentComponent();
 
 				if (parentIn1 == null) {
+					// component is a top level component
 					application2.getComponents().add(component.getValue());
 				} else {
-					if (components2.containsKey(parentIn1.getFullQualifiedName())) {
-						Component parentIn2 = components2.get(parentIn1.getFullQualifiedName());
+					Component parentIn2 = components2.get(parentIn1.getFullQualifiedName());
 
+					if (parentIn2 != null) {
+						// component gets added as a child
 						parentIn2.getChildren().add(component.getValue());
 						component.getValue().setParentComponent(parentIn2);
 					}
@@ -160,9 +186,11 @@ public class MergeService {
 			}
 		}
 
+		// compare clazzes
 		Map<String, Clazz> clazzes1 = MergerHelper.getAllClazzes(components1.values());
 		Map<String, Clazz> clazzes2 = MergerHelper.getAllClazzes(components2.values());
 
+		// add the added components so they can be found by the clazzes
 		components2.putAll(addedComponentsTo2);
 
 		for (Map.Entry<String, Clazz> clazz : clazzes2.entrySet()) {
@@ -175,6 +203,8 @@ public class MergeService {
 
 		for (Map.Entry<String, Clazz> clazz : clazzes1.entrySet()) {
 			if (!clazzes2.containsKey(clazz.getKey())) {
+				
+				// add clazz to the second application
 				Component clazzParent = components2.get(clazz.getValue().getParent().getFullQualifiedName());
 
 				clazz.getValue().setParent(clazzParent);
@@ -183,6 +213,7 @@ public class MergeService {
 			}
 		}
 
+		// compare communications
 		Map<String, AggregatedClazzCommunication> communications1 = MergerHelper
 				.prepareCommuncations(application1.getAggregatedClazzCommunications());
 		Map<String, AggregatedClazzCommunication> communications2 = MergerHelper
@@ -198,6 +229,7 @@ public class MergeService {
 
 		for (Map.Entry<String, AggregatedClazzCommunication> communication : communications1.entrySet()) {
 			if (!communications2.containsKey(communication.getKey())) {
+				// add the communication to the second application
 				application2.getAggregatedClazzCommunications().add(communication.getValue());
 				communication.getValue().getExtensionAttributes().put(MergerHelper.STATUS, Status.DELETED);
 			}

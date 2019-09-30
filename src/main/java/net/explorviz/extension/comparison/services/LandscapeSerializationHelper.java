@@ -1,10 +1,13 @@
 package net.explorviz.extension.comparison.services;
 
+import java.util.List;
+
+import javax.inject.Inject;
+
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
-import java.util.List;
-import javax.inject.Inject;
+
 import net.explorviz.shared.landscape.model.landscape.Landscape;
 
 /**

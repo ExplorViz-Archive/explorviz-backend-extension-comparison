@@ -3,11 +3,9 @@ package net.explorviz.extension.comparison.main;
 import javax.inject.Singleton;
 
 import net.explorviz.extension.comparison.services.HistoryService;
-import net.explorviz.extension.comparison.services.KafkaLandscapeExchangeService;
 import net.explorviz.extension.comparison.services.LandscapeRetrievalService;
 import net.explorviz.extension.comparison.services.LandscapeSerializationHelper;
 import net.explorviz.extension.comparison.services.MergeService;
-import net.explorviz.extension.comparison.services.PersistenceService;
 import net.explorviz.shared.common.injection.CommonDependencyInjectionBinder;
 
 /**
@@ -26,11 +24,7 @@ public class DependencyInjectionBinder extends CommonDependencyInjectionBinder {
 		
 		this.bind(HistoryService.class).to(HistoryService.class).in(Singleton.class);
 
-		this.bind(KafkaLandscapeExchangeService.class).to(KafkaLandscapeExchangeService.class).in(Singleton.class);
-
 		this.bind(LandscapeSerializationHelper.class).to(LandscapeSerializationHelper.class).in(Singleton.class);
-		
-		this.bind(PersistenceService.class).to(PersistenceService.class).in(Singleton.class);
 		
 		this.bind(MergeService.class).to(MergeService.class).in(Singleton.class);
 		

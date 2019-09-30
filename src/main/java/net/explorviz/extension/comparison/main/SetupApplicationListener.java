@@ -2,12 +2,6 @@ package net.explorviz.extension.comparison.main;
 
 import javax.servlet.annotation.WebListener;
 
-import net.explorviz.extension.comparison.model.BaseModel;
-import net.explorviz.shared.common.idgen.AtomicEntityIdGenerator;
-import net.explorviz.shared.common.idgen.IdGenerator;
-import net.explorviz.shared.common.idgen.UuidServiceIdGenerator;
-import net.explorviz.shared.config.annotations.Config;
-
 import org.glassfish.jersey.server.monitoring.ApplicationEvent;
 import org.glassfish.jersey.server.monitoring.ApplicationEvent.Type;
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
@@ -15,6 +9,12 @@ import org.glassfish.jersey.server.monitoring.RequestEvent;
 import org.glassfish.jersey.server.monitoring.RequestEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.explorviz.extension.comparison.model.BaseModel;
+import net.explorviz.shared.common.idgen.AtomicEntityIdGenerator;
+import net.explorviz.shared.common.idgen.IdGenerator;
+import net.explorviz.shared.common.idgen.UuidServiceIdGenerator;
+import net.explorviz.shared.config.annotations.Config;
 
 /**
  * Primary starting class - executed, when the servlet context is started.
@@ -50,10 +50,6 @@ public class SetupApplicationListener implements ApplicationEventListener {
     LOGGER.info("* * * * * * * * * * * * * * * * * * *\n");
     LOGGER.info("Comparison Extension Servlet initialized.\n");
     LOGGER.info("* * * * * * * * * * * * * * * * * * *");
-
-    // add your DI injected code here for full DI context access
-    
-    // new Thread(this.landscapeExchangeService).start();
 
     BaseModel.initialize(new IdGenerator(new UuidServiceIdGenerator(), new AtomicEntityIdGenerator(), prefix));
   }

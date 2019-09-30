@@ -3,6 +3,7 @@ package net.explorviz.extension.comparison.model;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.github.jasminb.jsonapi.annotations.Id;
+
 import net.explorviz.shared.common.idgen.IdGenerator;
 
 // Needed for cyclical serialization

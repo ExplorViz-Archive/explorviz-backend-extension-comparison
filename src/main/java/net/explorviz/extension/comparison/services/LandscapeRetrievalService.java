@@ -11,10 +11,6 @@ import java.nio.charset.StandardCharsets;
 import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
@@ -24,13 +20,15 @@ import net.explorviz.shared.config.annotations.Config;
 import net.explorviz.shared.landscape.model.landscape.Landscape;
 import net.explorviz.shared.security.model.User;
 
+/**
+ * Provides a service to retrieve landscapes from the HistoryService
+ *
+ */
 public class LandscapeRetrievalService {
 	private String urlPath;
 	private URL authUrl;
-	//private URL refreshUrl;
 
 	private LandscapeSerializationHelper landscapeSerializationHelper;
-	private static final Logger LOGGER = LoggerFactory.getLogger(LandscapeRetrievalService.class);
 	private final ResourceConverter jsonApiConverter;
 
 	private String token;
@@ -52,8 +50,7 @@ public class LandscapeRetrievalService {
 
 		this.urlPath = "http://" + landscapeHost + ":" + landscapePort + landscapePath;
 		this.authUrl = new URL("http", authHost, authPort, authPath);
-		//this.refreshUrl = new URL(authUrl.toString() + "/refresh");
-
+		
 		this.username = username;
 		this.password = password;
 
@@ -66,21 +63,32 @@ public class LandscapeRetrievalService {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/**
+	 * Retrieves a single landscape.
+	 * 
+	 * @param timestamp the timestamp of the landscape
+	 * @return the retrieved landscape
+	 * @throws IOException
+	 * @throws DocumentSerializationException
+	 */
 	public Landscape retrieveLandscapeByTimestamp(long timestamp) throws IOException, DocumentSerializationException {
 		final HttpURLConnection landscapeConnection = (HttpURLConnection) new URL(urlPath + "?timestamp=" + timestamp)
 				.openConnection();
 
+		// set connection options
 		landscapeConnection.setDoInput(true);
 		landscapeConnection.setRequestMethod("GET");
 		landscapeConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
 		landscapeConnection.setRequestProperty("Authorization", "Bearer " + token);
 		
+		// get a new token if the the access was denied
 		if(landscapeConnection.getResponseCode() == 403) {
 			getToken();
 			return retrieveLandscapeByTimestamp(timestamp);
 		}
 
+		// retrieve the answer
 		final InputStream inputStream = landscapeConnection.getInputStream();
 		String jsonString = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
 		inputStream.close();
@@ -89,21 +97,29 @@ public class LandscapeRetrievalService {
 
 	}
 
+	/**
+	 * Gets a new token from the user service.
+	 * 
+	 * @throws IOException
+	 */
 	private void getToken() throws IOException {
 		final HttpURLConnection authConnection = (HttpURLConnection) authUrl.openConnection();
 		String query = "{ \"username\": \"" + this.username + "\", \"password\": \"" + this.password + "\" }";
 
+		// set connection options
 		authConnection.setDoInput(true);
 		authConnection.setDoOutput(true);
 		authConnection.setRequestMethod("POST");
 		authConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
 		authConnection.setRequestProperty("Content-Length", Integer.toString(query.length()));
 
+		// send data
 		OutputStreamWriter writer = new OutputStreamWriter(authConnection.getOutputStream());
 		writer.write(query);
 		writer.flush();
 		writer.close();
 
+		// retrieve the answer and store it
 		final InputStream inputStream = authConnection.getInputStream();
 		String jsonString = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
 		inputStream.close();
@@ -113,21 +129,4 @@ public class LandscapeRetrievalService {
 		this.token = document.get().getToken();
 
 	}
-	
-	/*
-	private void refreshToken() throws IOException {
-		final HttpURLConnection authConnection = (HttpURLConnection) refreshUrl.openConnection();
-		
-		authConnection.setDoInput(true);
-		authConnection.setRequestMethod("POST");
-		authConnection.setRequestProperty("Accept", "application/json");
-		authConnection.setRequestProperty("Authorization", "Bearer " + token);
-		
-		final InputStream inputStream = authConnection.getInputStream();
-		String jsonString = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-		inputStream.close();
-		
-		final JSONAPIDocument<Token> document = jsonApiConverter.readDocument(jsonString.getBytes(), User.class);
-	}
-	*/
 }
