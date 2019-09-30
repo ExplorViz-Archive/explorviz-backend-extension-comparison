@@ -2,7 +2,7 @@
 
 This repository holds an extension for [ExplorViz Backend](https://github.com/ExplorViz/explorviz-backend) that enables software architecture comparison in ExplorViz.
 
-The related frontend extension is [explorviz-frontend-extension-comparison](https://github.com/ExplorViz/explorviz-frontend-extension-comparison/tree/dte)
+The related frontend extension is [explorviz-frontend-extension-comparison](https://github.com/ExplorViz/explorviz-frontend-extension-comparison/tree/dte).
 
 ## Requirements
 - [ExplorViz Frontend](https://github.com/ExplorViz/explorviz-frontend)
